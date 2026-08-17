@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#5B4FE8">
+<meta name="description" content="DevLog — registre seus estudos, cumpra metas diárias e acompanhe a evolução da sua carreira.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,13 +27,16 @@
   --amarelo:#F2B705;
   --texto:#1C1B33;
   --texto-fraco:#6B6B85;
-  --linha:#E3E1F5;
-  --campo:#F4F3FC;
+  --linha:#D9D8EC;
+  --campo:#FFFFFF;
+  /* cartão lavanda do protótipo (não é branco puro) */
+  --cartao:#E9E9F4;
+  --cartao-alt:#F3F3FA;
   --chart:#7C6FD6;
   --chart-linha:#9B3FE0;
-  --r:16px;
+  --r:18px;
   --r-sm:10px;
-  --sombra:0 4px 14px rgba(24,20,70,.10);
+  --sombra:0 4px 14px rgba(24,20,70,.14);
   --fonte:"Segoe UI",Roboto,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -61,7 +65,7 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 /* ---------- Barra de navegação ---------- */
 #nav{
   display:none;margin:14px 14px 0;background:var(--nav);
-  border-radius:22px;padding:8px 6px;
+  border-radius:999px;padding:8px 6px;
   justify-content:space-around;align-items:center;
   box-shadow:var(--sombra);flex:0 0 auto;
 }
@@ -69,11 +73,11 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .nav-btn{
   display:flex;flex-direction:column;align-items:center;gap:3px;
   color:#C9C6F2;font-size:10.5px;font-weight:600;padding:4px 10px;
-  border-radius:12px;transition:color .15s,background .15s;
+  border-radius:14px;transition:color .15s,background .15s;
 }
 .nav-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;
   stroke-linecap:round;stroke-linejoin:round}
-.nav-btn.ativo{color:#fff;background:rgba(255,255,255,.13)}
+.nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
 
 /* ---------- Área rolável ---------- */
 #palco{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:14px 14px 28px;-webkit-overflow-scrolling:touch}
@@ -82,9 +86,15 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 @keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* Título da página, sobre o fundo roxo (como no protótipo) */
+.pagina-titulo{
+  color:#fff;font-size:17px;font-weight:800;text-align:center;
+  margin:4px 0 12px;letter-spacing:.01em;text-shadow:0 2px 8px rgba(0,0,0,.22);
+}
+
 /* ---------- Cartões ---------- */
-.card{background:var(--branco);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sombra)}
-.card h2{margin:0 0 10px;font-size:16px;text-align:center;font-weight:700}
+.card{background:var(--cartao);border-radius:var(--r);padding:16px 14px;margin-bottom:12px;box-shadow:var(--sombra)}
+.card h2{margin:0 0 12px;font-size:16px;text-align:center;font-weight:800;color:var(--texto)}
 .card h3{margin:0 0 8px;font-size:13.5px;font-weight:700;color:var(--texto-fraco);letter-spacing:.02em;text-transform:uppercase}
 .legenda{font-size:12px;color:var(--texto-fraco);margin:0 0 10px;line-height:1.45}
 
@@ -92,7 +102,7 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .campo{margin-bottom:10px}
 .campo label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px;color:var(--texto)}
 .campo input,.campo select,.campo textarea{
-  width:100%;padding:9px 11px;border:1px solid var(--linha);border-radius:var(--r-sm);
+  width:100%;padding:10px 11px;border:1px solid var(--linha);border-radius:var(--r-sm);
   background:var(--campo);color:var(--texto);
 }
 .campo input::placeholder{color:#A6A4BE}
@@ -100,49 +110,59 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .dupla{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tripla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
-.btn{display:block;width:100%;padding:11px;border-radius:var(--r-sm);font-weight:700;font-size:14.5px;
+.btn{display:block;width:100%;padding:11px;border-radius:999px;font-weight:700;font-size:14.5px;
   transition:transform .1s,filter .15s}
 .btn:active{transform:scale(.98)}
 .btn-azul{background:var(--azul);color:#fff}
 .btn-roxo{background:var(--roxo);color:#fff}
 .btn-verde{background:var(--verde-esc);color:#fff}
 .btn-vermelho{background:var(--vermelho);color:#fff}
-.btn-cinza{background:#DDDCEC;color:#3A3960}
+.btn-cinza{background:#D6D5E7;color:#3A3960}
 .btn-linha{background:#fff;border:1.6px solid var(--roxo);color:var(--roxo)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn-par{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* Seletores em pílula (tipo, frequência, acumulativo, sexo…) */
+/* Seletores em pílula (tipo, frequência, acumulativo…) */
 .pills{display:flex;gap:6px;flex-wrap:wrap}
 .pill{flex:1 1 auto;text-align:center;padding:8px 6px;border:1.5px solid var(--linha);
   border-radius:999px;font-size:12.5px;font-weight:600;color:var(--texto-fraco);background:#fff;min-width:70px}
 .pill.on{background:var(--roxo);border-color:var(--roxo);color:#fff}
 .pill.on.verde{background:var(--verde-esc);border-color:var(--verde-esc)}
 
-.check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;margin:8px 0}
+/* Rádios do "Cargo Atual" — linha de bolinhas, como no protótipo */
+.radios{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2px}
+.radio{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1 1 60px;
+  font-size:10.5px;font-weight:600;color:var(--texto-fraco);background:none;padding:2px 0}
+.radio i{width:18px;height:18px;border-radius:50%;border:2px solid #A9A7C6;background:#fff;
+  display:block;flex:0 0 auto;position:relative}
+.radio.on{color:var(--roxo)}
+.radio.on i{border-color:var(--roxo)}
+.radio.on i::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--roxo)}
+
+.check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;margin:10px 0}
 .check input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--roxo);flex:0 0 auto}
 
 /* ---------- Login ---------- */
 #tela-login .marca{text-align:center;color:#fff;font-size:38px;font-weight:800;letter-spacing:.01em;
   margin:34px 0 20px;text-shadow:0 3px 10px rgba(0,0,0,.25)}
 #tela-login .marca small{display:block;font-size:12.5px;font-weight:500;opacity:.85;letter-spacing:.06em;margin-top:4px}
-.link{display:block;text-align:center;font-size:12.5px;color:var(--azul);text-decoration:underline;margin:10px 0;background:none}
+.link{display:block;width:100%;text-align:center;font-size:12.5px;color:var(--azul);text-decoration:underline;margin:10px 0;background:none}
 .erro{color:var(--vermelho);font-size:12.5px;margin:6px 0 0;min-height:16px;font-weight:600}
 
 /* ---------- Dashboard ---------- */
 .perfil-topo{display:flex;flex-direction:column;align-items:center;margin-bottom:14px}
 .avatar{width:86px;height:86px;border-radius:50%;border:4px solid #fff;object-fit:cover;background:#DDDCEC;
   display:block;box-shadow:var(--sombra)}
-.avatar-nome{color:#fff;font-size:20px;font-weight:800;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,.2)}
+.avatar-nome{color:#fff;font-size:20px;font-weight:800;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,.25)}
 .avatar-cargo{color:#E4E1FF;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
 
-.barra{position:relative;height:22px;background:#DDDCEC;border-radius:999px;overflow:hidden}
+.barra{position:relative;height:24px;background:#C9C7DE;border-radius:999px;overflow:hidden}
 .barra i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--verde),var(--verde-esc));
   border-radius:999px;transition:width .5s ease}
 .barra b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;color:#1C1B33;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+  font-size:12px;font-weight:800;color:#1C1B33;text-shadow:0 1px 0 rgba(255,255,255,.55)}
 
-.escada{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--texto-fraco);font-weight:600}
+.escada{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--texto-fraco);font-weight:600}
 .escada span.on{color:var(--roxo)}
 
 .placares{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
@@ -150,11 +170,14 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .placar .val{font-size:22px;font-weight:800;margin-top:2px}
 
 /* ---------- Listas ---------- */
-.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--linha)}
-.item:last-child{border-bottom:none}
+/* Linhas “em faixa”, como no protótipo (fundo alternado + cantos) */
+.item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;background:#fff;margin-bottom:6px}
+.item:nth-child(even){background:var(--cartao-alt)}
+.item:last-child{margin-bottom:0}
 .item .info{flex:1 1 auto;min-width:0}
 .item .nome{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item .sub{font-size:11px;color:var(--texto-fraco);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.item .qtd{font-size:12.5px;font-weight:700;color:var(--texto-fraco);flex:0 0 auto}
 .tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
 .tag.acum{background:#FFF0C9;color:#8A6300}
 .tag.fixo{background:#E7E5FB;color:#4A3FC9}
@@ -163,15 +186,21 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 
 .icone-btn{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
   flex:0 0 auto;color:#fff;font-size:15px}
-.icone-btn.play{background:var(--azul)}
+.icone-btn.play{background:var(--azul);border-radius:50%;font-size:13px}
 .icone-btn.edit{background:var(--azul)}
 .icone-btn.del{background:var(--vermelho)}
 .icone-btn.done{background:var(--verde-esc)}
-.relogio{font-variant-numeric:tabular-nums;font-weight:800;font-size:13px;background:var(--nav);color:#fff;
-  padding:6px 9px;border-radius:8px;flex:0 0 auto;letter-spacing:.02em}
-.marcador{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--linha);background:#fff;
-  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:transparent;font-weight:900;font-size:14px}
+.relogio{font-variant-numeric:tabular-nums;font-weight:800;font-size:12px;background:var(--nav);color:#fff;
+  padding:7px 9px;border-radius:999px;flex:0 0 auto;letter-spacing:.02em}
+.relogio.pronto{background:var(--verde-esc)}
+/* círculo de conclusão das tarefas de estudo */
+.marcador{width:28px;height:28px;border-radius:50%;border:2.5px solid #B9B7D2;background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#B9B7D2;font-weight:900;font-size:14px}
 .marcador.on{background:var(--verde-esc);border-color:var(--verde-esc);color:#fff}
+/* caixa quadrada azul das tarefas mensais */
+.caixa{width:24px;height:24px;border-radius:6px;border:2px solid #B9B7D2;background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:transparent;font-weight:900;font-size:14px}
+.caixa.on{background:var(--azul);border-color:var(--azul);color:#fff}
 
 .vazio{text-align:center;color:var(--texto-fraco);font-size:12.5px;padding:18px 8px;line-height:1.5}
 
@@ -196,6 +225,7 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 .modal .selo.perigo{background:var(--vermelho)}
 .modal h3{margin:0 0 6px;font-size:17px}
 .modal p{margin:0 0 14px;font-size:13px;color:var(--texto-fraco);line-height:1.5}
+#md-botoes .btn-par{margin-top:0}
 
 /* ---------- Cronômetro em foco ---------- */
 #foco{position:fixed;inset:0;background:linear-gradient(160deg,#4A3FD1,#2B2A63);display:none;
@@ -213,15 +243,15 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 .controles{display:flex;gap:14px}
 .ctrl{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:22px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3)}
-.ctrl.play{background:var(--verde-esc)}
+.ctrl.play{background:var(--azul)}
 .ctrl.pausa{background:var(--azul)}
 .ctrl.para{background:var(--vermelho)}
 .ctrl.fechar{background:rgba(255,255,255,.2)}
 
 /* ---------- Aviso flutuante ---------- */
-#aviso{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120%);background:var(--nav);color:#fff;
+#aviso{position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);background:var(--nav);color:#fff;
   padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;transition:transform .28s ease;
-  box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center}
+  box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center;pointer-events:none}
 #aviso.on{transform:translate(-50%,0)}
 
 /* ---------- Gráficos ---------- */
@@ -231,9 +261,37 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 .foto-caixa .mais{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;
   background:var(--verde-esc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;
   border:3px solid #fff}
-.busca{display:flex;gap:8px;margin-bottom:10px}
-.busca input{flex:1 1 auto;padding:9px 11px;border:1px solid var(--linha);border-radius:999px;background:var(--campo)}
+/* Busca com botão "Pesquisar", como no protótipo */
+.busca{display:flex;gap:8px;margin-bottom:12px;background:#fff;border:1px solid var(--linha);
+  border-radius:999px;padding:4px 4px 4px 6px;align-items:center}
+.busca input{flex:1 1 auto;min-width:0;padding:7px 8px;border:none;background:none;outline:none}
+.busca button{background:var(--roxo);color:#fff;font-size:12.5px;font-weight:700;
+  padding:8px 14px;border-radius:999px;flex:0 0 auto}
 .rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
+
+/* ---------- Botão flutuante da assistente ---------- */
+#fab{position:absolute;right:16px;bottom:18px;width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(150deg,var(--azul),#6F5BF0);color:#fff;display:none;
+  align-items:center;justify-content:center;font-size:17px;font-weight:800;letter-spacing:-.02em;
+  box-shadow:0 10px 26px rgba(20,15,70,.45);z-index:40;border:2.5px solid rgba(255,255,255,.35)}
+#fab.on{display:flex}
+
+/* ---------- Assistente (chat) ---------- */
+#chat{display:flex;flex-direction:column;gap:10px;min-height:220px;margin-bottom:12px}
+.balao{max-width:86%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.55;white-space:pre-wrap;
+  word-wrap:break-word;overflow-wrap:anywhere}
+.balao.eu{align-self:flex-end;background:var(--roxo);color:#fff;border-bottom-right-radius:5px}
+.balao.ia{align-self:flex-start;background:#fff;color:var(--texto);border-bottom-left-radius:5px;
+  box-shadow:0 2px 8px rgba(24,20,70,.08)}
+.balao b{color:inherit}
+.sugestoes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sugestao{background:#fff;border:1px solid var(--linha);border-radius:999px;padding:7px 12px;
+  font-size:11.5px;font-weight:600;color:var(--roxo)}
+.pergunta{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--linha);
+  border-radius:999px;padding:4px 4px 4px 14px;position:sticky;bottom:0}
+.pergunta input{flex:1 1 auto;min-width:0;border:none;background:none;outline:none;padding:9px 0}
+.pergunta button{width:40px;height:40px;border-radius:50%;background:var(--azul);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -241,15 +299,15 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 <div id="app">
 
   <!-- ===================== NAVEGAÇÃO ===================== -->
-  <nav id="nav">
-    <button class="nav-btn" data-ir="tarefas">
-      <svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Tarefas</button>
-    <button class="nav-btn" data-ir="home">
-      <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
-    <button class="nav-btn" data-ir="objetivos">
-      <svg viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Objetivos</button>
-    <button class="nav-btn" data-ir="perfil">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
+  <nav id="nav" aria-label="Navegação principal">
+    <button class="nav-btn" type="button" data-ir="tarefas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Tarefas</button>
+    <button class="nav-btn" type="button" data-ir="home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
+    <button class="nav-btn" type="button" data-ir="objetivos">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Objetivos</button>
+    <button class="nav-btn" type="button" data-ir="perfil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
   </nav>
 
   <main id="palco">
@@ -258,54 +316,55 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
     <section class="tela on" id="tela-login">
       <div class="marca">DevLog<small>ESTUDAR HOJE, NÃO AMANHÃ</small></div>
       <div class="card">
-        <h2>Entrar</h2>
+        <h2>Login</h2>
         <div class="campo"><label for="in-email">Email</label>
           <input id="in-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
         <div class="campo"><label for="in-senha">Senha</label>
-          <input id="in-senha" type="password" autocomplete="current-password" placeholder="Digite sua senha"></div>
-        <p class="erro" id="erro-login"></p>
-        <button class="btn btn-azul" id="b-entrar">Entrar</button>
-        <button class="link" id="b-esqueci">Esqueci a senha</button>
-        <button class="btn btn-cinza" id="b-ir-cadastro">Criar conta</button>
+          <input id="in-senha" type="password" autocomplete="current-password" placeholder="Digite a senha"></div>
+        <p class="erro" id="erro-login" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-entrar">Entrar</button>
+        <button class="link" type="button" id="b-esqueci">Esqueci a senha?</button>
+        <button class="btn btn-cinza" type="button" id="b-ir-cadastro">Cadastrar-se</button>
       </div>
       <p class="rodape">Seus dados ficam salvos apenas neste aparelho.</p>
     </section>
 
     <!-- ===================== CADASTRO ===================== -->
     <section class="tela" id="tela-cadastro">
-      <div class="marca" style="font-size:28px;margin:26px 0 16px">DevLog</div>
+      <div class="marca" style="font-size:28px;margin:26px 0 16px;text-align:center;color:#fff;font-weight:800">DevLog</div>
       <div class="card">
         <h2>Criar conta</h2>
         <div class="campo"><label for="cad-nome">Nome completo</label>
-          <input id="cad-nome" placeholder="Digite seu nome completo"></div>
+          <input id="cad-nome" autocomplete="name" placeholder="Digite seu nome completo"></div>
         <div class="campo"><label for="cad-email">Email</label>
-          <input id="cad-email" type="email" placeholder="Digite seu email"></div>
+          <input id="cad-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
         <div class="campo"><label for="cad-senha">Senha</label>
-          <input id="cad-senha" type="password" placeholder="Mínimo de 4 caracteres"></div>
+          <input id="cad-senha" type="password" autocomplete="new-password" placeholder="Mínimo de 4 caracteres"></div>
         <div class="campo"><label for="cad-senha2">Repetir senha</label>
-          <input id="cad-senha2" type="password" placeholder="Repita a senha"></div>
+          <input id="cad-senha2" type="password" autocomplete="new-password" placeholder="Repita a senha"></div>
         <label class="check"><input type="checkbox" id="cad-termos">
           <span>Aceito os termos de uso e o tratamento dos meus dados dentro da LGPD.</span></label>
-        <p class="erro" id="erro-cadastro"></p>
-        <button class="btn btn-verde" id="b-criar">Criar conta</button>
-        <button class="link" data-voltar-login>Voltar para o login</button>
+        <p class="erro" id="erro-cadastro" role="alert"></p>
+        <button class="btn btn-verde" type="button" id="b-criar">Cadastrar-se</button>
+        <button class="link" type="button" data-voltar-login>Voltar para o login</button>
       </div>
     </section>
 
     <!-- ===================== RECUPERAR SENHA ===================== -->
     <section class="tela" id="tela-esqueci">
-      <div class="marca" style="font-size:28px;margin:26px 0 16px">DevLog</div>
+      <div class="marca" style="font-size:28px;margin:26px 0 16px;text-align:center;color:#fff;font-weight:800">DevLog</div>
       <div class="card">
         <h2>Cadastrar nova senha</h2>
         <div class="campo"><label for="rec-email">Email</label>
-          <input id="rec-email" type="email" placeholder="Digite seu email"></div>
-        <p class="legenda">Você vai receber um código para cadastrar uma nova senha.
+          <input id="rec-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <p class="legenda">Você receberá um e-mail com o link para cadastrar uma nova senha.
           Como o DevLog funciona sem servidor, a nova senha é gravada direto neste aparelho.</p>
         <div class="campo"><label for="rec-nova">Nova senha</label>
-          <input id="rec-nova" type="password" placeholder="Nova senha"></div>
-        <p class="erro" id="erro-rec"></p>
-        <button class="btn btn-azul" id="b-recuperar">Salvar nova senha</button>
-        <button class="link" data-voltar-login>Voltar</button>
+          <input id="rec-nova" type="password" autocomplete="new-password" placeholder="Nova senha"></div>
+        <p class="erro" id="erro-rec" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-recuperar">Enviar</button>
+        <button class="link" type="button" id="b-ajuda">Ajuda do suporte?</button>
+        <button class="btn btn-cinza" type="button" data-voltar-login>Voltar ↩</button>
       </div>
     </section>
 
@@ -349,89 +408,99 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 
       <div class="card">
         <h2>Histórico mensal</h2>
-        <table class="hist"><thead><tr><th>Mês</th><th>Estudo</th><th>Tarefas</th><th>Pontos</th></tr></thead>
+        <table class="hist"><thead><tr><th>Mês</th><th>Estudo</th><th>Concluídos</th><th>Pontos</th></tr></thead>
         <tbody id="tb-hist"></tbody></table>
       </div>
     </section>
 
     <!-- ===================== TAREFAS (CRUD) ===================== -->
     <section class="tela" id="tela-tarefas">
+      <h1 class="pagina-titulo">Configurar tarefas</h1>
+
       <div class="card">
-        <h2 id="form-titulo">Adicionar objetivo</h2>
+        <h2 id="form-titulo">Adicionar Objetivo</h2>
 
         <div class="campo"><label>Tipo</label>
           <div class="pills" id="p-tipo">
-            <button class="pill on" data-v="estudo">Estudo ⏱</button>
-            <button class="pill" data-v="tarefa">Tarefa ✓</button>
+            <button class="pill on" type="button" data-v="estudo">Estudo ⏱</button>
+            <button class="pill" type="button" data-v="tarefa">Tarefa ✓</button>
           </div></div>
 
-        <div class="campo"><label for="f-nome">Nome</label>
-          <input id="f-nome" placeholder="Ex.: Inglês, Faculdade, Portfólio Git"></div>
-
         <div class="dupla">
-          <div class="campo"><label for="f-cat">Curso / Certificação</label>
+          <div class="campo"><label for="f-nome">Nome</label>
+            <input id="f-nome" placeholder="Ex.: Inglês, Faculdade"></div>
+          <div class="campo"><label for="f-cat">Curso/Certificação</label>
             <select id="f-cat">
               <option>Faculdade</option><option>Curso online</option><option>Certificação</option>
               <option>Idioma</option><option>Projeto</option><option>Leitura</option>
               <option>Exercício</option><option>Outro</option>
             </select></div>
-          <div class="campo"><label for="f-status">Situação</label>
+        </div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-status">Concluído/Andamento</label>
             <select id="f-status"><option value="andamento">Andamento</option><option value="concluido">Concluído</option></select></div>
+          <div class="campo"><label for="f-total" id="lb-total">Total da tarefa (horas)</label>
+            <input id="f-total" type="number" min="0" step="1" value="360" title="Total de horas até concluir o objetivo"></div>
+        </div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-qtd">Quantidade</label>
+            <input id="f-qtd" type="number" min="1" step="1" value="1"></div>
+          <div class="campo"><label for="f-uni">Horas/Minutos</label>
+            <select id="f-uni"><option value="horas">horas</option><option value="minutos">minutos</option></select></div>
         </div>
 
         <div class="campo"><label>Frequência</label>
           <div class="pills" id="p-freq">
-            <button class="pill on" data-v="diaria">Diária</button>
-            <button class="pill" data-v="semanal">Semanal</button>
-            <button class="pill" data-v="mensal">Mensal</button>
+            <button class="pill on" type="button" data-v="diaria">Diária</button>
+            <button class="pill" type="button" data-v="semanal">Semanal</button>
+            <button class="pill" type="button" data-v="mensal">Mensal</button>
           </div></div>
-
-        <div class="tripla">
-          <div class="campo"><label for="f-qtd">Quantidade</label>
-            <input id="f-qtd" type="number" min="1" step="1" value="1"></div>
-          <div class="campo"><label for="f-uni">Unidade</label>
-            <select id="f-uni"><option value="horas">horas</option><option value="minutos">minutos</option></select></div>
-          <div class="campo"><label for="f-total">Total da meta</label>
-            <input id="f-total" type="number" min="0" step="1" value="360" title="Total de horas até concluir o objetivo"></div>
-        </div>
 
         <div class="campo"><label>Acúmulo de pendências</label>
           <div class="pills" id="p-acum">
-            <button class="pill on" data-v="1">Acumulativo</button>
-            <button class="pill" data-v="0">Não acumulativo</button>
+            <button class="pill on" type="button" data-v="1">Acumulativo</button>
+            <button class="pill" type="button" data-v="0">Não acumulativo</button>
           </div>
           <p class="legenda" id="acum-txt" style="margin:7px 0 0"></p>
         </div>
 
-        <p class="erro" id="erro-form"></p>
+        <p class="erro" id="erro-form" role="alert"></p>
         <div class="btn-par">
-          <button class="btn btn-roxo" id="b-salvar-item">Adicionar</button>
-          <button class="btn btn-cinza" id="b-cancelar-item">Limpar</button>
+          <button class="btn btn-roxo" type="button" id="b-salvar-item">Adicionar</button>
+          <button class="btn btn-cinza" type="button" id="b-cancelar-item">Limpar</button>
         </div>
       </div>
 
       <div class="card">
-        <h2>Cargo atual</h2>
-        <div class="pills" id="p-cargo"></div>
-        <p class="legenda" style="margin:9px 0 0;text-align:center">O cargo é sugerido pelos seus pontos, mas você pode fixar o seu.</p>
+        <h2>Cargo Atual</h2>
+        <div class="radios" id="p-cargo" role="radiogroup" aria-label="Cargo atual"></div>
+        <p class="legenda" style="margin:11px 0 0;text-align:center">O cargo é sugerido pelos seus pontos, mas você pode fixar o seu.</p>
       </div>
 
       <div class="card">
-        <h2>Editar ou excluir meus objetivos</h2>
-        <div class="busca"><input id="f-busca" placeholder="Pesquisar por nome ou categoria"></div>
+        <div class="busca">
+          <label for="f-busca" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pesquisar objetivos</label>
+          <input id="f-busca" placeholder="Procurar">
+          <button type="button" id="b-pesquisar">Pesquisar</button>
+        </div>
+        <h2 style="font-size:13.5px;margin-bottom:10px">Editar ou excluir minhas tarefas</h2>
         <div id="lista-crud"></div>
       </div>
     </section>
 
     <!-- ===================== OBJETIVOS (executar) ===================== -->
     <section class="tela" id="tela-objetivos">
+      <h1 class="pagina-titulo">Lista de tarefas para completar</h1>
+
       <div class="card">
         <h2>Hoje</h2>
         <p class="legenda" style="text-align:center;margin:0" id="hoje-resumo">—</p>
       </div>
-      <div class="card"><h2>Tarefas diárias</h2><div id="lista-diaria"></div></div>
+      <div class="card"><h2>Tarefas Diárias</h2><div id="lista-diaria"></div></div>
       <div class="card"><h2>Tarefas semanais</h2><div id="lista-semanal"></div></div>
-      <div class="card"><h2>Tarefas mensais</h2><div id="lista-mensal"></div></div>
+      <div class="card"><h2>Tarefas mensal</h2><div id="lista-mensal"></div></div>
       <div class="card"><h2>Objetivos concluídos</h2><div id="lista-feitos"></div></div>
     </section>
 
@@ -441,14 +510,17 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
         <h2>Perfil</h2>
         <div class="foto-caixa">
           <img class="avatar" id="pf-foto" alt="Foto de perfil">
-          <button class="mais" id="b-foto" title="Trocar foto">＋</button>
+          <button class="mais" type="button" id="b-foto" title="Trocar foto" aria-label="Trocar foto de perfil">＋</button>
           <input type="file" id="in-foto" accept="image/*" hidden>
         </div>
-        <button class="link" id="b-tirar-foto">Remover foto</button>
+        <button class="link" type="button" id="b-tirar-foto">Remover foto</button>
 
-        <div class="campo"><label for="pf-nome">Nome</label><input id="pf-nome" placeholder="Digite seu nome completo"></div>
-        <div class="campo"><label for="pf-email">Email</label><input id="pf-email" type="email" placeholder="Digite seu email"></div>
-        <div class="campo"><label for="pf-senha">Senha</label><input id="pf-senha" type="password" placeholder="Digite sua senha"></div>
+        <div class="campo"><label for="pf-nome">Nome</label>
+          <input id="pf-nome" autocomplete="name" placeholder="Digite seu nome completo"></div>
+        <div class="campo"><label for="pf-email">Email</label>
+          <input id="pf-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="pf-senha">Senha</label>
+          <input id="pf-senha" type="password" autocomplete="new-password" placeholder="Deixe em branco para manter a atual"></div>
 
         <div class="dupla">
           <div class="campo"><label for="pf-nasc">Nascimento</label><input id="pf-nasc" type="date"></div>
@@ -466,60 +538,77 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
         </div>
 
         <label class="check"><input type="checkbox" id="pf-termos">
-          <span><b>Aceito os termos</b><br>Aceito os termos de uso dos dados dentro da lei LGPD.</span></label>
+          <span><b>Aceita os termos</b><br>Aceito os termos de uso de dados dentro da lei LGPD.</span></label>
 
-        <p class="erro" id="erro-perfil"></p>
-        <button class="btn btn-azul" id="b-salvar-perfil">Salvar</button>
+        <p class="erro" id="erro-perfil" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-salvar-perfil">Salvar</button>
       </div>
 
       <div class="card">
         <h2>Meus dados</h2>
         <p class="legenda" id="pf-armazenamento">—</p>
         <div class="btn-par">
-          <button class="btn btn-linha" id="b-demo">Carregar exemplo</button>
-          <button class="btn btn-cinza" id="b-exportar">Exportar dados</button>
+          <button class="btn btn-linha" type="button" id="b-demo">Carregar exemplo</button>
+          <button class="btn btn-cinza" type="button" id="b-exportar">Exportar dados</button>
         </div>
         <div style="height:10px"></div>
         <div class="btn-par">
-          <button class="btn btn-vermelho" id="b-zerar">Apagar tudo</button>
-          <button class="btn btn-cinza" id="b-sair">Sair da conta</button>
+          <button class="btn btn-vermelho" type="button" id="b-zerar">Apagar tudo</button>
+          <button class="btn btn-cinza" type="button" id="b-sair">Sair da conta</button>
         </div>
       </div>
-      <p class="rodape">DevLog · versão 1.0 · feito para não deixar estudo para depois</p>
+      <p class="rodape">DevLog · versão 1.1 · feito para não deixar estudo para depois</p>
+    </section>
+
+    <!-- ===================== ASSISTENTE (IA) ===================== -->
+    <section class="tela" id="tela-ia">
+      <h1 class="pagina-titulo">IA</h1>
+      <div class="card">
+        <div id="chat" role="log" aria-live="polite" aria-label="Conversa com a assistente"></div>
+        <div class="sugestoes" id="sugestoes"></div>
+        <div class="pergunta">
+          <label for="ia-txt" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pergunta</label>
+          <input id="ia-txt" placeholder="Perguntar" autocomplete="off">
+          <button type="button" id="b-perguntar" aria-label="Enviar pergunta">➤</button>
+        </div>
+      </div>
+      <p class="rodape">A assistente funciona sem internet: ela responde com base nos seus dados e num guia de estudos embutido.</p>
     </section>
 
   </main>
+
+  <button id="fab" type="button" aria-label="Abrir assistente de estudos">A<span aria-hidden="true">✦</span></button>
 </div>
 
 <!-- ===================== MODAL ===================== -->
-<div id="veu"><div class="modal" role="dialog" aria-modal="true">
-  <div class="selo ok" id="md-selo">✓</div>
+<div id="veu"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="md-titulo">
+  <div class="selo ok" id="md-selo" aria-hidden="true">✓</div>
   <h3 id="md-titulo">Salvo</h3>
   <p id="md-texto"></p>
   <div id="md-botoes"></div>
 </div></div>
 
 <!-- ===================== CRONÔMETRO ===================== -->
-<div id="foco">
+<div id="foco" role="dialog" aria-modal="true" aria-label="Cronômetro de estudo">
   <div class="cat" id="fc-cat">—</div>
   <div class="titulo" id="fc-titulo">—</div>
   <div class="anel">
-    <svg viewBox="0 0 210 210"><circle class="trilho" cx="105" cy="105" r="94"/>
+    <svg viewBox="0 0 210 210" aria-hidden="true"><circle class="trilho" cx="105" cy="105" r="94"/>
       <circle class="arco" id="fc-arco" cx="105" cy="105" r="94"/></svg>
-    <div class="tempo" id="fc-tempo">00:00:00</div>
+    <div class="tempo" id="fc-tempo" role="timer" aria-live="off">00:00:00</div>
   </div>
   <div class="meta" id="fc-meta">—</div>
   <div class="controles">
-    <button class="ctrl play" id="fc-play" title="Iniciar">▶</button>
-    <button class="ctrl pausa" id="fc-pausa" title="Pausar">⏸</button>
-    <button class="ctrl para" id="fc-para" title="Encerrar e salvar">⏹</button>
-    <button class="ctrl fechar" id="fc-fechar" title="Voltar">✕</button>
+    <button class="ctrl play" type="button" id="fc-play" title="Iniciar" aria-label="Iniciar">▶</button>
+    <button class="ctrl pausa" type="button" id="fc-pausa" title="Pausar" aria-label="Pausar">⏸</button>
+    <button class="ctrl para" type="button" id="fc-para" title="Encerrar e salvar" aria-label="Encerrar e salvar">⏹</button>
+    <button class="ctrl fechar" type="button" id="fc-fechar" title="Voltar" aria-label="Voltar">✕</button>
   </div>
   <p style="color:#C9C6F2;font-size:11.5px;max-width:290px;margin:0">
-    O tempo continua contando enquanto o app estiver aberto. Ao zerar, o objetivo é concluído sozinho.</p>
+    O tempo continua contando mesmo com o app em segundo plano. Ao zerar, o objetivo é concluído sozinho.</p>
 </div>
 
-<div id="aviso"></div>
+<div id="aviso" role="status" aria-live="polite"></div>
 
 <script>
 /* ============================================================
@@ -573,9 +662,9 @@ function estadoNovo(){
 let E = estadoNovo();
 let salvarPendente = null;
 function salvar(imediato){
-  if(salvarPendente) clearTimeout(salvarPendente);
+  if(salvarPendente){ clearTimeout(salvarPendente); salvarPendente=null; }
   if(imediato){ Store.gravar(CHAVE, E); return; }
-  salvarPendente = setTimeout(()=>Store.gravar(CHAVE, E), 400);
+  salvarPendente = setTimeout(()=>{ salvarPendente=null; Store.gravar(CHAVE, E); }, 400);
 }
 
 /* ---------- 3. UTILIDADES ---------- */
@@ -588,7 +677,6 @@ function chaveMes(d){ d=d||hoje(); return d.getFullYear()+"-"+p2(d.getMonth()+1)
 function domingoDa(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-x.getDay()); return x; }
 function chaveSemana(d){ return "S"+chaveDia(domingoDa(d||hoje())); }
 function chavePeriodo(freq,d){ return freq==="diaria"?chaveDia(d) : freq==="semanal"?chaveSemana(d) : chaveMes(d); }
-function diasEntre(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
 function fmtHM(min){
   min = Math.max(0, Math.round(min));
   const h = Math.floor(min/60), m = min%60;
@@ -616,27 +704,49 @@ function bip(freq,dur){
     g.gain.setValueAtTime(.18,ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(dur||.5));
     o.start(); o.stop(ctx.currentTime+(dur||.5));
+    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, ((dur||.5)*1000)+120);
   }catch(e){}
 }
 
-/* Modal */
+/* Modal — com devolução de foco e fechamento pelo Esc */
+let focoAnterior = null;
 function modal(op){
+  focoAnterior = document.activeElement;
   $("#md-selo").className = "selo "+(op.selo||"ok");
   $("#md-selo").textContent = op.icone||"✓";
   $("#md-titulo").textContent = op.titulo||"";
   $("#md-texto").innerHTML = op.texto||"";
   const box=$("#md-botoes"); box.innerHTML="";
-  (op.botoes||[{r:"OK",c:"btn-cinza"}]).forEach((b,i)=>{
+  const botoes = op.botoes||[{r:"OK",c:"btn-cinza"}];
+  // dois botões ficam lado a lado, como no protótipo
+  const par = botoes.length===2;
+  const caixa = par ? document.createElement("div") : box;
+  if(par) caixa.className="btn-par";
+  botoes.forEach((b,i)=>{
     const el=document.createElement("button");
+    el.type="button";
     el.className="btn "+(b.c||"btn-cinza"); el.textContent=b.r;
-    el.style.marginTop = i?"8px":"0";
+    if(!par && i) el.style.marginTop="8px";
     el.onclick=()=>{ fecharModal(); if(b.f) b.f(); };
-    box.appendChild(el);
+    caixa.appendChild(el);
   });
+  if(par) box.appendChild(caixa);
   $("#veu").classList.add("on");
+  const primeiro = box.querySelector("button");
+  if(primeiro) primeiro.focus();
 }
-function fecharModal(){ $("#veu").classList.remove("on"); }
+function fecharModal(){
+  if(!$("#veu").classList.contains("on")) return;
+  $("#veu").classList.remove("on");
+  if(focoAnterior && document.contains(focoAnterior)){ try{ focoAnterior.focus(); }catch(e){} }
+  focoAnterior = null;
+}
 $("#veu").addEventListener("click", e=>{ if(e.target.id==="veu") fecharModal(); });
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Escape") return;
+  if($("#veu").classList.contains("on")){ fecharModal(); return; }
+  if($("#foco").classList.contains("on")) fecharFoco();
+});
 
 /* ---------- 4. REGRAS DE NEGÓCIO ---------- */
 const CARGOS = [
@@ -661,6 +771,7 @@ function tetoAcumulo(it){
 }
 function alvoEfetivo(it){ return it.alvo + (it.saldo||0); }
 function restante(it){ return Math.max(0, alvoEfetivo(it) - (it.feito||0)); }
+function pontosDe(it){ return it.tipo==="estudo" ? (10 + Math.floor(alvoEfetivo(it)/6)) : 8; }
 
 /* Vira o período: aplica (ou descarta) o que ficou pendente */
 function virarPeriodos(){
@@ -686,8 +797,8 @@ function virarPeriodos(){
   return mudou;
 }
 
-function registrarHistorico(minutos, tarefas, pontos){
-  const k = chaveDia();
+function registrarHistorico(minutos, tarefas, pontos, dia){
+  const k = dia || chaveDia();
   const h = E.hist[k] || {min:0,tarefas:0,pontos:0};
   h.min += minutos||0; h.tarefas += tarefas||0; h.pontos += pontos||0;
   E.hist[k]=h;
@@ -703,17 +814,22 @@ function creditarEstudo(it, minutos){
 
 /* Conclui o ciclo atual do objetivo */
 function concluirCiclo(it, comAviso){
-  const pts = it.tipo==="estudo" ? (10 + Math.floor(alvoEfetivo(it)/6)) : 8;
+  const pts = pontosDe(it);
   E.pontos += pts;
   E.concluidos += 1;
+  // guarda o que este ciclo mudou, para o "desfazer" devolver exatamente isso
+  const antes = {feito:it.feito||0, saldo:it.saldo||0, status:it.status, credito:0, pontos:pts};
   if(it.tipo==="tarefa"){
+    // só o que faltava entra no total — o que veio dos cliques em "+" já foi somado
+    antes.credito = restante(it);
     it.feito = alvoEfetivo(it);
-    it.progresso = (it.progresso||0) + alvoEfetivo(it);
-    registrarHistorico(0,1,pts);
+    it.progresso = (it.progresso||0) + antes.credito;
   }else{
+    // no estudo o total acumulado vem do cronômetro; concluir não inventa minutos
     it.feito = Math.max(it.feito||0, alvoEfetivo(it));
-    registrarHistorico(0,1,pts);
   }
+  it.desfazer = antes;
+  registrarHistorico(0,1,pts);
   it.saldo = 0;
   it.ultimaConclusao = chaveDia();
   if(it.totalMeta>0 && (it.progresso||0) >= it.totalMeta) it.status="concluido";
@@ -727,16 +843,22 @@ function concluirCiclo(it, comAviso){
   renderTudo();
 }
 
-/* Desmarca uma tarefa concluída no ciclo */
+/* Desmarca um objetivo concluído no ciclo, devolvendo o estado anterior */
 function desfazerCiclo(it){
-  const pts = it.tipo==="estudo" ? (10 + Math.floor(alvoEfetivo(it)/6)) : 8;
+  const d = it.desfazer || {};
+  const pts = (d.pontos!=null) ? d.pontos : pontosDe(it);
   E.pontos = Math.max(0, E.pontos - pts);
   E.concluidos = Math.max(0, E.concluidos - 1);
-  it.progresso = Math.max(0, (it.progresso||0) - alvoEfetivo(it));
-  it.feito = 0;
-  if(it.status==="concluido" && it.totalMeta>0 && it.progresso < it.totalMeta) it.status="andamento";
-  const k=chaveDia(), h=E.hist[k];
+  // devolve só o que a conclusão somou (no estudo isso é zero: os minutos são reais)
+  it.progresso = Math.max(0, (it.progresso||0) - (d.credito||0));
+  it.feito = d.feito || 0;
+  it.saldo = d.saldo || 0;
+  if(it.status==="concluido") it.status = d.status || "andamento";
+  // desconta no dia em que a conclusão foi registrada, não sempre em "hoje"
+  const h = E.hist[it.ultimaConclusao || chaveDia()];
   if(h){ h.tarefas=Math.max(0,h.tarefas-1); h.pontos=Math.max(0,h.pontos-pts); }
+  it.ultimaConclusao = null;
+  it.desfazer = null;
   salvar(true); renderTudo();
 }
 
@@ -757,18 +879,18 @@ function graficoBarras(alvoEl, valores, rotulos){
   const L=300,A=130,pe=26,pd=10,pt=12,pb=20;
   const max = Math.max(60, ...valores);
   const lg = (L-pe-pd)/valores.length;
-  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Minutos por dia da semana">';
+  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Minutos de estudo por dia da semana">';
   [0,.5,1].forEach(f=>{
     const y = pt+(A-pt-pb)*f;
-    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#E3E1F5" stroke-width="1"/>';
-    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#8B89A8" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
+    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#D9D8EC" stroke-width="1"/>';
+    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#6B6B85" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
   });
   valores.forEach((v,i)=>{
     const h = max? (A-pt-pb)*(v/max) : 0;
     const x = pe + i*lg + lg*.22, w = lg*.56, y = A-pb-h;
     s += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+Math.max(0,h).toFixed(1)+
-         '" rx="3" fill="#7C6FD6"><title>'+rotulos[i]+": "+fmtHM(v)+'</title></rect>';
-    s += '<text x="'+(x+w/2).toFixed(1)+'" y="'+(A-6)+'" font-size="9" fill="#6B6B85" text-anchor="middle">'+rotulos[i]+'</text>';
+         '" rx="3" fill="#7C6FD6"><title>'+esc(rotulos[i])+": "+fmtHM(v)+'</title></rect>';
+    s += '<text x="'+(x+w/2).toFixed(1)+'" y="'+(A-6)+'" font-size="9" fill="#6B6B85" text-anchor="middle">'+esc(rotulos[i])+'</text>';
   });
   s += '</svg>';
   alvoEl.innerHTML = s;
@@ -779,31 +901,38 @@ function graficoLinha(alvoEl, valores, rotulos){
   const n = valores.length;
   const px = i => pe + (L-pe-pd)*(n>1? i/(n-1):0);
   const py = v => pt + (A-pt-pb)*(1 - (max? v/max:0));
-  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Evolução do mês">';
+  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Evolução do estudo no mês">';
   [0,.5,1].forEach(f=>{
     const y = pt+(A-pt-pb)*f;
-    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#E3E1F5" stroke-width="1"/>';
-    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#8B89A8" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
+    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#D9D8EC" stroke-width="1"/>';
+    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#6B6B85" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
   });
   const pts = valores.map((v,i)=>px(i).toFixed(1)+","+py(v).toFixed(1));
-  s += '<polyline points="'+pts.join(" ")+'" fill="none" stroke="#9B3FE0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
   s += '<polygon points="'+pe+','+(A-pb)+' '+pts.join(" ")+' '+(L-pd)+','+(A-pb)+'" fill="#9B3FE0" opacity=".10"/>';
-  valores.forEach((v,i)=>{ if(v>0) s+='<circle cx="'+px(i).toFixed(1)+'" cy="'+py(v).toFixed(1)+'" r="2.4" fill="#9B3FE0"><title>'+rotulos[i]+": "+fmtHM(v)+'</title></circle>'; });
+  s += '<polyline points="'+pts.join(" ")+'" fill="none" stroke="#9B3FE0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  valores.forEach((v,i)=>{ if(v>0) s+='<circle cx="'+px(i).toFixed(1)+'" cy="'+py(v).toFixed(1)+'" r="2.4" fill="#9B3FE0"><title>'+esc(rotulos[i])+": "+fmtHM(v)+'</title></circle>'; });
   const marcos=[0,Math.floor(n/2),n-1];
-  marcos.forEach(i=>{ s+='<text x="'+px(i).toFixed(1)+'" y="'+(A-4)+'" font-size="8" fill="#6B6B85" text-anchor="middle">'+rotulos[i]+'</text>'; });
+  marcos.forEach(i=>{ s+='<text x="'+px(i).toFixed(1)+'" y="'+(A-4)+'" font-size="8" fill="#6B6B85" text-anchor="middle">'+esc(rotulos[i])+'</text>'; });
   s += '</svg>';
   alvoEl.innerHTML = s;
 }
 
 /* ---------- 6. TELAS ---------- */
+const TELAS_INTERNAS = ["home","tarefas","objetivos","perfil","ia"];
 let telaAtual="login";
 function ir(nome){
   telaAtual = nome;
   $$(".tela").forEach(t=>t.classList.remove("on"));
   const el = $("#tela-"+nome); if(el) el.classList.add("on");
-  const dentro = ["home","tarefas","objetivos","perfil"].includes(nome);
+  const dentro = TELAS_INTERNAS.includes(nome);
   $("#nav").classList.toggle("on", dentro && E.logado);
-  $$(".nav-btn").forEach(b=>b.classList.toggle("ativo", b.dataset.ir===nome));
+  $$(".nav-btn").forEach(b=>{
+    const at = b.dataset.ir===nome;
+    b.classList.toggle("ativo", at);
+    if(at) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+  });
+  // o botão flutuante não aparece na própria tela da assistente
+  $("#fab").classList.toggle("on", dentro && E.logado && nome!=="ia");
   $("#palco").scrollTop = 0;
   renderTudo();
 }
@@ -857,13 +986,13 @@ function renderHome(){
   const idx = CARGOS.findIndex(c=>c.nome===atual.nome);
   const prox = CARGOS[idx+1];
   const base = atual.min, topo = prox? prox.min : atual.min+2000;
-  const pct = Math.min(100, Math.round((E.pontos-base)/(topo-base)*100));
+  const pct = Math.max(0, Math.min(100, Math.round((E.pontos-base)/(topo-base)*100)));
   $("#car-barra").style.width = pct+"%";
   $("#car-txt").textContent = pct+"%";
   $("#car-escada").innerHTML = CARGOS.map(c=>
-    '<span class="'+(c.nome===cargoAtual()?"on":"")+'">'+c.nome+"</span>").join("");
+    '<span class="'+(c.nome===cargoAtual()?"on":"")+'">'+esc(c.nome)+"</span>").join("");
   $("#car-detalhe").textContent = prox
-    ? "Faltam "+(topo-E.pontos)+" pontos para "+prox.nome
+    ? "Faltam "+Math.max(0,topo-E.pontos)+" pontos para "+prox.nome
     : "Nível máximo alcançado. Continue somando pontos.";
 
   $("#pl-concl").textContent = E.concluidos;
@@ -878,7 +1007,7 @@ function renderHome(){
   });
   const nomes=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   const linhas = Object.keys(meses).sort().reverse().slice(0,12).map(m=>{
-    const a=meses[m], [ano,mm]=m.split("-");
+    const a=meses[m], partes=m.split("-"), ano=partes[0], mm=partes[1];
     return "<tr><td>"+nomes[+mm-1]+"/"+ano.slice(2)+"</td><td>"+fmtHM(a.min)+
       "</td><td>"+a.tarefas+"</td><td>"+a.pontos+"</td></tr>";
   }).join("");
@@ -901,27 +1030,38 @@ function textoAcumulo(){
 }
 function atualizarFormPorTipo(){
   const est = lerPills("#p-tipo")==="estudo";
+  const uniAtual = $("#f-uni").value;
   $("#f-uni").innerHTML = est
     ? '<option value="horas">horas</option><option value="minutos">minutos</option>'
     : '<option value="vezes">vezes</option>';
+  if(est && (uniAtual==="horas"||uniAtual==="minutos")) $("#f-uni").value = uniAtual;
   $("#f-total").title = est ? "Total de horas até concluir" : "Total de repetições até concluir";
-  $("#f-total").previousElementSibling.textContent = est ? "Total (horas)" : "Total (vezes)";
+  $("#lb-total").textContent = est ? "Total da tarefa (horas)" : "Total da tarefa (vezes)";
 }
 function limparForm(){
   editandoId=null;
-  $("#form-titulo").textContent="Adicionar objetivo";
+  $("#form-titulo").textContent="Adicionar Objetivo";
   $("#b-salvar-item").textContent="Adicionar";
   $("#f-nome").value=""; $("#f-cat").selectedIndex=0; $("#f-status").value="andamento";
   $("#f-qtd").value=1; $("#f-total").value=360;
   marcarPill("#p-tipo","estudo"); marcarPill("#p-freq","diaria"); marcarPill("#p-acum","1");
   atualizarFormPorTipo(); textoAcumulo(); $("#erro-form").textContent="";
 }
+/* garante que um valor gravado apareça no <select> mesmo se não estiver na lista */
+function definirSelect(sel, valor){
+  const el = $(sel); if(!el) return;
+  if(valor==null || valor==="") return;
+  const existe = Array.from(el.options).some(o=>o.value===valor || o.text===valor);
+  if(!existe){ const o=document.createElement("option"); o.textContent=valor; el.appendChild(o); }
+  el.value = valor;
+}
 function salvarItem(){
   const nome=$("#f-nome").value.trim();
   const qtd=parseFloat($("#f-qtd").value);
   const total=parseFloat($("#f-total").value);
-  if(!nome){ $("#erro-form").textContent="Escreva o nome do objetivo."; return; }
-  if(!(qtd>0)){ $("#erro-form").textContent="A quantidade precisa ser maior que zero."; return; }
+  if(!nome){ $("#erro-form").textContent="Escreva o nome do objetivo."; $("#f-nome").focus(); return; }
+  if(!(qtd>0)){ $("#erro-form").textContent="A quantidade precisa ser maior que zero."; $("#f-qtd").focus(); return; }
+  if(isNaN(total) || total<0){ $("#erro-form").textContent="O total da tarefa não pode ser negativo."; $("#f-total").focus(); return; }
   $("#erro-form").textContent="";
   const tipo=lerPills("#p-tipo"), uni=$("#f-uni").value;
   const alvo = tipo==="estudo" ? (uni==="horas"? qtd*60 : qtd) : qtd;
@@ -930,13 +1070,13 @@ function salvarItem(){
 
   if(editandoId){
     const it=E.itens.find(x=>x.id===editandoId);
-    if(it){
-      const mudouFreq = it.freq!==freq;
-      Object.assign(it,{tipo,nome,cat:$("#f-cat").value,freq,qtd,uni,alvo,totalMeta,
-        acum:lerPills("#p-acum")==="1", status:$("#f-status").value});
-      if(mudouFreq){ it.saldo=0; it.feito=0; it.periodoRef=chavePeriodo(freq,hoje()); }
-      it.saldo = Math.min(it.saldo||0, tetoAcumulo(it));
-    }
+    if(!it){ limparForm(); aviso("Esse objetivo não existe mais."); renderTudo(); return; }
+    const mudouFreq = it.freq!==freq;
+    Object.assign(it,{tipo,nome,cat:$("#f-cat").value,freq,qtd,uni,alvo,totalMeta,
+      acum:lerPills("#p-acum")==="1", status:$("#f-status").value});
+    if(mudouFreq){ it.saldo=0; it.feito=0; it.periodoRef=chavePeriodo(freq,hoje()); }
+    it.saldo = Math.min(it.saldo||0, tetoAcumulo(it));
+    it.feito = Math.min(it.feito||0, alvoEfetivo(it));
     salvar(true); limparForm(); renderTudo();
     modal({selo:"ok",icone:"✓",titulo:"Editado",texto:"O objetivo foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
     return;
@@ -953,20 +1093,24 @@ function salvarItem(){
 function editarItem(idv){
   const it=E.itens.find(x=>x.id===idv); if(!it) return;
   editandoId=idv;
-  $("#form-titulo").textContent="Editar objetivo";
-  $("#b-salvar-item").textContent="Salvar edição";
+  $("#form-titulo").textContent="Editar Objetivo";
+  $("#b-salvar-item").textContent="Editar";
   marcarPill("#p-tipo",it.tipo); atualizarFormPorTipo();
-  $("#f-nome").value=it.nome; $("#f-cat").value=it.cat; $("#f-status").value=it.status;
+  $("#f-nome").value=it.nome;
+  definirSelect("#f-cat", it.cat);
+  $("#f-status").value=it.status;
   marcarPill("#p-freq",it.freq); marcarPill("#p-acum", it.acum?"1":"0");
-  $("#f-qtd").value=it.qtd; $("#f-uni").value=it.uni;
+  $("#f-qtd").value=it.qtd; definirSelect("#f-uni", it.uni);
   $("#f-total").value = it.tipo==="estudo" ? Math.round((it.totalMeta||0)/60) : (it.totalMeta||0);
   textoAcumulo();
-  ir("tarefas"); $("#palco").scrollTop=0; $("#f-nome").focus();
+  ir("tarefas");
+  $("#tela-tarefas .card").scrollIntoView({block:"start",behavior:"smooth"});
+  $("#f-nome").focus();
 }
 function excluirItem(idv){
   const it=E.itens.find(x=>x.id===idv); if(!it) return;
-  modal({selo:"perigo",icone:"🗑",titulo:"Excluir objetivo",
-    texto:"<b>"+esc(it.nome)+"</b><br>Situação: "+(it.status==="concluido"?"Concluído":"Andamento")+
+  modal({selo:"perigo",icone:"🗑",titulo:"Excluir Objetivo",
+    texto:"<b>Nome:</b> "+esc(it.nome)+"<br><b>Andamento:</b> "+(it.status==="concluido"?"Concluído":"Andamento")+
       "<br><span style='color:#E23B3B'>Confirme os dados antes de excluir.</span>",
     botoes:[
       {r:"Excluir",c:"btn-vermelho",f:()=>{
@@ -975,12 +1119,14 @@ function excluirItem(idv){
         salvar(true); renderTudo();
         modal({selo:"perigo",icone:"🗑",titulo:"Excluído",texto:"O objetivo saiu da sua lista.",botoes:[{r:"OK",c:"btn-cinza"}]});
       }},
-      {r:"Cancelar",c:"btn-cinza"}
+      {r:"Cancelar",c:"btn-azul"}
     ]});
 }
 function renderCrud(){
   const busca=$("#f-busca").value.trim().toLowerCase();
-  const lista=E.itens.filter(it=> !busca || it.nome.toLowerCase().includes(busca) || it.cat.toLowerCase().includes(busca));
+  const lista=E.itens.filter(it=> !busca
+    || String(it.nome||"").toLowerCase().includes(busca)
+    || String(it.cat||"").toLowerCase().includes(busca));
   if(!lista.length){
     $("#lista-crud").innerHTML = '<p class="vazio">'+(E.itens.length
       ? "Nada encontrado para essa busca."
@@ -989,24 +1135,27 @@ function renderCrud(){
   }
   $("#lista-crud").innerHTML = lista.map(it=>{
     const un = it.tipo==="estudo" ? fmtHM(it.alvo) : it.qtd+"x";
-    const fr = {diaria:"por dia",semanal:"por semana",mensal:"por mês"}[it.freq];
+    const fr = {diaria:"por dia",semanal:"por semana",mensal:"por mês"}[it.freq]||"";
     return '<div class="item">'+
       '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
       '<div class="sub"><span class="tag cat">'+esc(it.cat)+'</span>'+
       '<span class="tag '+(it.acum?"acum":"fixo")+'">'+(it.acum?"acumulativo":"fixo")+'</span>'+
       (it.status==="concluido"?'<span class="tag ok">concluído</span>':"")+
-      '<span>'+un+" "+fr+'</span></div></div>'+
-      '<button class="icone-btn del" data-del="'+it.id+'" title="Excluir">🗑</button>'+
-      '<button class="icone-btn edit" data-edit="'+it.id+'" title="Editar">✎</button>'+
+      '</div></div>'+
+      '<span class="qtd">'+un+"<br><small>"+fr+"</small></span>"+
+      '<button class="icone-btn del" type="button" data-del="'+it.id+'" aria-label="Excluir '+esc(it.nome)+'">🗑</button>'+
+      '<button class="icone-btn edit" type="button" data-edit="'+it.id+'" aria-label="Editar '+esc(it.nome)+'">✎</button>'+
       '</div>';
   }).join("");
 }
 function renderCargo(){
   const u=E.usuario||{};
+  const atual = u.cargo || "auto";
   const opcoes=["auto"].concat(CARGOS.map(c=>c.nome));
   $("#p-cargo").innerHTML = opcoes.map(o=>
-    '<button class="pill'+(((u.cargo||"auto")===o)?" on":"")+'" data-cargo="'+o+'">'+
-    (o==="auto"?"Automático":o)+"</button>").join("");
+    '<button class="radio'+((atual===o)?" on":"")+'" type="button" role="radio" aria-checked="'+
+    (atual===o)+'" data-cargo="'+esc(o)+'"><i aria-hidden="true"></i>'+
+    (o==="auto"?"auto":esc(o))+"</button>").join("");
 }
 
 /* --- Objetivos (executar) --- */
@@ -1018,21 +1167,27 @@ function linhaObjetivo(it){
     (it.acum?"":'<span class="tag fixo">fixo</span>');
   if(it.tipo==="estudo"){
     const total = alvoEfetivo(it), falta = restante(it);
+    // ordem do protótipo: nome · ▶ · relógio · ✓
     return '<div class="item">'+
       '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
       '<div class="sub">'+tags+'<span>meta '+fmtHM(total)+'</span></div></div>'+
       (conc
-        ? '<span class="relogio" style="background:#34A745">00:00:00</span><div class="marcador on">✓</div>'
-        : '<span class="relogio">'+fmtRelogio(falta*60)+'</span>'+
-          '<button class="icone-btn play" data-play="'+it.id+'" title="Iniciar">▶</button>')+
+        ? '<span class="relogio pronto">00:00:00</span>'+
+          '<button class="marcador on" type="button" data-check="'+it.id+'" aria-label="Reabrir '+esc(it.nome)+'">✓</button>'
+        : '<button class="icone-btn play" type="button" data-play="'+it.id+'" aria-label="Iniciar '+esc(it.nome)+'">▶</button>'+
+          '<span class="relogio">'+fmtRelogio(falta*60)+'</span>'+
+          '<button class="marcador" type="button" data-check="'+it.id+'" aria-label="Concluir '+esc(it.nome)+'">✓</button>')+
       '</div>';
   }
+  // tarefa: nome · contagem · caixa azul (protótipo "Tarefas mensal")
   const feitas = Math.min(it.feito||0, alvoEfetivo(it));
   return '<div class="item">'+
     '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
     '<div class="sub">'+tags+'<span>'+feitas+" de "+alvoEfetivo(it)+'</span></div></div>'+
-    '<button class="icone-btn '+(conc?"done":"edit")+'" data-mais="'+it.id+'" title="Marcar uma">＋</button>'+
-    '<button class="marcador'+(conc?" on":"")+'" data-check="'+it.id+'" title="Concluir">✓</button>'+
+    '<button class="icone-btn edit" type="button" data-mais="'+it.id+'" aria-label="Marcar uma de '+esc(it.nome)+'">＋</button>'+
+    '<span class="qtd">'+alvoEfetivo(it)+'</span>'+
+    '<button class="caixa'+(conc?" on":"")+'" type="button" data-check="'+it.id+'" aria-pressed="'+conc+
+      '" aria-label="Concluir '+esc(it.nome)+'">✓</button>'+
     '</div>';
 }
 function renderObjetivos(){
@@ -1051,7 +1206,7 @@ function renderObjetivos(){
     '<div class="item"><div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
     '<div class="sub"><span class="tag ok">meta batida</span><span>'+
     (it.tipo==="estudo"? fmtHM(it.progresso||0) : (it.progresso||0)+"x")+' no total</span></div></div>'+
-    '<button class="icone-btn edit" data-reabrir="'+it.id+'" title="Reabrir">↺</button></div>'
+    '<button class="icone-btn edit" type="button" data-reabrir="'+it.id+'" aria-label="Reabrir '+esc(it.nome)+'">↺</button></div>'
   ).join("") : '<p class="vazio">Nenhum objetivo finalizado ainda. Ele aparece aqui quando o total da meta for atingido.</p>';
 
   const d=metricasDoDia();
@@ -1067,10 +1222,11 @@ function renderPerfil(){
   const u=E.usuario||{};
   $("#pf-foto").src = fotoOu(u);
   $("#pf-nome").value=u.nome||""; $("#pf-email").value=u.email||"";
-  $("#pf-senha").value=u.senha||""; $("#pf-nasc").value=u.nasc||"";
-  if(u.sexo) $("#pf-sexo").value=u.sexo;
-  if(u.escola) $("#pf-escola").value=u.escola;
-  if(u.pais) $("#pf-pais").value=u.pais;
+  $("#pf-senha").value="";                 // nunca devolve a senha para a tela
+  $("#pf-nasc").value=u.nasc||"";
+  definirSelect("#pf-sexo", u.sexo);
+  definirSelect("#pf-escola", u.escola);
+  definirSelect("#pf-pais", u.pais);
   $("#pf-termos").checked=!!u.termos;
   $("#pf-armazenamento").textContent =
     "Salvo em: "+Store.modo+". "+E.itens.length+" objetivo(s), "+
@@ -1090,15 +1246,28 @@ const T = {itemId:null, restanteSeg:0, totalSeg:0, rodando:false, ultimo:0, acum
 let loop=null;
 function abrirFoco(idv){
   const it=E.itens.find(x=>x.id===idv); if(!it) return;
-  T.itemId=idv; T.rodando=false; T.acumulado=0;
+  if(T.rodando && T.itemId && T.itemId!==idv){
+    const anterior = E.itens.find(x=>x.id===T.itemId);
+    modal({selo:"info",icone:"⏱",titulo:"Cronômetro em uso",
+      texto:"<b>"+esc(anterior? anterior.nome : "Outro objetivo")+"</b> está rodando agora."+
+        "<br>Quer pausar e trocar para <b>"+esc(it.nome)+"</b>?",
+      botoes:[{r:"Trocar",c:"btn-roxo",f:()=>{ pausar(true); montarFoco(it); }},{r:"Cancelar",c:"btn-cinza"}]});
+    return;
+  }
+  if(T.rodando && T.itemId===idv){ $("#foco").classList.add("on"); return; }
+  montarFoco(it);
+}
+function montarFoco(it){
+  T.itemId=it.id; T.rodando=false; T.acumulado=0;
   T.totalSeg = alvoEfetivo(it)*60;
   T.restanteSeg = restante(it)*60;
-  $("#fc-cat").textContent = it.cat+" · "+{diaria:"diário",semanal:"semanal",mensal:"mensal"}[it.freq];
+  $("#fc-cat").textContent = it.cat+" · "+({diaria:"diário",semanal:"semanal",mensal:"mensal"}[it.freq]||"");
   $("#fc-titulo").textContent = it.nome;
   $("#fc-meta").textContent = "Meta do período: "+fmtHM(alvoEfetivo(it))+
     ((it.saldo||0)>0 ? " (inclui "+fmtHM(it.saldo)+" acumulados)" : "");
   pintarFoco();
   $("#foco").classList.add("on");
+  $("#fc-play").focus();
 }
 function pintarFoco(){
   $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
@@ -1122,6 +1291,7 @@ function tique(){
   if(!T.rodando) return;
   const agora=Date.now(), delta=(agora-T.ultimo)/1000;
   T.ultimo=agora;
+  if(delta<=0) return;
   T.restanteSeg = Math.max(0, T.restanteSeg-delta);
   T.acumulado += delta;
   $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
@@ -1135,24 +1305,31 @@ function descarregar(){
   if(it && T.acumulado>0){ creditarEstudo(it, T.acumulado/60); }
   T.acumulado=0;
 }
-function pausar(){
+function pausar(silencioso){
   if(!T.rodando) return;
   T.rodando=false; clearInterval(loop); loop=null;
   descarregar(); salvar(true); pintarFoco(); renderTudo();
-  aviso("Pausado. O tempo já feito foi salvo.");
+  if(!silencioso) aviso("Pausado. O tempo já feito foi salvo.");
 }
 function encerrar(){
   const it=E.itens.find(x=>x.id===T.itemId);
   T.rodando=false; clearInterval(loop); loop=null;
   descarregar(); salvar(true);
   $("#foco").classList.remove("on");
+  T.itemId=null;
   renderTudo();
   if(it) aviso("Sessão encerrada. "+fmtHM(restante(it))+" ainda faltam.");
+}
+function fecharFoco(){
+  if(T.rodando) pausar(true);
+  $("#foco").classList.remove("on");
+  renderTudo();
 }
 function zerou(){
   T.rodando=false; clearInterval(loop); loop=null;
   descarregar();
   const it=E.itens.find(x=>x.id===T.itemId);
+  T.itemId=null;
   $("#foco").classList.remove("on");
   if(it) concluirCiclo(it,true);
 }
@@ -1160,7 +1337,7 @@ function zerou(){
 /* ---------- 8. AUTENTICAÇÃO ---------- */
 function entrar(){
   const em=$("#in-email").value.trim().toLowerCase(), se=$("#in-senha").value;
-  if(!E.usuario){ $("#erro-login").textContent="Nenhuma conta neste aparelho. Crie uma conta primeiro."; return; }
+  if(!E.usuario){ $("#erro-login").textContent="Nenhuma conta neste aparelho. Cadastre-se primeiro."; return; }
   if(em!==(E.usuario.email||"").toLowerCase() || se!==E.usuario.senha){
     $("#erro-login").textContent="Email ou senha não conferem."; return;
   }
@@ -1179,6 +1356,7 @@ function criarConta(){
   E.usuario={nome,email:em,senha:s1,foto:null,nasc:"",sexo:"Prefiro não informar",
     escola:"Superior",pais:"Brasil",cargo:"auto",termos:true};
   E.logado=true; salvar(true);
+  $("#cad-senha").value=""; $("#cad-senha2").value="";
   ir("home");
   modal({selo:"ok",icone:"✓",titulo:"Conta criada",
     texto:"Bem-vindo, "+esc(nome.split(" ")[0])+".<br>Agora cadastre seus objetivos na aba Tarefas.",
@@ -1199,10 +1377,14 @@ function recuperar(){
 
 /* ---------- 9. FOTO DE PERFIL ---------- */
 function lerFoto(arq){
+  if(!E.usuario){ aviso("Entre na sua conta para trocar a foto."); return; }
+  if(!/^image\//.test(arq.type||"")){ aviso("Escolha um arquivo de imagem."); return; }
   const fr=new FileReader();
+  fr.onerror=()=>aviso("Não foi possível ler essa imagem.");
   fr.onload = ev=>{
     const img=new Image();
     img.onload=()=>{
+      if(!E.usuario) return;
       const lado=Math.min(img.width,img.height);
       const cv=document.createElement("canvas"); cv.width=cv.height=280;
       const cx=cv.getContext("2d");
@@ -1216,20 +1398,114 @@ function lerFoto(arq){
   fr.readAsDataURL(arq);
 }
 
-/* ---------- 10. DADOS DE EXEMPLO ---------- */
+/* ---------- 10. ASSISTENTE DE ESTUDOS (offline) ---------- */
+const GUIA = [
+  {ch:["html","tag","etiqueta","markup"], t:"O que é HTML",
+   c:"O HTML é a estrutura da página — as tags (etiquetas) são as fundações, as vigas e as paredes de uma casa.\n\n<b>Os elementos principais</b>\n• <b>&lt;html&gt;</b>: a raiz de todo o documento.\n• <b>&lt;head&gt;</b>: o centro de controle — título, metadados, links de CSS. Não aparece na tela.\n• <b>&lt;body&gt;</b>: a parte visível, o que o visitante realmente lê.\n\nComece marcando o conteúdo pelo significado (h1, p, ul, article) antes de pensar em aparência. É isso que chamam de HTML semântico."},
+  {ch:["css","estilo","layout","flex","grid"], t:"Como estudar CSS",
+   c:"O CSS decide a aparência. Estude nesta ordem:\n1. Seletores e especificidade.\n2. Box model (margin, border, padding, content).\n3. Fluxo e posicionamento.\n4. Flexbox — layouts em uma direção.\n5. Grid — layouts em duas direções.\n6. Media queries e responsividade.\n\nTruque: reconstrua uma tela que você já usa (esta, por exemplo) só olhando o print. Você aprende mais do que em dez vídeos."},
+  {ch:["javascript","js","função","funcao","async","promise"], t:"Roteiro de JavaScript",
+   c:"1. Tipos, variáveis, operadores.\n2. Funções e escopo (var × let × const).\n3. Arrays e objetos — map, filter, reduce.\n4. DOM: querySelector, addEventListener.\n5. Assíncrono: callbacks → Promises → async/await.\n6. Fetch e JSON.\n7. Módulos e ferramentas de build.\n\nFaça um projeto por etapa. Teoria sem projeto evapora em uma semana."},
+  {ch:["git","github","commit","branch","versionamento"], t:"Git no dia a dia",
+   c:"Os oito comandos que resolvem 90% do trabalho:\n• git status — onde eu estou\n• git add . / git add arquivo\n• git commit -m \"mensagem\"\n• git log --oneline\n• git branch nome / git switch nome\n• git merge nome\n• git pull / git push\n• git restore arquivo (desfaz mudança local)\n\nCommit pequeno e frequente. Mensagem no imperativo: \"corrige cálculo do saldo\"."},
+  {ch:["sql","banco","database","query","select"], t:"SQL essencial",
+   c:"SELECT colunas FROM tabela WHERE condição GROUP BY … HAVING … ORDER BY … LIMIT …\n\nA ordem em que o banco executa é outra: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. Saber isso explica por que não dá para usar um apelido do SELECT dentro do WHERE.\n\nDepois: JOINs (inner, left), índices e normalização."},
+  {ch:["aws","nuvem","cloud","s3","ec2"], t:"Certificação AWS",
+   c:"Para a Cloud Practitioner, foque em: modelo de responsabilidade compartilhada, regiões e zonas de disponibilidade, EC2, S3, RDS, IAM, VPC básico e preços.\n\nPara a Solutions Architect Associate, some: alta disponibilidade, balanceadores, auto scaling, backup e recuperação.\n\nSimulados valem mais que releitura: erre agora, na prática, não na prova."},
+  {ch:["inglês","ingles","english","idioma"], t:"Inglês para tecnologia",
+   c:"Você não precisa de fluência para programar — precisa de leitura rápida e escuta razoável.\n\n• 20 minutos por dia lendo documentação oficial em inglês.\n• Troque legendas de vídeos técnicos para inglês.\n• Anote só as palavras que aparecerem três vezes ou mais.\n• Escreva os commits em inglês, é prática de graça.\n\nConstância de 20 minutos vence maratona de 3 horas no sábado."},
+  {ch:["pomodoro","foco","concentração","concentracao"], t:"Foco e pomodoro",
+   c:"25 minutos de estudo, 5 de pausa, e a cada 4 ciclos uma pausa longa de 15 a 30 minutos.\n\nRegras que fazem diferença:\n• Celular em outro cômodo, não só virado para baixo.\n• Uma tarefa por pomodoro. Se surgir outra ideia, anote e siga.\n• A pausa é obrigatória — é nela que o cérebro consolida.\n\nUse o cronômetro do DevLog: ele já grava o tempo no seu histórico."},
+  {ch:["procrastinar","procrastinação","procrastinacao","preguiça","preguica","desanimado","desânimo","desanimo"], t:"Quando bate a preguiça",
+   c:"A procrastinação quase nunca é preguiça — é a tarefa estar grande demais para caber na cabeça.\n\nO que funciona:\n• Reduza o objetivo até ficar ridículo de fácil: \"abrir o editor\", \"ler um parágrafo\".\n• Combine dois minutos. Quase sempre você continua.\n• Deixe o ambiente pronto na noite anterior.\n• Marque o dia no DevLog mesmo quando render pouco. A sequência é o que segura."},
+  {ch:["carreira","emprego","vaga","currículo","curriculo","entrevista","portfólio","portfolio"], t:"Primeira vaga",
+   c:"O que realmente pesa:\n1. Três projetos que resolvam problemas de verdade, no GitHub, com README explicando o porquê.\n2. LinkedIn com o mesmo texto do currículo, sem enfeite.\n3. Candidaturas em volume — é um jogo de números.\n4. Treinar responder \"me fale sobre você\" em 90 segundos.\n\nNo DevLog, cadastre \"Enviar currículos\" como tarefa semanal. Meta que não é medida não acontece."}
+];
+function respostaDados(q){
+  const d = metricasDoDia();
+  const dom = domingoDa(hoje()); let sem=0;
+  for(let i=0;i<7;i++){ const dt=new Date(dom); dt.setDate(dom.getDate()+i); sem += (E.hist[chaveDia(dt)]||{}).min||0; }
+  const hojeMin = (E.hist[chaveDia()]||{}).min||0;
+  const abertos = E.itens.filter(it=>it.status!=="concluido" && it.freq==="diaria" && restante(it)>0);
+
+  if(/(hoje|dia de hoje|hj)/.test(q) && /(estud|tempo|quanto|falta|fiz)/.test(q)){
+    return "Hoje você registrou <b>"+fmtHM(hojeMin)+"</b> de estudo."+
+      (d.meta? " Isso é "+d.pct+"% da meta do dia ("+fmtHM(d.meta)+")."+
+        (abertos.length? " Ainda em aberto: "+abertos.map(it=>esc(it.nome)).join(", ")+"." : " Tudo fechado, pode descansar.")
+       : " Você ainda não tem objetivos diários cadastrados.");
+  }
+  if(/(semana|semanal)/.test(q)){
+    return "Nesta semana você acumulou <b>"+fmtHM(sem)+"</b>, uma média de "+fmtHM(sem/7)+" por dia.";
+  }
+  if(/(ponto|pontua|cargo|nível|nivel|carreira|promo)/.test(q)){
+    const atual=cargoPorPontos(E.pontos), i=CARGOS.findIndex(c=>c.nome===atual.nome), prox=CARGOS[i+1];
+    return "Você tem <b>"+E.pontos+" pontos</b> e está como <b>"+cargoAtual()+"</b>."+
+      (prox? " Faltam "+Math.max(0,prox.min-E.pontos)+" pontos para "+prox.nome+"." : " É o topo da escada.");
+  }
+  if(/(falta|pendente|aberto|o que fazer|por onde)/.test(q)){
+    if(!abertos.length) return "Nada pendente para hoje. Se quiser adiantar, abra um objetivo semanal.";
+    return "Faltam hoje:\n"+abertos.map(it=>"• "+esc(it.nome)+" — "+
+      (it.tipo==="estudo"? fmtHM(restante(it)) : restante(it)+"x")).join("\n");
+  }
+  return null;
+}
+function responderIA(pergunta){
+  const q = pergunta.toLowerCase();
+  const dados = respostaDados(q);
+  if(dados) return dados;
+  let melhor=null, placar=0;
+  GUIA.forEach(g=>{
+    const n = g.ch.filter(k=>q.includes(k)).length;
+    if(n>placar){ placar=n; melhor=g; }
+  });
+  if(melhor) return "<b>"+esc(melhor.t)+"</b>\n\n"+melhor.c;
+  return "Ainda não sei responder isso — trabalho sem internet, com um guia embutido.\n\n"+
+    "Posso ajudar com: HTML, CSS, JavaScript, Git, SQL, AWS, inglês, foco/pomodoro, procrastinação e primeira vaga. "+
+    "Também respondo sobre os seus números: pergunte <i>quanto estudei hoje</i>, <i>quantos pontos tenho</i> ou <i>o que falta hoje</i>.";
+}
+function balao(quem, htmlTexto){
+  const el=document.createElement("div");
+  el.className="balao "+quem;
+  el.innerHTML=htmlTexto;
+  $("#chat").appendChild(el);
+  $("#palco").scrollTop = $("#palco").scrollHeight;
+}
+const SUGESTOES = ["O que é HTML?","Quanto estudei hoje?","O que falta hoje?","Como parar de procrastinar?","Quantos pontos tenho?"];
+function montarSugestoes(){
+  $("#sugestoes").innerHTML = SUGESTOES.map(s=>
+    '<button class="sugestao" type="button" data-sug="'+esc(s)+'">'+esc(s)+"</button>").join("");
+}
+function perguntar(texto){
+  const t=(texto!=null? texto : $("#ia-txt").value).trim();
+  if(!t) return;
+  balao("eu", esc(t));
+  $("#ia-txt").value="";
+  setTimeout(()=>balao("ia", responderIA(t)), 180);
+}
+function abrirIA(){
+  if(!$("#chat").children.length){
+    const nome = (E.usuario && E.usuario.nome) ? E.usuario.nome.split(" ")[0] : "por aqui";
+    balao("ia","Oi, "+esc(nome)+". Sou a assistente do DevLog e funciono sem internet.\n"+
+      "Posso explicar assuntos de programação ou olhar os seus números. Para que serve?");
+  }
+  ir("ia");
+  $("#ia-txt").focus();
+}
+
+/* ---------- 11. DADOS DE EXEMPLO ---------- */
 function carregarDemo(){
   const mk=(tipo,nome,cat,freq,alvo,acum,totalMeta)=>({
     id:id(),tipo,nome,cat,freq,qtd:tipo==="estudo"?alvo/60:alvo,uni:tipo==="estudo"?"horas":"vezes",
     alvo,totalMeta,acum,status:"andamento",feito:0,saldo:0,progresso:0,
     periodoRef:chavePeriodo(freq,hoje()),criadoEm:chaveDia(),ultimaConclusao:null});
   E.itens = [
-    mk("estudo","Inglês","Idioma","diaria",60,true,360*60),
+    mk("estudo","Curso Inglês","Idioma","diaria",60,true,360*60),
     mk("estudo","Faculdade EAD","Faculdade","diaria",120,true,800*60),
     mk("estudo","Curso AWS","Certificação","diaria",60,false,120*60),
-    mk("estudo","Projeto portfólio","Projeto","semanal",300,true,200*60),
-    mk("tarefa","Enviar currículos","Outro","semanal",5,true,100),
+    mk("estudo","Projeto Portfólio","Projeto","semanal",300,true,200*60),
     mk("tarefa","Entrevistas","Outro","mensal",5,false,60),
-    mk("tarefa","Conexões no LinkedIn","Outro","mensal",4,true,48)
+    mk("tarefa","Projeto GitHub","Projeto","mensal",3,true,36),
+    mk("tarefa","Conexões LinkedIn","Outro","mensal",4,true,48)
   ];
   E.itens[0].saldo=60; E.itens[1].feito=45;
   E.hist={}; E.pontos=0; E.concluidos=0;
@@ -1253,10 +1529,11 @@ function exportar(){
   const txt=JSON.stringify(E,null,2);
   try{
     const b=new Blob([txt],{type:"application/json"});
+    const url=URL.createObjectURL(b);
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(b); a.download="devlog-backup.json";
+    a.href=url; a.download="devlog-backup.json";
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
     aviso("Backup gerado.");
   }catch(e){
     modal({selo:"info",icone:"⇩",titulo:"Backup",
@@ -1265,14 +1542,22 @@ function exportar(){
   }
 }
 
-/* ---------- 11. EVENTOS ---------- */
+/* ---------- 12. EVENTOS ---------- */
 $$(".nav-btn").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
 $("#b-entrar").onclick=entrar;
+$("#in-email").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#in-senha").focus(); });
 $("#in-senha").addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
 $("#b-ir-cadastro").onclick=()=>ir("cadastro");
 $("#b-esqueci").onclick=()=>ir("esqueci");
 $("#b-criar").onclick=criarConta;
+$("#cad-senha2").addEventListener("keydown",e=>{ if(e.key==="Enter") criarConta(); });
 $("#b-recuperar").onclick=recuperar;
+$("#rec-nova").addEventListener("keydown",e=>{ if(e.key==="Enter") recuperar(); });
+$("#b-ajuda").onclick=()=>modal({selo:"info",icone:"?",titulo:"Ajuda do suporte",
+  texto:"O DevLog roda inteiro no seu aparelho, sem servidor e sem cadastro remoto.<br><br>"+
+    "Se você esqueceu o email da conta, use <b>Apagar tudo</b> na aba Perfil e comece de novo — "+
+    "exporte os dados antes, se quiser guardar o histórico.",
+  botoes:[{r:"Entendi",c:"btn-azul"}]});
 $$("[data-voltar-login]").forEach(b=>b.onclick=()=>ir("login"));
 
 ["#p-tipo","#p-freq","#p-acum"].forEach(sel=>{
@@ -1285,15 +1570,19 @@ $$("[data-voltar-login]").forEach(b=>b.onclick=()=>ir("login"));
   });
 });
 $("#b-salvar-item").onclick=salvarItem;
+$("#f-nome").addEventListener("keydown",e=>{ if(e.key==="Enter") salvarItem(); });
 $("#b-cancelar-item").onclick=()=>{ limparForm(); aviso("Formulário limpo."); };
 $("#f-busca").addEventListener("input",renderCrud);
+$("#f-busca").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); renderCrud(); } });
+$("#b-pesquisar").onclick=()=>{ renderCrud(); $("#lista-crud").scrollIntoView({block:"nearest",behavior:"smooth"}); };
 $("#lista-crud").addEventListener("click",e=>{
   const d=e.target.closest("[data-del]"), ed=e.target.closest("[data-edit]");
   if(d) excluirItem(d.dataset.del);
-  if(ed) editarItem(ed.dataset.edit);
+  else if(ed) editarItem(ed.dataset.edit);
 });
 $("#p-cargo").addEventListener("click",e=>{
-  const b=e.target.closest("[data-cargo]"); if(!b||!E.usuario) return;
+  const b=e.target.closest("[data-cargo]"); if(!b) return;
+  if(!E.usuario){ aviso("Entre na sua conta para escolher o cargo."); return; }
   E.usuario.cargo=b.dataset.cargo; salvar(true); renderCargo(); aviso("Cargo atualizado.");
 });
 
@@ -1302,19 +1591,27 @@ $("#tela-objetivos").addEventListener("click",e=>{
   const ck=e.target.closest("[data-check]");
   const ma=e.target.closest("[data-mais]");
   const rb=e.target.closest("[data-reabrir]");
-  if(pl) abrirFoco(pl.dataset.play);
+  if(pl){ abrirFoco(pl.dataset.play); return; }
   if(ma){
     const it=E.itens.find(x=>x.id===ma.dataset.mais); if(!it) return;
     if(restante(it)<=0){ aviso("Já concluído neste período."); return; }
+    // pontos e alvo são lidos antes de mexer no saldo, senão mudam no meio do caminho
+    const pts = pontosDe(it), alvoCiclo = alvoEfetivo(it), saldoAntes = it.saldo||0, statusAntes = it.status;
     it.feito=(it.feito||0)+1; it.progresso=(it.progresso||0)+1;
-    if(restante(it)<=0){ E.pontos+=8; E.concluidos+=1; registrarHistorico(0,1,8); it.saldo=0;
+    if(restante(it)<=0){
+      E.pontos+=pts; E.concluidos+=1; registrarHistorico(0,1,pts);
+      it.saldo=0; it.ultimaConclusao=chaveDia();
+      it.desfazer={feito:0, saldo:saldoAntes, status:statusAntes, credito:alvoCiclo, pontos:pts};
       if(it.totalMeta>0 && it.progresso>=it.totalMeta) it.status="concluido";
-      bip(920,.3); aviso("Concluído! +8 pontos"); }
+      bip(920,.3); aviso("Concluído! +"+pts+" pontos");
+    }
     salvar(true); renderTudo();
+    return;
   }
   if(ck){
     const it=E.itens.find(x=>x.id===ck.dataset.check); if(!it) return;
     if(restante(it)<=0) desfazerCiclo(it); else concluirCiclo(it,true);
+    return;
   }
   if(rb){
     const it=E.itens.find(x=>x.id===rb.dataset.reabrir); if(!it) return;
@@ -1324,22 +1621,24 @@ $("#tela-objetivos").addEventListener("click",e=>{
 });
 
 $("#fc-play").onclick=tocar;
-$("#fc-pausa").onclick=pausar;
+$("#fc-pausa").onclick=()=>pausar(false);
 $("#fc-para").onclick=encerrar;
-$("#fc-fechar").onclick=()=>{ if(T.rodando) pausar(); $("#foco").classList.remove("on"); renderTudo(); };
+$("#fc-fechar").onclick=fecharFoco;
 
 $("#b-foto").onclick=()=>$("#in-foto").click();
 $("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.target.files[0]); e.target.value=""; });
 $("#b-tirar-foto").onclick=()=>{ if(E.usuario){ E.usuario.foto=null; salvar(true); renderPerfil(); aviso("Foto removida."); } };
 $("#b-salvar-perfil").onclick=()=>{
+  if(!E.usuario){ $("#erro-perfil").textContent="Nenhuma conta ativa neste aparelho."; return; }
   const nome=$("#pf-nome").value.trim(), em=$("#pf-email").value.trim(), se=$("#pf-senha").value;
   if(nome.length<2){ $("#erro-perfil").textContent="Escreva seu nome."; return; }
   if(!/^\S+@\S+\.\S+$/.test(em)){ $("#erro-perfil").textContent="Email inválido."; return; }
-  if(se.length<4){ $("#erro-perfil").textContent="A senha precisa de ao menos 4 caracteres."; return; }
+  if(se && se.length<4){ $("#erro-perfil").textContent="A senha precisa de ao menos 4 caracteres."; return; }
   if(!$("#pf-termos").checked){ $("#erro-perfil").textContent="É preciso aceitar os termos."; return; }
   $("#erro-perfil").textContent="";
-  Object.assign(E.usuario,{nome,email:em,senha:se,nasc:$("#pf-nasc").value,sexo:$("#pf-sexo").value,
+  Object.assign(E.usuario,{nome,email:em,nasc:$("#pf-nasc").value,sexo:$("#pf-sexo").value,
     escola:$("#pf-escola").value,pais:$("#pf-pais").value,termos:true});
+  if(se) E.usuario.senha=se;              // em branco = mantém a senha atual
   salvar(true); renderTudo();
   modal({selo:"ok",icone:"✓",titulo:"Salvo",texto:"Seu perfil foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
 };
@@ -1350,23 +1649,49 @@ $("#b-exportar").onclick=exportar;
 $("#b-zerar").onclick=()=>modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo",
   texto:"Objetivos, histórico, pontos e conta serão apagados deste aparelho.",
   botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
-    await Store.apagar(CHAVE); E=estadoNovo(); salvar(true); ir("login"); aviso("Tudo apagado.");
+    if(T.rodando) pausar(true);
+    await Store.apagar(CHAVE); E=estadoNovo(); T.itemId=null;
+    $("#chat").innerHTML=""; salvar(true); ir("login"); aviso("Tudo apagado.");
   }},{r:"Cancelar",c:"btn-cinza"}]});
-$("#b-sair").onclick=()=>{ E.logado=false; salvar(true); ir("login"); };
+$("#b-sair").onclick=()=>{ if(T.rodando) pausar(true); E.logado=false; salvar(true); ir("login"); };
+
+/* Assistente */
+$("#fab").onclick=abrirIA;
+$("#b-perguntar").onclick=()=>perguntar();
+$("#ia-txt").addEventListener("keydown",e=>{ if(e.key==="Enter") perguntar(); });
+$("#sugestoes").addEventListener("click",e=>{
+  const b=e.target.closest("[data-sug]"); if(b) perguntar(b.dataset.sug);
+});
+montarSugestoes();
 
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden && T.rodando){ descarregar(); salvar(true); }
-  else if(!document.hidden && T.rodando){ T.ultimo=Date.now(); }
+  if(!T.rodando) return;
+  // o tempo real continua valendo: ao voltar, o próprio tique aplica o intervalo passado
+  if(document.hidden){ descarregar(); salvar(true); }
+  else tique();
 });
-window.addEventListener("beforeunload",()=>{ if(T.rodando) descarregar(); Store.gravar(CHAVE,E); });
+function despedida(){ if(T.rodando) descarregar(); Store.gravar(CHAVE,E); }
+window.addEventListener("pagehide", despedida);
+window.addEventListener("beforeunload", despedida);
 
 /* vira o dia sozinho enquanto o app fica aberto */
 setInterval(()=>{ if(virarPeriodos()) renderTudo(); }, 60000);
 
-/* ---------- 12. PARTIDA ---------- */
+/* ---------- 13. PARTIDA ---------- */
 (async function iniciar(){
   const salvo = await Store.ler(CHAVE);
-  if(salvo && typeof salvo==="object"){ E = Object.assign(estadoNovo(), salvo); }
+  if(salvo && typeof salvo==="object"){
+    E = Object.assign(estadoNovo(), salvo);
+    if(!Array.isArray(E.itens)) E.itens=[];
+    if(!E.hist || typeof E.hist!=="object") E.hist={};
+    // completa objetivos gravados por versões antigas
+    E.itens.forEach(it=>{
+      it.feito = it.feito||0; it.saldo = it.saldo||0; it.progresso = it.progresso||0;
+      it.cat = it.cat||"Outro"; it.status = it.status||"andamento";
+      if(!it.periodoRef) it.periodoRef = chavePeriodo(it.freq, hoje());
+    });
+  }
+  if(E.logado && !E.usuario) E.logado=false;
   virarPeriodos();
   limparForm();
   if(E.logado && E.usuario){ ir("home"); }
