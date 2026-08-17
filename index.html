@@ -80,7 +80,8 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
 
 /* ---------- Área rolável ---------- */
-#palco{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:14px 14px 28px;-webkit-overflow-scrolling:touch}
+#palco{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 34px)}
 .tela{display:none;animation:sobe .22s ease}
 .tela.on{display:block}
 @keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -107,10 +108,22 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 }
 .campo input::placeholder{color:#A6A4BE}
 .campo input:focus,.campo select:focus{border-color:var(--roxo);background:#fff}
-.dupla{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tripla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+/* auto-fit: as colunas viram uma só quando não cabem lado a lado.
+   min-width:0 é o que impede um campo largo (a data, por exemplo) de
+   estourar a própria coluna e invadir a vizinha. */
+.dupla{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tripla{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.dupla>*,.tripla>*{min-width:0}
+.campo input,.campo select{max-width:100%}
+/* o campo de data nativo tem largura mínima própria e o ícone do
+   calendário fica por cima do texto quando aperta; isto o obriga a
+   respeitar a largura da coluna */
+input[type="date"]{appearance:none;-webkit-appearance:none;min-width:0}
+input[type="date"]::-webkit-date-and-time-value{text-align:left}
+input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 4px;padding:0;flex:0 0 auto}
 
-.btn{display:block;width:100%;padding:11px;border-radius:999px;font-weight:700;font-size:14.5px;
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:11px 14px;
+  border-radius:999px;font-weight:700;font-size:14.5px;line-height:1.2;text-align:center;
   transition:transform .1s,filter .15s}
 .btn:active{transform:scale(.98)}
 .btn-azul{background:var(--azul);color:#fff}
@@ -124,20 +137,12 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 
 /* Seletores em pílula (tipo, frequência, acumulativo…) */
 .pills{display:flex;gap:6px;flex-wrap:wrap}
-.pill{flex:1 1 auto;text-align:center;padding:8px 6px;border:1.5px solid var(--linha);
-  border-radius:999px;font-size:12.5px;font-weight:600;color:var(--texto-fraco);background:#fff;min-width:70px}
+.pill{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:40px;
+  text-align:center;padding:8px 10px;border:1.5px solid var(--linha);border-radius:999px;
+  font-size:12.5px;font-weight:600;color:var(--texto-fraco);background:#fff;min-width:70px}
 .pill.on{background:var(--roxo);border-color:var(--roxo);color:#fff}
 .pill.on.verde{background:var(--verde-esc);border-color:var(--verde-esc)}
 
-/* Rádios do "Cargo Atual" — linha de bolinhas, como no protótipo */
-.radios{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 2px}
-.radio{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1 1 60px;
-  font-size:10.5px;font-weight:600;color:var(--texto-fraco);background:none;padding:2px 0}
-.radio i{width:18px;height:18px;border-radius:50%;border:2px solid #A9A7C6;background:#fff;
-  display:block;flex:0 0 auto;position:relative}
-.radio.on{color:var(--roxo)}
-.radio.on i{border-color:var(--roxo)}
-.radio.on i::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--roxo)}
 
 .check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;margin:10px 0}
 .check input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--roxo);flex:0 0 auto}
@@ -146,7 +151,8 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 #tela-login .marca{text-align:center;color:#fff;font-size:38px;font-weight:800;letter-spacing:.01em;
   margin:34px 0 20px;text-shadow:0 3px 10px rgba(0,0,0,.25)}
 #tela-login .marca small{display:block;font-size:12.5px;font-weight:500;opacity:.85;letter-spacing:.06em;margin-top:4px}
-.link{display:block;width:100%;text-align:center;font-size:12.5px;color:var(--azul);text-decoration:underline;margin:10px 0;background:none}
+.link{display:block;width:100%;min-height:40px;padding:10px 4px;text-align:center;font-size:12.5px;
+  color:var(--azul);text-decoration:underline;margin:4px 0;background:none}
 .erro{color:var(--vermelho);font-size:12.5px;margin:6px 0 0;min-height:16px;font-weight:600}
 
 /* ---------- Dashboard ---------- */
@@ -184,7 +190,7 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .tag.ok{background:#DDF5E1;color:#227A32}
 .tag.cat{background:#EDECFB;color:#5B4FE8}
 
-.icone-btn{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+.icone-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
   flex:0 0 auto;color:#fff;font-size:15px}
 .icone-btn.play{background:var(--azul);border-radius:50%;font-size:13px}
 .icone-btn.edit{background:var(--azul)}
@@ -194,11 +200,11 @@ button{cursor:pointer;border:none;background:none;color:inherit}
   padding:7px 9px;border-radius:999px;flex:0 0 auto;letter-spacing:.02em}
 .relogio.pronto{background:var(--verde-esc)}
 /* círculo de conclusão das tarefas de estudo */
-.marcador{width:28px;height:28px;border-radius:50%;border:2.5px solid #B9B7D2;background:#fff;
+.marcador{width:32px;height:32px;border-radius:50%;border:2.5px solid #B9B7D2;background:#fff;
   display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#B9B7D2;font-weight:900;font-size:14px}
 .marcador.on{background:var(--verde-esc);border-color:var(--verde-esc);color:#fff}
 /* caixa quadrada azul das tarefas mensais */
-.caixa{width:24px;height:24px;border-radius:6px;border:2px solid #B9B7D2;background:#fff;
+.caixa{width:28px;height:28px;border-radius:7px;border:2px solid #B9B7D2;background:#fff;
   display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:transparent;font-weight:900;font-size:14px}
 .caixa.on{background:var(--azul);border-color:var(--azul);color:#fff}
 
@@ -249,7 +255,9 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 .ctrl.fechar{background:rgba(255,255,255,.2)}
 
 /* ---------- Aviso flutuante ---------- */
-#aviso{position:fixed;left:50%;bottom:24px;transform:translate(-50%,160%);background:var(--nav);color:#fff;
+/* fica no topo: embaixo a barra do navegador do celular tapava a tarja */
+#aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 78px);transform:translate(-50%,-320%);
+  background:var(--nav);color:#fff;
   padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;transition:transform .28s ease;
   box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center;pointer-events:none}
 #aviso.on{transform:translate(-50%,0)}
@@ -269,29 +277,6 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
   padding:8px 14px;border-radius:999px;flex:0 0 auto}
 .rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
 
-/* ---------- Botão flutuante da assistente ---------- */
-#fab{position:absolute;right:16px;bottom:18px;width:54px;height:54px;border-radius:50%;
-  background:linear-gradient(150deg,var(--azul),#6F5BF0);color:#fff;display:none;
-  align-items:center;justify-content:center;font-size:17px;font-weight:800;letter-spacing:-.02em;
-  box-shadow:0 10px 26px rgba(20,15,70,.45);z-index:40;border:2.5px solid rgba(255,255,255,.35)}
-#fab.on{display:flex}
-
-/* ---------- Assistente (chat) ---------- */
-#chat{display:flex;flex-direction:column;gap:10px;min-height:220px;margin-bottom:12px}
-.balao{max-width:86%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.55;white-space:pre-wrap;
-  word-wrap:break-word;overflow-wrap:anywhere}
-.balao.eu{align-self:flex-end;background:var(--roxo);color:#fff;border-bottom-right-radius:5px}
-.balao.ia{align-self:flex-start;background:#fff;color:var(--texto);border-bottom-left-radius:5px;
-  box-shadow:0 2px 8px rgba(24,20,70,.08)}
-.balao b{color:inherit}
-.sugestoes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.sugestao{background:#fff;border:1px solid var(--linha);border-radius:999px;padding:7px 12px;
-  font-size:11.5px;font-weight:600;color:var(--roxo)}
-.pergunta{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--linha);
-  border-radius:999px;padding:4px 4px 4px 14px;position:sticky;bottom:0}
-.pergunta input{flex:1 1 auto;min-width:0;border:none;background:none;outline:none;padding:9px 0}
-.pergunta button{width:40px;height:40px;border-radius:50%;background:var(--azul);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -474,12 +459,6 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
       </div>
 
       <div class="card">
-        <h2>Cargo Atual</h2>
-        <div class="radios" id="p-cargo" role="radiogroup" aria-label="Cargo atual"></div>
-        <p class="legenda" style="margin:11px 0 0;text-align:center">O cargo é sugerido pelos seus pontos, mas você pode fixar o seu.</p>
-      </div>
-
-      <div class="card">
         <div class="busca">
           <label for="f-busca" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pesquisar objetivos</label>
           <input id="f-busca" placeholder="Procurar">
@@ -560,24 +539,10 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
       <p class="rodape">DevLog · versão 1.1 · feito para não deixar estudo para depois</p>
     </section>
 
-    <!-- ===================== ASSISTENTE (IA) ===================== -->
-    <section class="tela" id="tela-ia">
-      <h1 class="pagina-titulo">IA</h1>
-      <div class="card">
-        <div id="chat" role="log" aria-live="polite" aria-label="Conversa com a assistente"></div>
-        <div class="sugestoes" id="sugestoes"></div>
-        <div class="pergunta">
-          <label for="ia-txt" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pergunta</label>
-          <input id="ia-txt" placeholder="Perguntar" autocomplete="off">
-          <button type="button" id="b-perguntar" aria-label="Enviar pergunta">➤</button>
-        </div>
-      </div>
-      <p class="rodape">A assistente funciona sem internet: ela responde com base nos seus dados e num guia de estudos embutido.</p>
     </section>
 
   </main>
 
-  <button id="fab" type="button" aria-label="Abrir assistente de estudos">A<span aria-hidden="true">✦</span></button>
 </div>
 
 <!-- ===================== MODAL ===================== -->
@@ -761,11 +726,7 @@ function cargoPorPontos(p){
   CARGOS.forEach(x=>{ if(p>=x.min) c=x; });
   return c;
 }
-function cargoAtual(){
-  const u=E.usuario||{};
-  if(u.cargo && u.cargo!=="auto") return u.cargo;
-  return cargoPorPontos(E.pontos).nome;
-}
+function cargoAtual(){ return cargoPorPontos(E.pontos).nome; }
 function tetoAcumulo(it){
   return it.freq==="diaria" ? it.alvo*6 : it.alvo*3;   // no máximo 7 dias / 4 ciclos
 }
@@ -918,7 +879,7 @@ function graficoLinha(alvoEl, valores, rotulos){
 }
 
 /* ---------- 6. TELAS ---------- */
-const TELAS_INTERNAS = ["home","tarefas","objetivos","perfil","ia"];
+const TELAS_INTERNAS = ["home","tarefas","objetivos","perfil"];
 let telaAtual="login";
 function ir(nome){
   telaAtual = nome;
@@ -931,8 +892,6 @@ function ir(nome){
     b.classList.toggle("ativo", at);
     if(at) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
   });
-  // o botão flutuante não aparece na própria tela da assistente
-  $("#fab").classList.toggle("on", dentro && E.logado && nome!=="ia");
   $("#palco").scrollTop = 0;
   renderTudo();
 }
@@ -1148,15 +1107,6 @@ function renderCrud(){
       '</div>';
   }).join("");
 }
-function renderCargo(){
-  const u=E.usuario||{};
-  const atual = u.cargo || "auto";
-  const opcoes=["auto"].concat(CARGOS.map(c=>c.nome));
-  $("#p-cargo").innerHTML = opcoes.map(o=>
-    '<button class="radio'+((atual===o)?" on":"")+'" type="button" role="radio" aria-checked="'+
-    (atual===o)+'" data-cargo="'+esc(o)+'"><i aria-hidden="true"></i>'+
-    (o==="auto"?"auto":esc(o))+"</button>").join("");
-}
 
 /* --- Objetivos (executar) --- */
 function linhaObjetivo(it){
@@ -1236,7 +1186,7 @@ function renderPerfil(){
 function renderTudo(){
   virarPeriodos();
   if(telaAtual==="home") renderHome();
-  if(telaAtual==="tarefas"){ renderCrud(); renderCargo(); }
+  if(telaAtual==="tarefas") renderCrud();
   if(telaAtual==="objetivos") renderObjetivos();
   if(telaAtual==="perfil") renderPerfil();
 }
@@ -1398,101 +1348,7 @@ function lerFoto(arq){
   fr.readAsDataURL(arq);
 }
 
-/* ---------- 10. ASSISTENTE DE ESTUDOS (offline) ---------- */
-const GUIA = [
-  {ch:["html","tag","etiqueta","markup"], t:"O que é HTML",
-   c:"O HTML é a estrutura da página — as tags (etiquetas) são as fundações, as vigas e as paredes de uma casa.\n\n<b>Os elementos principais</b>\n• <b>&lt;html&gt;</b>: a raiz de todo o documento.\n• <b>&lt;head&gt;</b>: o centro de controle — título, metadados, links de CSS. Não aparece na tela.\n• <b>&lt;body&gt;</b>: a parte visível, o que o visitante realmente lê.\n\nComece marcando o conteúdo pelo significado (h1, p, ul, article) antes de pensar em aparência. É isso que chamam de HTML semântico."},
-  {ch:["css","estilo","layout","flex","grid"], t:"Como estudar CSS",
-   c:"O CSS decide a aparência. Estude nesta ordem:\n1. Seletores e especificidade.\n2. Box model (margin, border, padding, content).\n3. Fluxo e posicionamento.\n4. Flexbox — layouts em uma direção.\n5. Grid — layouts em duas direções.\n6. Media queries e responsividade.\n\nTruque: reconstrua uma tela que você já usa (esta, por exemplo) só olhando o print. Você aprende mais do que em dez vídeos."},
-  {ch:["javascript","js","função","funcao","async","promise"], t:"Roteiro de JavaScript",
-   c:"1. Tipos, variáveis, operadores.\n2. Funções e escopo (var × let × const).\n3. Arrays e objetos — map, filter, reduce.\n4. DOM: querySelector, addEventListener.\n5. Assíncrono: callbacks → Promises → async/await.\n6. Fetch e JSON.\n7. Módulos e ferramentas de build.\n\nFaça um projeto por etapa. Teoria sem projeto evapora em uma semana."},
-  {ch:["git","github","commit","branch","versionamento"], t:"Git no dia a dia",
-   c:"Os oito comandos que resolvem 90% do trabalho:\n• git status — onde eu estou\n• git add . / git add arquivo\n• git commit -m \"mensagem\"\n• git log --oneline\n• git branch nome / git switch nome\n• git merge nome\n• git pull / git push\n• git restore arquivo (desfaz mudança local)\n\nCommit pequeno e frequente. Mensagem no imperativo: \"corrige cálculo do saldo\"."},
-  {ch:["sql","banco","database","query","select"], t:"SQL essencial",
-   c:"SELECT colunas FROM tabela WHERE condição GROUP BY … HAVING … ORDER BY … LIMIT …\n\nA ordem em que o banco executa é outra: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. Saber isso explica por que não dá para usar um apelido do SELECT dentro do WHERE.\n\nDepois: JOINs (inner, left), índices e normalização."},
-  {ch:["aws","nuvem","cloud","s3","ec2"], t:"Certificação AWS",
-   c:"Para a Cloud Practitioner, foque em: modelo de responsabilidade compartilhada, regiões e zonas de disponibilidade, EC2, S3, RDS, IAM, VPC básico e preços.\n\nPara a Solutions Architect Associate, some: alta disponibilidade, balanceadores, auto scaling, backup e recuperação.\n\nSimulados valem mais que releitura: erre agora, na prática, não na prova."},
-  {ch:["inglês","ingles","english","idioma"], t:"Inglês para tecnologia",
-   c:"Você não precisa de fluência para programar — precisa de leitura rápida e escuta razoável.\n\n• 20 minutos por dia lendo documentação oficial em inglês.\n• Troque legendas de vídeos técnicos para inglês.\n• Anote só as palavras que aparecerem três vezes ou mais.\n• Escreva os commits em inglês, é prática de graça.\n\nConstância de 20 minutos vence maratona de 3 horas no sábado."},
-  {ch:["pomodoro","foco","concentração","concentracao"], t:"Foco e pomodoro",
-   c:"25 minutos de estudo, 5 de pausa, e a cada 4 ciclos uma pausa longa de 15 a 30 minutos.\n\nRegras que fazem diferença:\n• Celular em outro cômodo, não só virado para baixo.\n• Uma tarefa por pomodoro. Se surgir outra ideia, anote e siga.\n• A pausa é obrigatória — é nela que o cérebro consolida.\n\nUse o cronômetro do DevLog: ele já grava o tempo no seu histórico."},
-  {ch:["procrastinar","procrastinação","procrastinacao","preguiça","preguica","desanimado","desânimo","desanimo"], t:"Quando bate a preguiça",
-   c:"A procrastinação quase nunca é preguiça — é a tarefa estar grande demais para caber na cabeça.\n\nO que funciona:\n• Reduza o objetivo até ficar ridículo de fácil: \"abrir o editor\", \"ler um parágrafo\".\n• Combine dois minutos. Quase sempre você continua.\n• Deixe o ambiente pronto na noite anterior.\n• Marque o dia no DevLog mesmo quando render pouco. A sequência é o que segura."},
-  {ch:["carreira","emprego","vaga","currículo","curriculo","entrevista","portfólio","portfolio"], t:"Primeira vaga",
-   c:"O que realmente pesa:\n1. Três projetos que resolvam problemas de verdade, no GitHub, com README explicando o porquê.\n2. LinkedIn com o mesmo texto do currículo, sem enfeite.\n3. Candidaturas em volume — é um jogo de números.\n4. Treinar responder \"me fale sobre você\" em 90 segundos.\n\nNo DevLog, cadastre \"Enviar currículos\" como tarefa semanal. Meta que não é medida não acontece."}
-];
-function respostaDados(q){
-  const d = metricasDoDia();
-  const dom = domingoDa(hoje()); let sem=0;
-  for(let i=0;i<7;i++){ const dt=new Date(dom); dt.setDate(dom.getDate()+i); sem += (E.hist[chaveDia(dt)]||{}).min||0; }
-  const hojeMin = (E.hist[chaveDia()]||{}).min||0;
-  const abertos = E.itens.filter(it=>it.status!=="concluido" && it.freq==="diaria" && restante(it)>0);
-
-  if(/(hoje|dia de hoje|hj)/.test(q) && /(estud|tempo|quanto|falta|fiz)/.test(q)){
-    return "Hoje você registrou <b>"+fmtHM(hojeMin)+"</b> de estudo."+
-      (d.meta? " Isso é "+d.pct+"% da meta do dia ("+fmtHM(d.meta)+")."+
-        (abertos.length? " Ainda em aberto: "+abertos.map(it=>esc(it.nome)).join(", ")+"." : " Tudo fechado, pode descansar.")
-       : " Você ainda não tem objetivos diários cadastrados.");
-  }
-  if(/(semana|semanal)/.test(q)){
-    return "Nesta semana você acumulou <b>"+fmtHM(sem)+"</b>, uma média de "+fmtHM(sem/7)+" por dia.";
-  }
-  if(/(ponto|pontua|cargo|nível|nivel|carreira|promo)/.test(q)){
-    const atual=cargoPorPontos(E.pontos), i=CARGOS.findIndex(c=>c.nome===atual.nome), prox=CARGOS[i+1];
-    return "Você tem <b>"+E.pontos+" pontos</b> e está como <b>"+cargoAtual()+"</b>."+
-      (prox? " Faltam "+Math.max(0,prox.min-E.pontos)+" pontos para "+prox.nome+"." : " É o topo da escada.");
-  }
-  if(/(falta|pendente|aberto|o que fazer|por onde)/.test(q)){
-    if(!abertos.length) return "Nada pendente para hoje. Se quiser adiantar, abra um objetivo semanal.";
-    return "Faltam hoje:\n"+abertos.map(it=>"• "+esc(it.nome)+" — "+
-      (it.tipo==="estudo"? fmtHM(restante(it)) : restante(it)+"x")).join("\n");
-  }
-  return null;
-}
-function responderIA(pergunta){
-  const q = pergunta.toLowerCase();
-  const dados = respostaDados(q);
-  if(dados) return dados;
-  let melhor=null, placar=0;
-  GUIA.forEach(g=>{
-    const n = g.ch.filter(k=>q.includes(k)).length;
-    if(n>placar){ placar=n; melhor=g; }
-  });
-  if(melhor) return "<b>"+esc(melhor.t)+"</b>\n\n"+melhor.c;
-  return "Ainda não sei responder isso — trabalho sem internet, com um guia embutido.\n\n"+
-    "Posso ajudar com: HTML, CSS, JavaScript, Git, SQL, AWS, inglês, foco/pomodoro, procrastinação e primeira vaga. "+
-    "Também respondo sobre os seus números: pergunte <i>quanto estudei hoje</i>, <i>quantos pontos tenho</i> ou <i>o que falta hoje</i>.";
-}
-function balao(quem, htmlTexto){
-  const el=document.createElement("div");
-  el.className="balao "+quem;
-  el.innerHTML=htmlTexto;
-  $("#chat").appendChild(el);
-  $("#palco").scrollTop = $("#palco").scrollHeight;
-}
-const SUGESTOES = ["O que é HTML?","Quanto estudei hoje?","O que falta hoje?","Como parar de procrastinar?","Quantos pontos tenho?"];
-function montarSugestoes(){
-  $("#sugestoes").innerHTML = SUGESTOES.map(s=>
-    '<button class="sugestao" type="button" data-sug="'+esc(s)+'">'+esc(s)+"</button>").join("");
-}
-function perguntar(texto){
-  const t=(texto!=null? texto : $("#ia-txt").value).trim();
-  if(!t) return;
-  balao("eu", esc(t));
-  $("#ia-txt").value="";
-  setTimeout(()=>balao("ia", responderIA(t)), 180);
-}
-function abrirIA(){
-  if(!$("#chat").children.length){
-    const nome = (E.usuario && E.usuario.nome) ? E.usuario.nome.split(" ")[0] : "por aqui";
-    balao("ia","Oi, "+esc(nome)+". Sou a assistente do DevLog e funciono sem internet.\n"+
-      "Posso explicar assuntos de programação ou olhar os seus números. Para que serve?");
-  }
-  ir("ia");
-  $("#ia-txt").focus();
-}
-
-/* ---------- 11. DADOS DE EXEMPLO ---------- */
+/* ---------- 10. DADOS DE EXEMPLO ---------- */
 function carregarDemo(){
   const mk=(tipo,nome,cat,freq,alvo,acum,totalMeta)=>({
     id:id(),tipo,nome,cat,freq,qtd:tipo==="estudo"?alvo/60:alvo,uni:tipo==="estudo"?"horas":"vezes",
@@ -1542,7 +1398,7 @@ function exportar(){
   }
 }
 
-/* ---------- 12. EVENTOS ---------- */
+/* ---------- 11. EVENTOS ---------- */
 $$(".nav-btn").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
 $("#b-entrar").onclick=entrar;
 $("#in-email").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#in-senha").focus(); });
@@ -1579,11 +1435,6 @@ $("#lista-crud").addEventListener("click",e=>{
   const d=e.target.closest("[data-del]"), ed=e.target.closest("[data-edit]");
   if(d) excluirItem(d.dataset.del);
   else if(ed) editarItem(ed.dataset.edit);
-});
-$("#p-cargo").addEventListener("click",e=>{
-  const b=e.target.closest("[data-cargo]"); if(!b) return;
-  if(!E.usuario){ aviso("Entre na sua conta para escolher o cargo."); return; }
-  E.usuario.cargo=b.dataset.cargo; salvar(true); renderCargo(); aviso("Cargo atualizado.");
 });
 
 $("#tela-objetivos").addEventListener("click",e=>{
@@ -1651,18 +1502,10 @@ $("#b-zerar").onclick=()=>modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo"
   botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
     if(T.rodando) pausar(true);
     await Store.apagar(CHAVE); E=estadoNovo(); T.itemId=null;
-    $("#chat").innerHTML=""; salvar(true); ir("login"); aviso("Tudo apagado.");
+    salvar(true); ir("login"); aviso("Tudo apagado.");
   }},{r:"Cancelar",c:"btn-cinza"}]});
 $("#b-sair").onclick=()=>{ if(T.rodando) pausar(true); E.logado=false; salvar(true); ir("login"); };
 
-/* Assistente */
-$("#fab").onclick=abrirIA;
-$("#b-perguntar").onclick=()=>perguntar();
-$("#ia-txt").addEventListener("keydown",e=>{ if(e.key==="Enter") perguntar(); });
-$("#sugestoes").addEventListener("click",e=>{
-  const b=e.target.closest("[data-sug]"); if(b) perguntar(b.dataset.sug);
-});
-montarSugestoes();
 
 document.addEventListener("visibilitychange",()=>{
   if(!T.rodando) return;
@@ -1677,7 +1520,7 @@ window.addEventListener("beforeunload", despedida);
 /* vira o dia sozinho enquanto o app fica aberto */
 setInterval(()=>{ if(virarPeriodos()) renderTudo(); }, 60000);
 
-/* ---------- 13. PARTIDA ---------- */
+/* ---------- 12. PARTIDA ---------- */
 (async function iniciar(){
   const salvo = await Store.ler(CHAVE);
   if(salvo && typeof salvo==="object"){
