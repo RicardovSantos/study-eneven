@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#5B4FE8">
-<meta name="description" content="DevLog — registre seus estudos, cumpra metas diárias e acompanhe a evolução da sua carreira.">
+<meta name="description" content="DevLog — registre seus estudos e cumpra suas metas diárias sem procrastinar.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -160,7 +160,6 @@ input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 4px;padding:0
 .avatar{width:86px;height:86px;border-radius:50%;border:4px solid #fff;object-fit:cover;background:#DDDCEC;
   display:block;box-shadow:var(--sombra)}
 .avatar-nome{color:#fff;font-size:20px;font-weight:800;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,.25)}
-.avatar-cargo{color:#E4E1FF;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
 
 .barra{position:relative;height:24px;background:#C9C7DE;border-radius:999px;overflow:hidden}
 .barra i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--verde),var(--verde-esc));
@@ -275,12 +274,17 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
   padding:8px 14px;border-radius:999px;flex:0 0 auto}
 .rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
 
-/* ---------- Relógio flutuante (fica na tela ao sair do cronômetro) ---------- */
+/* ---------- Relógio flutuante (fica na tela ao sair do cronômetro) ----------
+   position:absolute dentro de #app: como #app tem altura fixa da tela e é
+   quem NÃO rola (só o #palco interno rola), a tarja já fica presa à tela,
+   não ao conteúdo. Arrastável: veja a seção 7b do JS. */
 #mini{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
   display:none;align-items:center;gap:2px;z-index:50;
   background:var(--nav);border-radius:999px;padding:5px 6px 5px 12px;
-  box-shadow:0 10px 26px rgba(20,15,70,.45);border:2px solid rgba(255,255,255,.22)}
+  box-shadow:0 10px 26px rgba(20,15,70,.45);border:2px solid rgba(255,255,255,.22);
+  touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 #mini.on{display:flex}
+#mini.arrastando{cursor:grabbing;box-shadow:0 16px 34px rgba(20,15,70,.55);transition:none}
 #mini-abrir{display:flex;align-items:center;gap:9px;color:#fff;padding:2px 4px 2px 0;text-align:left}
 #mini-abrir .ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:0 0 auto}
 #mini.parado #mini-abrir .ponto{background:var(--amarelo);animation:none}
@@ -374,7 +378,6 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
       <div class="perfil-topo">
         <img class="avatar" id="home-foto" alt="Foto de perfil">
         <div class="avatar-nome" id="home-nome">—</div>
-        <div class="avatar-cargo" id="home-cargo">—</div>
       </div>
 
       <div class="card">
@@ -636,7 +639,7 @@ const CHAVE = "devlog:estado:v1";
 /* ---------- 2. ESTADO ---------- */
 function estadoNovo(){
   return {
-    usuario:null,           // {nome,email,senha,foto,nasc,sexo,escola,pais,cargo,termos}
+    usuario:null,           // {nome,email,senha,foto,nasc,sexo,escola,pais,termos}
     logado:false,
     itens:[],
     hist:{},                // "AAAA-MM-DD": {min, tarefas, pontos}
@@ -735,19 +738,6 @@ document.addEventListener("keydown", e=>{
 });
 
 /* ---------- 4. REGRAS DE NEGÓCIO ---------- */
-const CARGOS = [
-  {nome:"Estágio",  min:0},
-  {nome:"Junior",   min:500},
-  {nome:"Pleno",    min:1500},
-  {nome:"Sênior",   min:3000},
-  {nome:"Exterior", min:6000}
-];
-function cargoPorPontos(p){
-  let c=CARGOS[0];
-  CARGOS.forEach(x=>{ if(p>=x.min) c=x; });
-  return c;
-}
-function cargoAtual(){ return cargoPorPontos(E.pontos).nome; }
 function tetoAcumulo(it){
   return it.freq==="diaria" ? it.alvo*6 : it.alvo*3;   // no máximo 7 dias / 4 ciclos
 }
@@ -931,7 +921,6 @@ function renderHome(){
   const u=E.usuario||{};
   $("#home-foto").src = fotoOu(u);
   $("#home-nome").textContent = u.nome || "Sem nome";
-  $("#home-cargo").textContent = cargoAtual();
 
   const d = metricasDoDia();
   $("#dia-barra").style.width = d.pct+"%";
@@ -1318,6 +1307,29 @@ const podeVideoPiP = !!(document.pictureInPictureEnabled &&
   window.HTMLCanvasElement && HTMLCanvasElement.prototype.captureStream);
 let jPiP=null, cvPiP=null, vidPiP=null, loopPiP=null;
 
+/* Posição arrastada da tarja: null enquanto o usuário não move — nesse
+   caso ela usa o canto padrão (right/bottom do CSS). Depois de um
+   arraste, guarda em pixels (relativos a #app) onde ela foi deixada,
+   e todo redesenho — trocar de aba, retomar o cronômetro — passa a
+   respeitar essa posição em vez de voltar ao canto. */
+let miniPos = null;
+function aplicarPosicaoMini(){
+  if(!miniPos) return;
+  const mini = $("#mini");
+  mini.style.left = miniPos.left+"px";
+  mini.style.top = miniPos.top+"px";
+  mini.style.right = "auto";
+  mini.style.bottom = "auto";
+}
+function reencaixarMini(){
+  if(!miniPos) return;
+  const mini=$("#mini"), app=$("#app").getBoundingClientRect(), r=mini.getBoundingClientRect();
+  const margem=6;
+  miniPos.left = Math.max(margem, Math.min(app.width  - r.width  - margem, miniPos.left));
+  miniPos.top  = Math.max(margem, Math.min(app.height - r.height - margem, miniPos.top));
+  aplicarPosicaoMini();
+}
+
 function sincronizarFlutuante(){
   const it = T.itemId ? E.itens.find(x=>x.id===T.itemId) : null;
   const focoAberto = $("#foco").classList.contains("on");
@@ -1329,6 +1341,7 @@ function sincronizarFlutuante(){
     $("#mini-tempo").textContent = fmtRelogio(T.restanteSeg);
     $("#mini-nome").textContent = it.nome;
   }
+  aplicarPosicaoMini();
   pintarPiP(it);
 }
 function pintarPiP(it){
@@ -1434,7 +1447,7 @@ function criarConta(){
   if(!$("#cad-termos").checked){ $("#erro-cadastro").textContent="É preciso aceitar os termos."; return; }
   $("#erro-cadastro").textContent="";
   E.usuario={nome,email:em,senha:s1,foto:null,nasc:"",sexo:"Prefiro não informar",
-    escola:"Superior",pais:"Brasil",cargo:"auto",termos:true};
+    escola:"Superior",pais:"Brasil",termos:true};
   E.logado=true; salvar(true);
   $("#cad-senha").value=""; $("#cad-senha2").value="";
   ir("home");
@@ -1617,6 +1630,72 @@ $("#mini-fechar").onclick=()=>{
 // o botão de soltar só aparece onde o navegador tem alguma API de janela flutuante
 $("#mini-pip").classList.toggle("on", podeDocPiP || podeVideoPiP);
 $("#mini-fechar").classList.add("on");
+
+/* Arrastar a tarja: aperta, segura e solta em qualquer canto da tela.
+   Pointer Events cobre mouse e toque com a mesma lógica.
+
+   Detalhe que não é óbvio: setPointerCapture redireciona TODOS os
+   eventos do ponteiro capturado para o elemento que capturou — inclusive
+   o "click" sintético que o navegador dispara ao soltar. Isso quer dizer
+   que, com a captura ativa, um toque parado nos botões internos
+   (#mini-abrir, #mini-pip, #mini-fechar) nunca dispararia o onclick
+   deles, porque o clique chegaria em #mini, não neles. Por isso o toque
+   sem arrasto é tratado manualmente aqui: guardamos qual botão recebeu o
+   pointerdown e, se não houve movimento, chamamos .click() nele por
+   código — e sempre suprimimos o clique fantasma que o navegador ia
+   mandar para #mini, pra não disparar nada em dobro. */
+(function(){
+  const mini = $("#mini");
+  const LIMIAR = 6;
+  let ativo=false, moveu=false, pid=null, alvoInicial=null;
+  let offX=0, offY=0, appRect=null, miniW=0, miniH=0, iniX=0, iniY=0;
+
+  function suprimirProximoClique(){
+    const bloquear = ev=>{ ev.stopPropagation(); ev.preventDefault(); };
+    mini.addEventListener("click", bloquear, {capture:true, once:true});
+  }
+  function posicionar(clientX, clientY){
+    const margem = 6;
+    let left = clientX - appRect.left - offX;
+    let top  = clientY - appRect.top  - offY;
+    left = Math.max(margem, Math.min(appRect.width  - miniW - margem, left));
+    top  = Math.max(margem, Math.min(appRect.height - miniH - margem, top));
+    miniPos = {left, top};
+    aplicarPosicaoMini();
+  }
+  mini.addEventListener("pointerdown", e=>{
+    if(e.button!=null && e.button!==0) return; // só o botão principal do mouse
+    ativo=true; moveu=false; pid=e.pointerId;
+    iniX=e.clientX; iniY=e.clientY;
+    alvoInicial = e.target.closest("#mini-abrir,#mini-pip,#mini-fechar");
+    const r=mini.getBoundingClientRect();
+    appRect=$("#app").getBoundingClientRect();
+    offX=e.clientX-r.left; offY=e.clientY-r.top;
+    miniW=r.width; miniH=r.height;
+    try{ mini.setPointerCapture(pid); }catch(err){}
+  });
+  mini.addEventListener("pointermove", e=>{
+    if(!ativo) return;
+    if(!moveu && Math.hypot(e.clientX-iniX, e.clientY-iniY) > LIMIAR){
+      moveu=true; mini.classList.add("arrastando");
+    }
+    if(moveu) posicionar(e.clientX, e.clientY);
+  });
+  function soltar(e){
+    if(!ativo) return;
+    ativo=false;
+    mini.classList.remove("arrastando");
+    try{ mini.releasePointerCapture(pid); }catch(err){}
+    // ordem importa: o clique de baixo primeiro (senão o bloqueio abaixo,
+    // por estar no caminho de captura até o botão-alvo, o engoliria também)
+    if(!moveu && alvoInicial) alvoInicial.click();   // toque real: aciona o botão tocado por código
+    suprimirProximoClique();       // o clique-fantasma nativo, se vier, chegaria em #mini — descarta
+  }
+  mini.addEventListener("pointerup", soltar);
+  mini.addEventListener("pointercancel", soltar);
+})();
+// mantém a tarja dentro da tela se a janela mudar de tamanho (giro do aparelho, teclado etc.)
+window.addEventListener("resize", reencaixarMini);
 
 $("#b-foto").onclick=()=>$("#in-foto").click();
 $("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.target.files[0]); e.target.value=""; });
