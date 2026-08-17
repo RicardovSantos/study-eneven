@@ -57,7 +57,7 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 #app{
   width:100%;max-width:460px;background:var(--roxo);
   display:flex;flex-direction:column;
-  min-height:100vh;min-height:100dvh;
+  height:100vh;height:100dvh;
   position:relative;overflow:hidden;
   box-shadow:0 0 60px rgba(0,0,0,.35);
 }
@@ -80,7 +80,7 @@ button{cursor:pointer;border:none;background:none;color:inherit}
 .nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
 
 /* ---------- Área rolável ---------- */
-#palco{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+#palco{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
   padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 34px)}
 .tela{display:none;animation:sobe .22s ease}
 .tela.on{display:block}
@@ -168,8 +168,6 @@ input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 4px;padding:0
 .barra b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:12px;font-weight:800;color:#1C1B33;text-shadow:0 1px 0 rgba(255,255,255,.55)}
 
-.escada{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--texto-fraco);font-weight:600}
-.escada span.on{color:var(--roxo)}
 
 .placares{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
 .placar .rot{font-size:12px;color:var(--texto-fraco);font-weight:600}
@@ -277,6 +275,24 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
   padding:8px 14px;border-radius:999px;flex:0 0 auto}
 .rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
 
+/* ---------- Relógio flutuante (fica na tela ao sair do cronômetro) ---------- */
+#mini{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  display:none;align-items:center;gap:2px;z-index:50;
+  background:var(--nav);border-radius:999px;padding:5px 6px 5px 12px;
+  box-shadow:0 10px 26px rgba(20,15,70,.45);border:2px solid rgba(255,255,255,.22)}
+#mini.on{display:flex}
+#mini-abrir{display:flex;align-items:center;gap:9px;color:#fff;padding:2px 4px 2px 0;text-align:left}
+#mini-abrir .ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:0 0 auto}
+#mini.parado #mini-abrir .ponto{background:var(--amarelo);animation:none}
+#mini.rodando #mini-abrir .ponto{animation:pulsa 1.6s ease-in-out infinite}
+@keyframes pulsa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+#mini-tempo{display:block;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+#mini-nome{display:block;font-size:9.5px;font-weight:600;color:#C9C6F2;max-width:112px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em}
+#mini-pip,#mini-fechar{width:32px;height:32px;border-radius:50%;color:#fff;flex:0 0 auto;
+  display:none;align-items:center;justify-content:center;font-size:14px;background:rgba(255,255,255,.14)}
+#mini-pip.on,#mini-fechar.on{display:flex}
+
 </style>
 </head>
 <body>
@@ -377,13 +393,6 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
         <h2>Mensal</h2>
         <div id="g-mensal"></div>
         <p class="legenda" style="margin:6px 0 0;text-align:center" id="mensal-detalhe">—</p>
-      </div>
-
-      <div class="card">
-        <h2>Carreira</h2>
-        <div class="barra"><i id="car-barra" style="width:0"></i><b id="car-txt">0%</b></div>
-        <div class="escada" id="car-escada"></div>
-        <p class="legenda" style="margin:8px 0 0;text-align:center" id="car-detalhe">—</p>
       </div>
 
       <div class="card placares">
@@ -542,6 +551,18 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
     </section>
 
   </main>
+
+  <!-- relógio flutuante: continua à vista ao sair da tela do cronômetro -->
+  <div id="mini" role="status" aria-live="off">
+    <button id="mini-abrir" type="button" aria-label="Voltar ao cronômetro">
+      <span class="ponto" aria-hidden="true"></span>
+      <span><b id="mini-tempo">00:00:00</b><small id="mini-nome">—</small></span>
+    </button>
+    <button id="mini-pip" type="button" title="Soltar em janela flutuante"
+      aria-label="Soltar o relógio em uma janela flutuante">⧉</button>
+    <button id="mini-fechar" type="button" title="Encerrar sessão"
+      aria-label="Encerrar a sessão de estudo">✕</button>
+  </div>
 
 </div>
 
@@ -894,6 +915,7 @@ function ir(nome){
   });
   $("#palco").scrollTop = 0;
   renderTudo();
+  sincronizarFlutuante();
 }
 
 function fotoOu(u){
@@ -940,19 +962,6 @@ function renderHome(){
     ? fmtHM(totalMes)+" no mês · "+ativos+" dia(s) com estudo"
     : "O gráfico se preenche conforme você usa o cronômetro.";
 
-  // Carreira
-  const atual = cargoPorPontos(E.pontos);
-  const idx = CARGOS.findIndex(c=>c.nome===atual.nome);
-  const prox = CARGOS[idx+1];
-  const base = atual.min, topo = prox? prox.min : atual.min+2000;
-  const pct = Math.max(0, Math.min(100, Math.round((E.pontos-base)/(topo-base)*100)));
-  $("#car-barra").style.width = pct+"%";
-  $("#car-txt").textContent = pct+"%";
-  $("#car-escada").innerHTML = CARGOS.map(c=>
-    '<span class="'+(c.nome===cargoAtual()?"on":"")+'">'+esc(c.nome)+"</span>").join("");
-  $("#car-detalhe").textContent = prox
-    ? "Faltam "+Math.max(0,topo-E.pontos)+" pontos para "+prox.nome
-    : "Nível máximo alcançado. Continue somando pontos.";
 
   $("#pl-concl").textContent = E.concluidos;
   $("#pl-pontos").textContent = E.pontos;
@@ -1204,7 +1213,7 @@ function abrirFoco(idv){
       botoes:[{r:"Trocar",c:"btn-roxo",f:()=>{ pausar(true); montarFoco(it); }},{r:"Cancelar",c:"btn-cinza"}]});
     return;
   }
-  if(T.rodando && T.itemId===idv){ $("#foco").classList.add("on"); return; }
+  if(T.rodando && T.itemId===idv){ $("#foco").classList.add("on"); sincronizarFlutuante(); return; }
   montarFoco(it);
 }
 function montarFoco(it){
@@ -1218,6 +1227,7 @@ function montarFoco(it){
   pintarFoco();
   $("#foco").classList.add("on");
   $("#fc-play").focus();
+  sincronizarFlutuante();
 }
 function pintarFoco(){
   $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
@@ -1236,6 +1246,7 @@ function tocar(){
   if(loop) clearInterval(loop);
   loop=setInterval(tique,250);
   pintarFoco();
+  sincronizarFlutuante();
 }
 function tique(){
   if(!T.rodando) return;
@@ -1247,9 +1258,12 @@ function tique(){
   $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
   const r=94,c=2*Math.PI*r;
   $("#fc-arco").setAttribute("stroke-dashoffset", (c*(1-(T.totalSeg? T.restanteSeg/T.totalSeg:0))).toFixed(1));
+  const seg = Math.round(T.restanteSeg);
+  if(seg !== ultimoSegVisto){ ultimoSegVisto = seg; sincronizarFlutuante(); }
   if(T.acumulado>=30){ descarregar(); salvar(); }
   if(T.restanteSeg<=0) zerou();
 }
+let ultimoSegVisto = -1;
 function descarregar(){
   const it=E.itens.find(x=>x.id===T.itemId);
   if(it && T.acumulado>0){ creditarEstudo(it, T.acumulado/60); }
@@ -1258,7 +1272,7 @@ function descarregar(){
 function pausar(silencioso){
   if(!T.rodando) return;
   T.rodando=false; clearInterval(loop); loop=null;
-  descarregar(); salvar(true); pintarFoco(); renderTudo();
+  descarregar(); salvar(true); pintarFoco(); renderTudo(); sincronizarFlutuante();
   if(!silencioso) aviso("Pausado. O tempo já feito foi salvo.");
 }
 function encerrar(){
@@ -1267,21 +1281,137 @@ function encerrar(){
   descarregar(); salvar(true);
   $("#foco").classList.remove("on");
   T.itemId=null;
-  renderTudo();
+  fecharPiP();
+  renderTudo(); sincronizarFlutuante();
   if(it) aviso("Sessão encerrada. "+fmtHM(restante(it))+" ainda faltam.");
 }
 function fecharFoco(){
-  if(T.rodando) pausar(true);
+  // minimizar não pausa mais: o relógio continua correndo na tarja flutuante
   $("#foco").classList.remove("on");
   renderTudo();
+  sincronizarFlutuante();
+  if(T.rodando) aviso("Continua contando aqui embaixo.");
 }
 function zerou(){
   T.rodando=false; clearInterval(loop); loop=null;
   descarregar();
   const it=E.itens.find(x=>x.id===T.itemId);
   T.itemId=null;
+  fecharPiP();
   $("#foco").classList.remove("on");
+  sincronizarFlutuante();
   if(it) concluirCiclo(it,true);
+}
+
+/* ---------- 7b. RELÓGIO FLUTUANTE ----------
+   Três camadas, da mais compatível para a menos:
+   1. tarja dentro do app — funciona em todo navegador;
+   2. Document Picture-in-Picture — janela real do sistema, sempre por
+      cima, mesmo com o navegador minimizado (Chrome/Edge no desktop);
+   3. Picture-in-Picture de vídeo via canvas — usado onde a de cima não
+      existe; no Chrome do Android ele flutua sobre os outros apps.
+   Nenhuma web app consegue desenhar por cima do sistema sem uma dessas
+   APIs, então quando nenhuma existe fica só a camada 1.                */
+const podeDocPiP = ("documentPictureInPicture" in window);
+const podeVideoPiP = !!(document.pictureInPictureEnabled &&
+  document.createElement("video").requestPictureInPicture &&
+  window.HTMLCanvasElement && HTMLCanvasElement.prototype.captureStream);
+let jPiP=null, cvPiP=null, vidPiP=null, loopPiP=null;
+
+function sincronizarFlutuante(){
+  const it = T.itemId ? E.itens.find(x=>x.id===T.itemId) : null;
+  const focoAberto = $("#foco").classList.contains("on");
+  const mini = $("#mini");
+  mini.classList.toggle("on", !!it && !focoAberto && E.logado);
+  mini.classList.toggle("rodando", T.rodando);
+  mini.classList.toggle("parado", !T.rodando);
+  if(it){
+    $("#mini-tempo").textContent = fmtRelogio(T.restanteSeg);
+    $("#mini-nome").textContent = it.nome;
+  }
+  pintarPiP(it);
+}
+function pintarPiP(it){
+  if(jPiP && !jPiP.closed){
+    const d=jPiP.document;
+    const t=d.getElementById("t"), n=d.getElementById("n"), p=d.getElementById("p");
+    if(t) t.textContent = fmtRelogio(T.restanteSeg);
+    if(n) n.textContent = it ? it.nome : "";
+    if(p) p.style.background = T.rodando ? "#56D364" : "#F2B705";
+  }
+  if(cvPiP) desenharPiP(it);
+}
+function desenharPiP(it){
+  if(!cvPiP) return;
+  const c=cvPiP.getContext("2d"), L=cvPiP.width, A=cvPiP.height;
+  const fonte='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+  c.fillStyle="#2B2A63"; c.fillRect(0,0,L,A);
+  c.textAlign="center";
+  c.fillStyle="#fff"; c.font="700 76px "+fonte;
+  c.fillText(fmtRelogio(T.restanteSeg), L/2, A/2+16);
+  c.fillStyle="#C9C6F2"; c.font="600 26px "+fonte;
+  c.fillText(((it&&it.nome)||"").slice(0,26).toUpperCase(), L/2, A/2+62);
+  c.beginPath(); c.arc(L/2, A/2-64, 12, 0, Math.PI*2);
+  c.fillStyle = T.rodando ? "#56D364" : "#F2B705"; c.fill();
+}
+function limparVideoPiP(){
+  if(loopPiP){ clearInterval(loopPiP); loopPiP=null; }
+  if(vidPiP){ try{ vidPiP.pause(); }catch(e){} vidPiP.remove(); vidPiP=null; }
+  cvPiP=null;
+}
+function fecharPiP(){
+  if(jPiP && !jPiP.closed){ try{ jPiP.close(); }catch(e){} }
+  jPiP=null;
+  if(document.pictureInPictureElement){ document.exitPictureInPicture().catch(()=>{}); }
+  limparVideoPiP();
+}
+async function soltarPiP(){
+  // segundo toque fecha a janela
+  if((jPiP && !jPiP.closed) || document.pictureInPictureElement){ fecharPiP(); return; }
+  const it = T.itemId ? E.itens.find(x=>x.id===T.itemId) : null;
+  if(!it){ aviso("Nenhum cronômetro aberto."); return; }
+  try{
+    if(podeDocPiP){
+      jPiP = await window.documentPictureInPicture.requestWindow({width:300,height:170});
+      const d=jPiP.document;
+      d.documentElement.lang="pt-BR";
+      const st=d.createElement("style");
+      st.textContent='html,body{margin:0;height:100%}'+
+        'body{background:#2B2A63;color:#fff;display:flex;flex-direction:column;align-items:center;'+
+        'justify-content:center;gap:8px;cursor:pointer;'+
+        'font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}'+
+        '#p{width:11px;height:11px;border-radius:50%;background:#56D364}'+
+        '#t{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}'+
+        '#n{font-size:11px;font-weight:600;color:#C9C6F2;text-transform:uppercase;letter-spacing:.06em;'+
+        'max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}';
+      d.head.appendChild(st);
+      d.body.innerHTML='<div id="p"></div><div id="t">00:00:00</div><div id="n"></div>';
+      d.body.addEventListener("click", ()=>{ window.focus(); abrirFoco(T.itemId); });
+      jPiP.addEventListener("pagehide", ()=>{ jPiP=null; sincronizarFlutuante(); });
+      pintarPiP(it);
+      aviso("Relógio solto em janela flutuante.");
+      return;
+    }
+    if(podeVideoPiP){
+      cvPiP=document.createElement("canvas"); cvPiP.width=480; cvPiP.height=270;
+      desenharPiP(it);
+      vidPiP=document.createElement("video");
+      vidPiP.srcObject=cvPiP.captureStream(2);
+      vidPiP.muted=true; vidPiP.playsInline=true; vidPiP.setAttribute("playsinline","");
+      vidPiP.style.cssText="position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0";
+      document.body.appendChild(vidPiP);
+      loopPiP=setInterval(()=>desenharPiP(T.itemId?E.itens.find(x=>x.id===T.itemId):null),500);
+      await vidPiP.play();
+      await vidPiP.requestPictureInPicture();
+      vidPiP.addEventListener("leavepictureinpicture", limparVideoPiP, {once:true});
+      aviso("Relógio solto em janela flutuante.");
+      return;
+    }
+    aviso("Este navegador não permite soltar a janela.");
+  }catch(e){
+    fecharPiP();
+    aviso("O navegador recusou abrir a janela flutuante.");
+  }
 }
 
 /* ---------- 8. AUTENTICAÇÃO ---------- */
@@ -1476,6 +1606,18 @@ $("#fc-pausa").onclick=()=>pausar(false);
 $("#fc-para").onclick=encerrar;
 $("#fc-fechar").onclick=fecharFoco;
 
+/* Relógio flutuante */
+$("#mini-abrir").onclick=()=>{ if(T.itemId) abrirFoco(T.itemId); };
+$("#mini-pip").onclick=soltarPiP;
+$("#mini-fechar").onclick=()=>{
+  modal({selo:"info",icone:"⏱",titulo:"Encerrar sessão",
+    texto:"O tempo já cronometrado fica salvo.",
+    botoes:[{r:"Encerrar",c:"btn-vermelho",f:encerrar},{r:"Continuar",c:"btn-cinza"}]});
+};
+// o botão de soltar só aparece onde o navegador tem alguma API de janela flutuante
+$("#mini-pip").classList.toggle("on", podeDocPiP || podeVideoPiP);
+$("#mini-fechar").classList.add("on");
+
 $("#b-foto").onclick=()=>$("#in-foto").click();
 $("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.target.files[0]); e.target.value=""; });
 $("#b-tirar-foto").onclick=()=>{ if(E.usuario){ E.usuario.foto=null; salvar(true); renderPerfil(); aviso("Foto removida."); } };
@@ -1501,10 +1643,11 @@ $("#b-zerar").onclick=()=>modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo"
   texto:"Objetivos, histórico, pontos e conta serão apagados deste aparelho.",
   botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
     if(T.rodando) pausar(true);
+    fecharPiP(); T.itemId=null;
     await Store.apagar(CHAVE); E=estadoNovo(); T.itemId=null;
     salvar(true); ir("login"); aviso("Tudo apagado.");
   }},{r:"Cancelar",c:"btn-cinza"}]});
-$("#b-sair").onclick=()=>{ if(T.rodando) pausar(true); E.logado=false; salvar(true); ir("login"); };
+$("#b-sair").onclick=()=>{ if(T.rodando) pausar(true); fecharPiP(); T.itemId=null; E.logado=false; salvar(true); ir("login"); };
 
 
 document.addEventListener("visibilitychange",()=>{
