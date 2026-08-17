@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5B4FE8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DevLog — estudos e tarefas sem procrastinar</title>
+<style>
+/* ============================================================
+   DEVLOG — Design tokens (extraídos do protótipo Figma)
+   ============================================================ */
+:root{
+  --roxo:#5B4FE8;
+  --roxo-esc:#463BC9;
+  --roxo-claro:#7A70F0;
+  --nav:#2B2A63;
+  --branco:#FFFFFF;
+  --verde:#56D364;
+  --verde-esc:#34A745;
+  --azul:#2F6BE4;
+  --azul-esc:#2455BD;
+  --vermelho:#E23B3B;
+  --amarelo:#F2B705;
+  --texto:#1C1B33;
+  --texto-fraco:#6B6B85;
+  --linha:#E3E1F5;
+  --campo:#F4F3FC;
+  --chart:#7C6FD6;
+  --chart-linha:#9B3FE0;
+  --r:16px;
+  --r-sm:10px;
+  --sombra:0 4px 14px rgba(24,20,70,.10);
+  --fonte:"Segoe UI",Roboto,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--fonte);
+  background:#3E36A8;
+  color:var(--texto);
+  display:flex;justify-content:center;
+  min-height:100vh;min-height:100dvh;
+  font-size:15px;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:3px solid #FFD84D;outline-offset:2px;border-radius:6px}
+
+/* ---------- Moldura do app ---------- */
+#app{
+  width:100%;max-width:460px;background:var(--roxo);
+  display:flex;flex-direction:column;
+  min-height:100vh;min-height:100dvh;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,.35);
+}
+
+/* ---------- Barra de navegação ---------- */
+#nav{
+  display:none;margin:14px 14px 0;background:var(--nav);
+  border-radius:22px;padding:8px 6px;
+  justify-content:space-around;align-items:center;
+  box-shadow:var(--sombra);flex:0 0 auto;
+}
+#nav.on{display:flex}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:#C9C6F2;font-size:10.5px;font-weight:600;padding:4px 10px;
+  border-radius:12px;transition:color .15s,background .15s;
+}
+.nav-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.ativo{color:#fff;background:rgba(255,255,255,.13)}
+
+/* ---------- Área rolável ---------- */
+#palco{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:14px 14px 28px;-webkit-overflow-scrolling:touch}
+.tela{display:none;animation:sobe .22s ease}
+.tela.on{display:block}
+@keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Cartões ---------- */
+.card{background:var(--branco);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sombra)}
+.card h2{margin:0 0 10px;font-size:16px;text-align:center;font-weight:700}
+.card h3{margin:0 0 8px;font-size:13.5px;font-weight:700;color:var(--texto-fraco);letter-spacing:.02em;text-transform:uppercase}
+.legenda{font-size:12px;color:var(--texto-fraco);margin:0 0 10px;line-height:1.45}
+
+/* ---------- Formulários ---------- */
+.campo{margin-bottom:10px}
+.campo label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px;color:var(--texto)}
+.campo input,.campo select,.campo textarea{
+  width:100%;padding:9px 11px;border:1px solid var(--linha);border-radius:var(--r-sm);
+  background:var(--campo);color:var(--texto);
+}
+.campo input::placeholder{color:#A6A4BE}
+.campo input:focus,.campo select:focus{border-color:var(--roxo);background:#fff}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tripla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+.btn{display:block;width:100%;padding:11px;border-radius:var(--r-sm);font-weight:700;font-size:14.5px;
+  transition:transform .1s,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-roxo{background:var(--roxo);color:#fff}
+.btn-verde{background:var(--verde-esc);color:#fff}
+.btn-vermelho{background:var(--vermelho);color:#fff}
+.btn-cinza{background:#DDDCEC;color:#3A3960}
+.btn-linha{background:#fff;border:1.6px solid var(--roxo);color:var(--roxo)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-par{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Seletores em pílula (tipo, frequência, acumulativo, sexo…) */
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{flex:1 1 auto;text-align:center;padding:8px 6px;border:1.5px solid var(--linha);
+  border-radius:999px;font-size:12.5px;font-weight:600;color:var(--texto-fraco);background:#fff;min-width:70px}
+.pill.on{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.pill.on.verde{background:var(--verde-esc);border-color:var(--verde-esc)}
+
+.check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;margin:8px 0}
+.check input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--roxo);flex:0 0 auto}
+
+/* ---------- Login ---------- */
+#tela-login .marca{text-align:center;color:#fff;font-size:38px;font-weight:800;letter-spacing:.01em;
+  margin:34px 0 20px;text-shadow:0 3px 10px rgba(0,0,0,.25)}
+#tela-login .marca small{display:block;font-size:12.5px;font-weight:500;opacity:.85;letter-spacing:.06em;margin-top:4px}
+.link{display:block;text-align:center;font-size:12.5px;color:var(--azul);text-decoration:underline;margin:10px 0;background:none}
+.erro{color:var(--vermelho);font-size:12.5px;margin:6px 0 0;min-height:16px;font-weight:600}
+
+/* ---------- Dashboard ---------- */
+.perfil-topo{display:flex;flex-direction:column;align-items:center;margin-bottom:14px}
+.avatar{width:86px;height:86px;border-radius:50%;border:4px solid #fff;object-fit:cover;background:#DDDCEC;
+  display:block;box-shadow:var(--sombra)}
+.avatar-nome{color:#fff;font-size:20px;font-weight:800;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,.2)}
+.avatar-cargo{color:#E4E1FF;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+
+.barra{position:relative;height:22px;background:#DDDCEC;border-radius:999px;overflow:hidden}
+.barra i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--verde),var(--verde-esc));
+  border-radius:999px;transition:width .5s ease}
+.barra b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#1C1B33;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+
+.escada{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--texto-fraco);font-weight:600}
+.escada span.on{color:var(--roxo)}
+
+.placares{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
+.placar .rot{font-size:12px;color:var(--texto-fraco);font-weight:600}
+.placar .val{font-size:22px;font-weight:800;margin-top:2px}
+
+/* ---------- Listas ---------- */
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--linha)}
+.item:last-child{border-bottom:none}
+.item .info{flex:1 1 auto;min-width:0}
+.item .nome{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .sub{font-size:11px;color:var(--texto-fraco);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
+.tag.acum{background:#FFF0C9;color:#8A6300}
+.tag.fixo{background:#E7E5FB;color:#4A3FC9}
+.tag.ok{background:#DDF5E1;color:#227A32}
+.tag.cat{background:#EDECFB;color:#5B4FE8}
+
+.icone-btn{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;color:#fff;font-size:15px}
+.icone-btn.play{background:var(--azul)}
+.icone-btn.edit{background:var(--azul)}
+.icone-btn.del{background:var(--vermelho)}
+.icone-btn.done{background:var(--verde-esc)}
+.relogio{font-variant-numeric:tabular-nums;font-weight:800;font-size:13px;background:var(--nav);color:#fff;
+  padding:6px 9px;border-radius:8px;flex:0 0 auto;letter-spacing:.02em}
+.marcador{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--linha);background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:transparent;font-weight:900;font-size:14px}
+.marcador.on{background:var(--verde-esc);border-color:var(--verde-esc);color:#fff}
+
+.vazio{text-align:center;color:var(--texto-fraco);font-size:12.5px;padding:18px 8px;line-height:1.5}
+
+/* ---------- Tabela de histórico ---------- */
+table.hist{width:100%;border-collapse:collapse;font-size:12.5px}
+table.hist th{text-align:left;color:var(--texto-fraco);font-size:11px;text-transform:uppercase;
+  padding:6px 4px;border-bottom:1.5px solid var(--linha)}
+table.hist td{padding:8px 4px;border-bottom:1px solid var(--linha)}
+table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right}
+
+/* ---------- Modais ---------- */
+#veu{position:fixed;inset:0;background:rgba(18,15,55,.62);display:none;align-items:center;justify-content:center;
+  padding:22px;z-index:60}
+#veu.on{display:flex}
+.modal{background:#fff;border-radius:20px;padding:22px 18px;width:100%;max-width:300px;text-align:center;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);animation:pop .18s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.modal .selo{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;
+  justify-content:center;font-size:28px;color:#fff}
+.modal .selo.ok{background:var(--verde-esc)}
+.modal .selo.info{background:var(--azul)}
+.modal .selo.perigo{background:var(--vermelho)}
+.modal h3{margin:0 0 6px;font-size:17px}
+.modal p{margin:0 0 14px;font-size:13px;color:var(--texto-fraco);line-height:1.5}
+
+/* ---------- Cronômetro em foco ---------- */
+#foco{position:fixed;inset:0;background:linear-gradient(160deg,#4A3FD1,#2B2A63);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:70;padding:26px;text-align:center}
+#foco.on{display:flex}
+#foco .titulo{color:#fff;font-size:19px;font-weight:800;max-width:300px}
+#foco .cat{color:#C9C6F2;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+#foco .tempo{color:#fff;font-size:clamp(30px,10vw,44px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+#foco .meta{color:#C9C6F2;font-size:12.5px}
+.anel{width:210px;height:210px;position:relative;display:flex;align-items:center;justify-content:center}
+.anel svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.anel circle{fill:none;stroke-width:12;stroke-linecap:round}
+.anel .trilho{stroke:rgba(255,255,255,.16)}
+.anel .arco{stroke:var(--verde);transition:stroke-dashoffset .9s linear}
+.controles{display:flex;gap:14px}
+.ctrl{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.ctrl.play{background:var(--verde-esc)}
+.ctrl.pausa{background:var(--azul)}
+.ctrl.para{background:var(--vermelho)}
+.ctrl.fechar{background:rgba(255,255,255,.2)}
+
+/* ---------- Aviso flutuante ---------- */
+#aviso{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120%);background:var(--nav);color:#fff;
+  padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;transition:transform .28s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center}
+#aviso.on{transform:translate(-50%,0)}
+
+/* ---------- Gráficos ---------- */
+.grafico{width:100%;height:auto;display:block}
+.foto-caixa{position:relative;width:100px;margin:0 auto 12px}
+.foto-caixa .avatar{width:100px;height:100px;border-color:var(--roxo)}
+.foto-caixa .mais{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;
+  background:var(--verde-esc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;
+  border:3px solid #fff}
+.busca{display:flex;gap:8px;margin-bottom:10px}
+.busca input{flex:1 1 auto;padding:9px 11px;border:1px solid var(--linha);border-radius:999px;background:var(--campo)}
+.rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== NAVEGAÇÃO ===================== -->
+  <nav id="nav">
+    <button class="nav-btn" data-ir="tarefas">
+      <svg viewBox="0 0 24 24"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Tarefas</button>
+    <button class="nav-btn" data-ir="home">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
+    <button class="nav-btn" data-ir="objetivos">
+      <svg viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Objetivos</button>
+    <button class="nav-btn" data-ir="perfil">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
+  </nav>
+
+  <main id="palco">
+
+    <!-- ===================== LOGIN ===================== -->
+    <section class="tela on" id="tela-login">
+      <div class="marca">DevLog<small>ESTUDAR HOJE, NÃO AMANHÃ</small></div>
+      <div class="card">
+        <h2>Entrar</h2>
+        <div class="campo"><label for="in-email">Email</label>
+          <input id="in-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="in-senha">Senha</label>
+          <input id="in-senha" type="password" autocomplete="current-password" placeholder="Digite sua senha"></div>
+        <p class="erro" id="erro-login"></p>
+        <button class="btn btn-azul" id="b-entrar">Entrar</button>
+        <button class="link" id="b-esqueci">Esqueci a senha</button>
+        <button class="btn btn-cinza" id="b-ir-cadastro">Criar conta</button>
+      </div>
+      <p class="rodape">Seus dados ficam salvos apenas neste aparelho.</p>
+    </section>
+
+    <!-- ===================== CADASTRO ===================== -->
+    <section class="tela" id="tela-cadastro">
+      <div class="marca" style="font-size:28px;margin:26px 0 16px">DevLog</div>
+      <div class="card">
+        <h2>Criar conta</h2>
+        <div class="campo"><label for="cad-nome">Nome completo</label>
+          <input id="cad-nome" placeholder="Digite seu nome completo"></div>
+        <div class="campo"><label for="cad-email">Email</label>
+          <input id="cad-email" type="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="cad-senha">Senha</label>
+          <input id="cad-senha" type="password" placeholder="Mínimo de 4 caracteres"></div>
+        <div class="campo"><label for="cad-senha2">Repetir senha</label>
+          <input id="cad-senha2" type="password" placeholder="Repita a senha"></div>
+        <label class="check"><input type="checkbox" id="cad-termos">
+          <span>Aceito os termos de uso e o tratamento dos meus dados dentro da LGPD.</span></label>
+        <p class="erro" id="erro-cadastro"></p>
+        <button class="btn btn-verde" id="b-criar">Criar conta</button>
+        <button class="link" data-voltar-login>Voltar para o login</button>
+      </div>
+    </section>
+
+    <!-- ===================== RECUPERAR SENHA ===================== -->
+    <section class="tela" id="tela-esqueci">
+      <div class="marca" style="font-size:28px;margin:26px 0 16px">DevLog</div>
+      <div class="card">
+        <h2>Cadastrar nova senha</h2>
+        <div class="campo"><label for="rec-email">Email</label>
+          <input id="rec-email" type="email" placeholder="Digite seu email"></div>
+        <p class="legenda">Você vai receber um código para cadastrar uma nova senha.
+          Como o DevLog funciona sem servidor, a nova senha é gravada direto neste aparelho.</p>
+        <div class="campo"><label for="rec-nova">Nova senha</label>
+          <input id="rec-nova" type="password" placeholder="Nova senha"></div>
+        <p class="erro" id="erro-rec"></p>
+        <button class="btn btn-azul" id="b-recuperar">Salvar nova senha</button>
+        <button class="link" data-voltar-login>Voltar</button>
+      </div>
+    </section>
+
+    <!-- ===================== HOME / DASHBOARD ===================== -->
+    <section class="tela" id="tela-home">
+      <div class="perfil-topo">
+        <img class="avatar" id="home-foto" alt="Foto de perfil">
+        <div class="avatar-nome" id="home-nome">—</div>
+        <div class="avatar-cargo" id="home-cargo">—</div>
+      </div>
+
+      <div class="card">
+        <h2>Dia</h2>
+        <div class="barra"><i id="dia-barra" style="width:0"></i><b id="dia-txt">0%</b></div>
+        <p class="legenda" style="margin:8px 0 0;text-align:center" id="dia-detalhe">—</p>
+      </div>
+
+      <div class="card">
+        <h2>Semana</h2>
+        <div id="g-semana"></div>
+        <p class="legenda" style="margin:6px 0 0;text-align:center" id="semana-detalhe">—</p>
+      </div>
+
+      <div class="card">
+        <h2>Mensal</h2>
+        <div id="g-mensal"></div>
+        <p class="legenda" style="margin:6px 0 0;text-align:center" id="mensal-detalhe">—</p>
+      </div>
+
+      <div class="card">
+        <h2>Carreira</h2>
+        <div class="barra"><i id="car-barra" style="width:0"></i><b id="car-txt">0%</b></div>
+        <div class="escada" id="car-escada"></div>
+        <p class="legenda" style="margin:8px 0 0;text-align:center" id="car-detalhe">—</p>
+      </div>
+
+      <div class="card placares">
+        <div class="placar"><div class="rot">Concluídos</div><div class="val">🏆 <span id="pl-concl">0</span></div></div>
+        <div class="placar"><div class="rot">Pontos</div><div class="val">💎 <span id="pl-pontos">0</span></div></div>
+      </div>
+
+      <div class="card">
+        <h2>Histórico mensal</h2>
+        <table class="hist"><thead><tr><th>Mês</th><th>Estudo</th><th>Tarefas</th><th>Pontos</th></tr></thead>
+        <tbody id="tb-hist"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===================== TAREFAS (CRUD) ===================== -->
+    <section class="tela" id="tela-tarefas">
+      <div class="card">
+        <h2 id="form-titulo">Adicionar objetivo</h2>
+
+        <div class="campo"><label>Tipo</label>
+          <div class="pills" id="p-tipo">
+            <button class="pill on" data-v="estudo">Estudo ⏱</button>
+            <button class="pill" data-v="tarefa">Tarefa ✓</button>
+          </div></div>
+
+        <div class="campo"><label for="f-nome">Nome</label>
+          <input id="f-nome" placeholder="Ex.: Inglês, Faculdade, Portfólio Git"></div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-cat">Curso / Certificação</label>
+            <select id="f-cat">
+              <option>Faculdade</option><option>Curso online</option><option>Certificação</option>
+              <option>Idioma</option><option>Projeto</option><option>Leitura</option>
+              <option>Exercício</option><option>Outro</option>
+            </select></div>
+          <div class="campo"><label for="f-status">Situação</label>
+            <select id="f-status"><option value="andamento">Andamento</option><option value="concluido">Concluído</option></select></div>
+        </div>
+
+        <div class="campo"><label>Frequência</label>
+          <div class="pills" id="p-freq">
+            <button class="pill on" data-v="diaria">Diária</button>
+            <button class="pill" data-v="semanal">Semanal</button>
+            <button class="pill" data-v="mensal">Mensal</button>
+          </div></div>
+
+        <div class="tripla">
+          <div class="campo"><label for="f-qtd">Quantidade</label>
+            <input id="f-qtd" type="number" min="1" step="1" value="1"></div>
+          <div class="campo"><label for="f-uni">Unidade</label>
+            <select id="f-uni"><option value="horas">horas</option><option value="minutos">minutos</option></select></div>
+          <div class="campo"><label for="f-total">Total da meta</label>
+            <input id="f-total" type="number" min="0" step="1" value="360" title="Total de horas até concluir o objetivo"></div>
+        </div>
+
+        <div class="campo"><label>Acúmulo de pendências</label>
+          <div class="pills" id="p-acum">
+            <button class="pill on" data-v="1">Acumulativo</button>
+            <button class="pill" data-v="0">Não acumulativo</button>
+          </div>
+          <p class="legenda" id="acum-txt" style="margin:7px 0 0"></p>
+        </div>
+
+        <p class="erro" id="erro-form"></p>
+        <div class="btn-par">
+          <button class="btn btn-roxo" id="b-salvar-item">Adicionar</button>
+          <button class="btn btn-cinza" id="b-cancelar-item">Limpar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Cargo atual</h2>
+        <div class="pills" id="p-cargo"></div>
+        <p class="legenda" style="margin:9px 0 0;text-align:center">O cargo é sugerido pelos seus pontos, mas você pode fixar o seu.</p>
+      </div>
+
+      <div class="card">
+        <h2>Editar ou excluir meus objetivos</h2>
+        <div class="busca"><input id="f-busca" placeholder="Pesquisar por nome ou categoria"></div>
+        <div id="lista-crud"></div>
+      </div>
+    </section>
+
+    <!-- ===================== OBJETIVOS (executar) ===================== -->
+    <section class="tela" id="tela-objetivos">
+      <div class="card">
+        <h2>Hoje</h2>
+        <p class="legenda" style="text-align:center;margin:0" id="hoje-resumo">—</p>
+      </div>
+      <div class="card"><h2>Tarefas diárias</h2><div id="lista-diaria"></div></div>
+      <div class="card"><h2>Tarefas semanais</h2><div id="lista-semanal"></div></div>
+      <div class="card"><h2>Tarefas mensais</h2><div id="lista-mensal"></div></div>
+      <div class="card"><h2>Objetivos concluídos</h2><div id="lista-feitos"></div></div>
+    </section>
+
+    <!-- ===================== PERFIL ===================== -->
+    <section class="tela" id="tela-perfil">
+      <div class="card">
+        <h2>Perfil</h2>
+        <div class="foto-caixa">
+          <img class="avatar" id="pf-foto" alt="Foto de perfil">
+          <button class="mais" id="b-foto" title="Trocar foto">＋</button>
+          <input type="file" id="in-foto" accept="image/*" hidden>
+        </div>
+        <button class="link" id="b-tirar-foto">Remover foto</button>
+
+        <div class="campo"><label for="pf-nome">Nome</label><input id="pf-nome" placeholder="Digite seu nome completo"></div>
+        <div class="campo"><label for="pf-email">Email</label><input id="pf-email" type="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="pf-senha">Senha</label><input id="pf-senha" type="password" placeholder="Digite sua senha"></div>
+
+        <div class="dupla">
+          <div class="campo"><label for="pf-nasc">Nascimento</label><input id="pf-nasc" type="date"></div>
+          <div class="campo"><label for="pf-sexo">Sexo</label>
+            <select id="pf-sexo"><option>Masculino</option><option>Feminino</option><option>Outro</option>
+            <option>Prefiro não informar</option></select></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="pf-escola">Nível escolar</label>
+            <select id="pf-escola"><option>Fundamental</option><option>Médio</option><option>Técnico</option>
+            <option>Superior</option><option>Pós-graduação</option></select></div>
+          <div class="campo"><label for="pf-pais">País</label>
+            <select id="pf-pais"><option>Brasil</option><option>Portugal</option><option>Angola</option>
+            <option>Moçambique</option><option>Estados Unidos</option><option>Outro</option></select></div>
+        </div>
+
+        <label class="check"><input type="checkbox" id="pf-termos">
+          <span><b>Aceito os termos</b><br>Aceito os termos de uso dos dados dentro da lei LGPD.</span></label>
+
+        <p class="erro" id="erro-perfil"></p>
+        <button class="btn btn-azul" id="b-salvar-perfil">Salvar</button>
+      </div>
+
+      <div class="card">
+        <h2>Meus dados</h2>
+        <p class="legenda" id="pf-armazenamento">—</p>
+        <div class="btn-par">
+          <button class="btn btn-linha" id="b-demo">Carregar exemplo</button>
+          <button class="btn btn-cinza" id="b-exportar">Exportar dados</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="btn-par">
+          <button class="btn btn-vermelho" id="b-zerar">Apagar tudo</button>
+          <button class="btn btn-cinza" id="b-sair">Sair da conta</button>
+        </div>
+      </div>
+      <p class="rodape">DevLog · versão 1.0 · feito para não deixar estudo para depois</p>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div id="veu"><div class="modal" role="dialog" aria-modal="true">
+  <div class="selo ok" id="md-selo">✓</div>
+  <h3 id="md-titulo">Salvo</h3>
+  <p id="md-texto"></p>
+  <div id="md-botoes"></div>
+</div></div>
+
+<!-- ===================== CRONÔMETRO ===================== -->
+<div id="foco">
+  <div class="cat" id="fc-cat">—</div>
+  <div class="titulo" id="fc-titulo">—</div>
+  <div class="anel">
+    <svg viewBox="0 0 210 210"><circle class="trilho" cx="105" cy="105" r="94"/>
+      <circle class="arco" id="fc-arco" cx="105" cy="105" r="94"/></svg>
+    <div class="tempo" id="fc-tempo">00:00:00</div>
+  </div>
+  <div class="meta" id="fc-meta">—</div>
+  <div class="controles">
+    <button class="ctrl play" id="fc-play" title="Iniciar">▶</button>
+    <button class="ctrl pausa" id="fc-pausa" title="Pausar">⏸</button>
+    <button class="ctrl para" id="fc-para" title="Encerrar e salvar">⏹</button>
+    <button class="ctrl fechar" id="fc-fechar" title="Voltar">✕</button>
+  </div>
+  <p style="color:#C9C6F2;font-size:11.5px;max-width:290px;margin:0">
+    O tempo continua contando enquanto o app estiver aberto. Ao zerar, o objetivo é concluído sozinho.</p>
+</div>
+
+<div id="aviso"></div>
+
+<script>
+/* ============================================================
+   DEVLOG — lógica do aplicativo
+   Camadas: Armazenamento → Estado → Regras → Telas → Eventos
+   ============================================================ */
+(function(){
+"use strict";
+
+/* ---------- 1. ARMAZENAMENTO (funciona em 3 ambientes) ---------- */
+const Store = (function(){
+  const mem = {};
+  const temClaude = (typeof window !== "undefined") && window.storage && typeof window.storage.get === "function";
+  let temLocal = false;
+  try{ localStorage.setItem("__dl","1"); localStorage.removeItem("__dl"); temLocal = true; }catch(e){}
+  const modo = temClaude ? "nuvem do Claude" : (temLocal ? "armazenamento do navegador" : "memória da sessão");
+  return {
+    modo,
+    async ler(k){
+      if(temClaude){ try{ const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }catch(e){ return null; } }
+      if(temLocal){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+      return mem[k] !== undefined ? mem[k] : null;
+    },
+    async gravar(k,v){
+      if(temClaude){ try{ await window.storage.set(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+      if(temLocal){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+      mem[k]=v; return true;
+    },
+    async apagar(k){
+      if(temClaude){ try{ await window.storage.delete(k); }catch(e){} return; }
+      if(temLocal){ try{ localStorage.removeItem(k); }catch(e){} return; }
+      delete mem[k];
+    }
+  };
+})();
+
+const CHAVE = "devlog:estado:v1";
+
+/* ---------- 2. ESTADO ---------- */
+function estadoNovo(){
+  return {
+    usuario:null,           // {nome,email,senha,foto,nasc,sexo,escola,pais,cargo,termos}
+    logado:false,
+    itens:[],
+    hist:{},                // "AAAA-MM-DD": {min, tarefas, pontos}
+    pontos:0,
+    concluidos:0,
+    versao:1
+  };
+}
+let E = estadoNovo();
+let salvarPendente = null;
+function salvar(imediato){
+  if(salvarPendente) clearTimeout(salvarPendente);
+  if(imediato){ Store.gravar(CHAVE, E); return; }
+  salvarPendente = setTimeout(()=>Store.gravar(CHAVE, E), 400);
+}
+
+/* ---------- 3. UTILIDADES ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const p2 = n => String(n).padStart(2,"0");
+const hoje = () => new Date();
+function chaveDia(d){ d=d||hoje(); return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate()); }
+function chaveMes(d){ d=d||hoje(); return d.getFullYear()+"-"+p2(d.getMonth()+1); }
+function domingoDa(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-x.getDay()); return x; }
+function chaveSemana(d){ return "S"+chaveDia(domingoDa(d||hoje())); }
+function chavePeriodo(freq,d){ return freq==="diaria"?chaveDia(d) : freq==="semanal"?chaveSemana(d) : chaveMes(d); }
+function diasEntre(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+function fmtHM(min){
+  min = Math.max(0, Math.round(min));
+  const h = Math.floor(min/60), m = min%60;
+  if(h && m) return h+"h "+m+"min";
+  if(h) return h+"h";
+  return m+"min";
+}
+function fmtRelogio(seg){
+  seg = Math.max(0, Math.round(seg));
+  return p2(Math.floor(seg/3600))+":"+p2(Math.floor(seg%3600/60))+":"+p2(seg%60);
+}
+function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+let avisoTimer=null;
+function aviso(txt){
+  const el=$("#aviso"); el.textContent=txt; el.classList.add("on");
+  clearTimeout(avisoTimer); avisoTimer=setTimeout(()=>el.classList.remove("on"),2600);
+}
+function bip(freq,dur){
+  try{
+    const C = window.AudioContext||window.webkitAudioContext; if(!C) return;
+    const ctx=new C(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.type="sine"; o.frequency.value=freq||880; o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(.18,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(dur||.5));
+    o.start(); o.stop(ctx.currentTime+(dur||.5));
+  }catch(e){}
+}
+
+/* Modal */
+function modal(op){
+  $("#md-selo").className = "selo "+(op.selo||"ok");
+  $("#md-selo").textContent = op.icone||"✓";
+  $("#md-titulo").textContent = op.titulo||"";
+  $("#md-texto").innerHTML = op.texto||"";
+  const box=$("#md-botoes"); box.innerHTML="";
+  (op.botoes||[{r:"OK",c:"btn-cinza"}]).forEach((b,i)=>{
+    const el=document.createElement("button");
+    el.className="btn "+(b.c||"btn-cinza"); el.textContent=b.r;
+    el.style.marginTop = i?"8px":"0";
+    el.onclick=()=>{ fecharModal(); if(b.f) b.f(); };
+    box.appendChild(el);
+  });
+  $("#veu").classList.add("on");
+}
+function fecharModal(){ $("#veu").classList.remove("on"); }
+$("#veu").addEventListener("click", e=>{ if(e.target.id==="veu") fecharModal(); });
+
+/* ---------- 4. REGRAS DE NEGÓCIO ---------- */
+const CARGOS = [
+  {nome:"Estágio",  min:0},
+  {nome:"Junior",   min:500},
+  {nome:"Pleno",    min:1500},
+  {nome:"Sênior",   min:3000},
+  {nome:"Exterior", min:6000}
+];
+function cargoPorPontos(p){
+  let c=CARGOS[0];
+  CARGOS.forEach(x=>{ if(p>=x.min) c=x; });
+  return c;
+}
+function cargoAtual(){
+  const u=E.usuario||{};
+  if(u.cargo && u.cargo!=="auto") return u.cargo;
+  return cargoPorPontos(E.pontos).nome;
+}
+function tetoAcumulo(it){
+  return it.freq==="diaria" ? it.alvo*6 : it.alvo*3;   // no máximo 7 dias / 4 ciclos
+}
+function alvoEfetivo(it){ return it.alvo + (it.saldo||0); }
+function restante(it){ return Math.max(0, alvoEfetivo(it) - (it.feito||0)); }
+
+/* Vira o período: aplica (ou descarta) o que ficou pendente */
+function virarPeriodos(){
+  let mudou=false;
+  const agora = hoje();
+  E.itens.forEach(it=>{
+    const atual = chavePeriodo(it.freq, agora);
+    if(it.periodoRef === atual) return;
+    if(it.periodoRef){
+      const pendente = Math.max(0, alvoEfetivo(it) - (it.feito||0));
+      if(it.acum){
+        // "pendente" já inclui o saldo antigo, então ele substitui (não soma) o saldo
+        it.saldo = Math.min(tetoAcumulo(it), pendente);
+      }else{
+        it.saldo = 0;
+      }
+    }
+    it.feito = 0;
+    it.periodoRef = atual;
+    mudou = true;
+  });
+  if(mudou) salvar();
+  return mudou;
+}
+
+function registrarHistorico(minutos, tarefas, pontos){
+  const k = chaveDia();
+  const h = E.hist[k] || {min:0,tarefas:0,pontos:0};
+  h.min += minutos||0; h.tarefas += tarefas||0; h.pontos += pontos||0;
+  E.hist[k]=h;
+}
+
+/* Soma tempo de estudo (minutos) — chamado pelo cronômetro */
+function creditarEstudo(it, minutos){
+  if(minutos<=0) return;
+  it.feito = (it.feito||0) + minutos;
+  it.progresso = (it.progresso||0) + minutos;
+  registrarHistorico(minutos,0,0);
+}
+
+/* Conclui o ciclo atual do objetivo */
+function concluirCiclo(it, comAviso){
+  const pts = it.tipo==="estudo" ? (10 + Math.floor(alvoEfetivo(it)/6)) : 8;
+  E.pontos += pts;
+  E.concluidos += 1;
+  if(it.tipo==="tarefa"){
+    it.feito = alvoEfetivo(it);
+    it.progresso = (it.progresso||0) + alvoEfetivo(it);
+    registrarHistorico(0,1,pts);
+  }else{
+    it.feito = Math.max(it.feito||0, alvoEfetivo(it));
+    registrarHistorico(0,1,pts);
+  }
+  it.saldo = 0;
+  it.ultimaConclusao = chaveDia();
+  if(it.totalMeta>0 && (it.progresso||0) >= it.totalMeta) it.status="concluido";
+  salvar(true);
+  if(comAviso!==false){
+    bip(880,.35); setTimeout(()=>bip(1180,.5),240);
+    modal({selo:"ok",icone:"✓",titulo:"Concluído",
+      texto:"<b>"+esc(it.nome)+"</b><br>+"+pts+" pontos somados ao seu placar.",
+      botoes:[{r:"OK",c:"btn-verde"}]});
+  }
+  renderTudo();
+}
+
+/* Desmarca uma tarefa concluída no ciclo */
+function desfazerCiclo(it){
+  const pts = it.tipo==="estudo" ? (10 + Math.floor(alvoEfetivo(it)/6)) : 8;
+  E.pontos = Math.max(0, E.pontos - pts);
+  E.concluidos = Math.max(0, E.concluidos - 1);
+  it.progresso = Math.max(0, (it.progresso||0) - alvoEfetivo(it));
+  it.feito = 0;
+  if(it.status==="concluido" && it.totalMeta>0 && it.progresso < it.totalMeta) it.status="andamento";
+  const k=chaveDia(), h=E.hist[k];
+  if(h){ h.tarefas=Math.max(0,h.tarefas-1); h.pontos=Math.max(0,h.pontos-pts); }
+  salvar(true); renderTudo();
+}
+
+/* Métricas do dia */
+function metricasDoDia(){
+  let meta=0, feito=0;
+  E.itens.forEach(it=>{
+    if(it.status==="concluido" || it.freq!=="diaria") return;
+    const m = it.tipo==="estudo" ? alvoEfetivo(it) : alvoEfetivo(it)*15; // tarefa vale 15min de esforço
+    const f = it.tipo==="estudo" ? Math.min(it.feito||0, m) : Math.min((it.feito||0)*15, m);
+    meta+=m; feito+=f;
+  });
+  return {meta, feito, pct: meta? Math.min(100, Math.round(feito/meta*100)) : 0};
+}
+
+/* ---------- 5. GRÁFICOS (SVG puro, sem bibliotecas) ---------- */
+function graficoBarras(alvoEl, valores, rotulos){
+  const L=300,A=130,pe=26,pd=10,pt=12,pb=20;
+  const max = Math.max(60, ...valores);
+  const lg = (L-pe-pd)/valores.length;
+  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Minutos por dia da semana">';
+  [0,.5,1].forEach(f=>{
+    const y = pt+(A-pt-pb)*f;
+    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#E3E1F5" stroke-width="1"/>';
+    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#8B89A8" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
+  });
+  valores.forEach((v,i)=>{
+    const h = max? (A-pt-pb)*(v/max) : 0;
+    const x = pe + i*lg + lg*.22, w = lg*.56, y = A-pb-h;
+    s += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+Math.max(0,h).toFixed(1)+
+         '" rx="3" fill="#7C6FD6"><title>'+rotulos[i]+": "+fmtHM(v)+'</title></rect>';
+    s += '<text x="'+(x+w/2).toFixed(1)+'" y="'+(A-6)+'" font-size="9" fill="#6B6B85" text-anchor="middle">'+rotulos[i]+'</text>';
+  });
+  s += '</svg>';
+  alvoEl.innerHTML = s;
+}
+function graficoLinha(alvoEl, valores, rotulos){
+  const L=300,A=120,pe=26,pd=10,pt=12,pb=18;
+  const max = Math.max(60, ...valores);
+  const n = valores.length;
+  const px = i => pe + (L-pe-pd)*(n>1? i/(n-1):0);
+  const py = v => pt + (A-pt-pb)*(1 - (max? v/max:0));
+  let s = '<svg class="grafico" viewBox="0 0 '+L+' '+A+'" role="img" aria-label="Evolução do mês">';
+  [0,.5,1].forEach(f=>{
+    const y = pt+(A-pt-pb)*f;
+    s += '<line x1="'+pe+'" y1="'+y+'" x2="'+(L-pd)+'" y2="'+y+'" stroke="#E3E1F5" stroke-width="1"/>';
+    s += '<text x="'+(pe-4)+'" y="'+(y+3.5)+'" font-size="8" fill="#8B89A8" text-anchor="end">'+Math.round(max*(1-f))+'</text>';
+  });
+  const pts = valores.map((v,i)=>px(i).toFixed(1)+","+py(v).toFixed(1));
+  s += '<polyline points="'+pts.join(" ")+'" fill="none" stroke="#9B3FE0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>';
+  s += '<polygon points="'+pe+','+(A-pb)+' '+pts.join(" ")+' '+(L-pd)+','+(A-pb)+'" fill="#9B3FE0" opacity=".10"/>';
+  valores.forEach((v,i)=>{ if(v>0) s+='<circle cx="'+px(i).toFixed(1)+'" cy="'+py(v).toFixed(1)+'" r="2.4" fill="#9B3FE0"><title>'+rotulos[i]+": "+fmtHM(v)+'</title></circle>'; });
+  const marcos=[0,Math.floor(n/2),n-1];
+  marcos.forEach(i=>{ s+='<text x="'+px(i).toFixed(1)+'" y="'+(A-4)+'" font-size="8" fill="#6B6B85" text-anchor="middle">'+rotulos[i]+'</text>'; });
+  s += '</svg>';
+  alvoEl.innerHTML = s;
+}
+
+/* ---------- 6. TELAS ---------- */
+let telaAtual="login";
+function ir(nome){
+  telaAtual = nome;
+  $$(".tela").forEach(t=>t.classList.remove("on"));
+  const el = $("#tela-"+nome); if(el) el.classList.add("on");
+  const dentro = ["home","tarefas","objetivos","perfil"].includes(nome);
+  $("#nav").classList.toggle("on", dentro && E.logado);
+  $$(".nav-btn").forEach(b=>b.classList.toggle("ativo", b.dataset.ir===nome));
+  $("#palco").scrollTop = 0;
+  renderTudo();
+}
+
+function fotoOu(u){
+  return (u && u.foto) ? u.foto :
+    "data:image/svg+xml;utf8,"+encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#DDDCEC"/>'+
+      '<circle cx="50" cy="38" r="18" fill="#9E9BC4"/><path d="M14 96a36 36 0 0 1 72 0z" fill="#9E9BC4"/></svg>');
+}
+
+/* --- Dashboard --- */
+function renderHome(){
+  if(!E.logado) return;
+  const u=E.usuario||{};
+  $("#home-foto").src = fotoOu(u);
+  $("#home-nome").textContent = u.nome || "Sem nome";
+  $("#home-cargo").textContent = cargoAtual();
+
+  const d = metricasDoDia();
+  $("#dia-barra").style.width = d.pct+"%";
+  $("#dia-txt").textContent = d.pct+"%";
+  $("#dia-detalhe").textContent = d.meta
+    ? fmtHM(d.feito)+" de "+fmtHM(d.meta)+" planejados para hoje"
+    : "Sem objetivos diários. Cadastre um na aba Tarefas.";
+
+  // Semana
+  const dom = domingoDa(hoje()), rot=["dom","seg","ter","qua","qui","sex","sáb"], vals=[];
+  for(let i=0;i<7;i++){ const dt=new Date(dom); dt.setDate(dom.getDate()+i);
+    vals.push(Math.round((E.hist[chaveDia(dt)]||{}).min||0)); }
+  graficoBarras($("#g-semana"), vals, rot);
+  const totalSem = vals.reduce((a,b)=>a+b,0);
+  $("#semana-detalhe").textContent = totalSem
+    ? fmtHM(totalSem)+" de estudo nesta semana · média "+fmtHM(totalSem/7)+"/dia"
+    : "Nenhum tempo registrado nesta semana ainda.";
+
+  // Mensal
+  const ag=hoje(), dias=new Date(ag.getFullYear(),ag.getMonth()+1,0).getDate();
+  const vm=[], rm=[];
+  for(let i=1;i<=dias;i++){ const dt=new Date(ag.getFullYear(),ag.getMonth(),i);
+    vm.push(Math.round((E.hist[chaveDia(dt)]||{}).min||0)); rm.push(p2(i)); }
+  graficoLinha($("#g-mensal"), vm, rm);
+  const totalMes = vm.reduce((a,b)=>a+b,0);
+  const ativos = vm.filter(v=>v>0).length;
+  $("#mensal-detalhe").textContent = totalMes
+    ? fmtHM(totalMes)+" no mês · "+ativos+" dia(s) com estudo"
+    : "O gráfico se preenche conforme você usa o cronômetro.";
+
+  // Carreira
+  const atual = cargoPorPontos(E.pontos);
+  const idx = CARGOS.findIndex(c=>c.nome===atual.nome);
+  const prox = CARGOS[idx+1];
+  const base = atual.min, topo = prox? prox.min : atual.min+2000;
+  const pct = Math.min(100, Math.round((E.pontos-base)/(topo-base)*100));
+  $("#car-barra").style.width = pct+"%";
+  $("#car-txt").textContent = pct+"%";
+  $("#car-escada").innerHTML = CARGOS.map(c=>
+    '<span class="'+(c.nome===cargoAtual()?"on":"")+'">'+c.nome+"</span>").join("");
+  $("#car-detalhe").textContent = prox
+    ? "Faltam "+(topo-E.pontos)+" pontos para "+prox.nome
+    : "Nível máximo alcançado. Continue somando pontos.";
+
+  $("#pl-concl").textContent = E.concluidos;
+  $("#pl-pontos").textContent = E.pontos;
+
+  // Histórico mensal
+  const meses={};
+  Object.keys(E.hist).forEach(k=>{
+    const m=k.slice(0,7), h=E.hist[k];
+    const a = meses[m] || (meses[m]={min:0,tarefas:0,pontos:0});
+    a.min+=h.min; a.tarefas+=h.tarefas; a.pontos+=h.pontos;
+  });
+  const nomes=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const linhas = Object.keys(meses).sort().reverse().slice(0,12).map(m=>{
+    const a=meses[m], [ano,mm]=m.split("-");
+    return "<tr><td>"+nomes[+mm-1]+"/"+ano.slice(2)+"</td><td>"+fmtHM(a.min)+
+      "</td><td>"+a.tarefas+"</td><td>"+a.pontos+"</td></tr>";
+  }).join("");
+  $("#tb-hist").innerHTML = linhas || '<tr><td colspan="4" class="vazio">Ainda sem histórico.</td></tr>';
+}
+
+/* --- CRUD --- */
+let editandoId = null;
+function lerPills(sel){ const b=$(sel+" .pill.on"); return b? b.dataset.v : null; }
+function marcarPill(sel,v){
+  $$(sel+" .pill").forEach(b=>b.classList.toggle("on", b.dataset.v===String(v)));
+}
+function textoAcumulo(){
+  const ac = lerPills("#p-acum")==="1";
+  const fq = lerPills("#p-freq");
+  const janela = fq==="diaria" ? "até 7 dias" : fq==="semanal" ? "até 4 semanas" : "até 4 meses";
+  $("#acum-txt").innerHTML = ac
+    ? "<b>Acumulativo:</b> o que você não fizer soma no próximo período ("+janela+" de acúmulo). Nada se perde."
+    : "<b>Não acumulativo:</b> o período vira do zero. O que não foi feito é descartado.";
+}
+function atualizarFormPorTipo(){
+  const est = lerPills("#p-tipo")==="estudo";
+  $("#f-uni").innerHTML = est
+    ? '<option value="horas">horas</option><option value="minutos">minutos</option>'
+    : '<option value="vezes">vezes</option>';
+  $("#f-total").title = est ? "Total de horas até concluir" : "Total de repetições até concluir";
+  $("#f-total").previousElementSibling.textContent = est ? "Total (horas)" : "Total (vezes)";
+}
+function limparForm(){
+  editandoId=null;
+  $("#form-titulo").textContent="Adicionar objetivo";
+  $("#b-salvar-item").textContent="Adicionar";
+  $("#f-nome").value=""; $("#f-cat").selectedIndex=0; $("#f-status").value="andamento";
+  $("#f-qtd").value=1; $("#f-total").value=360;
+  marcarPill("#p-tipo","estudo"); marcarPill("#p-freq","diaria"); marcarPill("#p-acum","1");
+  atualizarFormPorTipo(); textoAcumulo(); $("#erro-form").textContent="";
+}
+function salvarItem(){
+  const nome=$("#f-nome").value.trim();
+  const qtd=parseFloat($("#f-qtd").value);
+  const total=parseFloat($("#f-total").value);
+  if(!nome){ $("#erro-form").textContent="Escreva o nome do objetivo."; return; }
+  if(!(qtd>0)){ $("#erro-form").textContent="A quantidade precisa ser maior que zero."; return; }
+  $("#erro-form").textContent="";
+  const tipo=lerPills("#p-tipo"), uni=$("#f-uni").value;
+  const alvo = tipo==="estudo" ? (uni==="horas"? qtd*60 : qtd) : qtd;
+  const totalMeta = tipo==="estudo" ? (total>0? total*60 : 0) : (total>0? total : 0);
+  const freq=lerPills("#p-freq");
+
+  if(editandoId){
+    const it=E.itens.find(x=>x.id===editandoId);
+    if(it){
+      const mudouFreq = it.freq!==freq;
+      Object.assign(it,{tipo,nome,cat:$("#f-cat").value,freq,qtd,uni,alvo,totalMeta,
+        acum:lerPills("#p-acum")==="1", status:$("#f-status").value});
+      if(mudouFreq){ it.saldo=0; it.feito=0; it.periodoRef=chavePeriodo(freq,hoje()); }
+      it.saldo = Math.min(it.saldo||0, tetoAcumulo(it));
+    }
+    salvar(true); limparForm(); renderTudo();
+    modal({selo:"ok",icone:"✓",titulo:"Editado",texto:"O objetivo foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
+    return;
+  }
+  E.itens.push({
+    id:id(), tipo, nome, cat:$("#f-cat").value, freq, qtd, uni, alvo, totalMeta,
+    acum:lerPills("#p-acum")==="1", status:$("#f-status").value,
+    feito:0, saldo:0, progresso:0, periodoRef:chavePeriodo(freq,hoje()),
+    criadoEm:chaveDia(), ultimaConclusao:null
+  });
+  salvar(true); limparForm(); renderTudo();
+  modal({selo:"ok",icone:"✓",titulo:"Salvo",texto:"Objetivo adicionado à sua lista.",botoes:[{r:"OK",c:"btn-verde"}]});
+}
+function editarItem(idv){
+  const it=E.itens.find(x=>x.id===idv); if(!it) return;
+  editandoId=idv;
+  $("#form-titulo").textContent="Editar objetivo";
+  $("#b-salvar-item").textContent="Salvar edição";
+  marcarPill("#p-tipo",it.tipo); atualizarFormPorTipo();
+  $("#f-nome").value=it.nome; $("#f-cat").value=it.cat; $("#f-status").value=it.status;
+  marcarPill("#p-freq",it.freq); marcarPill("#p-acum", it.acum?"1":"0");
+  $("#f-qtd").value=it.qtd; $("#f-uni").value=it.uni;
+  $("#f-total").value = it.tipo==="estudo" ? Math.round((it.totalMeta||0)/60) : (it.totalMeta||0);
+  textoAcumulo();
+  ir("tarefas"); $("#palco").scrollTop=0; $("#f-nome").focus();
+}
+function excluirItem(idv){
+  const it=E.itens.find(x=>x.id===idv); if(!it) return;
+  modal({selo:"perigo",icone:"🗑",titulo:"Excluir objetivo",
+    texto:"<b>"+esc(it.nome)+"</b><br>Situação: "+(it.status==="concluido"?"Concluído":"Andamento")+
+      "<br><span style='color:#E23B3B'>Confirme os dados antes de excluir.</span>",
+    botoes:[
+      {r:"Excluir",c:"btn-vermelho",f:()=>{
+        E.itens = E.itens.filter(x=>x.id!==idv);
+        if(editandoId===idv) limparForm();
+        salvar(true); renderTudo();
+        modal({selo:"perigo",icone:"🗑",titulo:"Excluído",texto:"O objetivo saiu da sua lista.",botoes:[{r:"OK",c:"btn-cinza"}]});
+      }},
+      {r:"Cancelar",c:"btn-cinza"}
+    ]});
+}
+function renderCrud(){
+  const busca=$("#f-busca").value.trim().toLowerCase();
+  const lista=E.itens.filter(it=> !busca || it.nome.toLowerCase().includes(busca) || it.cat.toLowerCase().includes(busca));
+  if(!lista.length){
+    $("#lista-crud").innerHTML = '<p class="vazio">'+(E.itens.length
+      ? "Nada encontrado para essa busca."
+      : "Você ainda não cadastrou objetivos.<br>Preencha o formulário acima para começar.")+"</p>";
+    return;
+  }
+  $("#lista-crud").innerHTML = lista.map(it=>{
+    const un = it.tipo==="estudo" ? fmtHM(it.alvo) : it.qtd+"x";
+    const fr = {diaria:"por dia",semanal:"por semana",mensal:"por mês"}[it.freq];
+    return '<div class="item">'+
+      '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
+      '<div class="sub"><span class="tag cat">'+esc(it.cat)+'</span>'+
+      '<span class="tag '+(it.acum?"acum":"fixo")+'">'+(it.acum?"acumulativo":"fixo")+'</span>'+
+      (it.status==="concluido"?'<span class="tag ok">concluído</span>':"")+
+      '<span>'+un+" "+fr+'</span></div></div>'+
+      '<button class="icone-btn del" data-del="'+it.id+'" title="Excluir">🗑</button>'+
+      '<button class="icone-btn edit" data-edit="'+it.id+'" title="Editar">✎</button>'+
+      '</div>';
+  }).join("");
+}
+function renderCargo(){
+  const u=E.usuario||{};
+  const opcoes=["auto"].concat(CARGOS.map(c=>c.nome));
+  $("#p-cargo").innerHTML = opcoes.map(o=>
+    '<button class="pill'+(((u.cargo||"auto")===o)?" on":"")+'" data-cargo="'+o+'">'+
+    (o==="auto"?"Automático":o)+"</button>").join("");
+}
+
+/* --- Objetivos (executar) --- */
+function linhaObjetivo(it){
+  const conc = restante(it)<=0;
+  const acEx = (it.saldo||0)>0;
+  const tags = '<span class="tag cat">'+esc(it.cat)+'</span>'+
+    (acEx? '<span class="tag acum">+'+(it.tipo==="estudo"?fmtHM(it.saldo):it.saldo+"x")+' acumulado</span>':"")+
+    (it.acum?"":'<span class="tag fixo">fixo</span>');
+  if(it.tipo==="estudo"){
+    const total = alvoEfetivo(it), falta = restante(it);
+    return '<div class="item">'+
+      '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
+      '<div class="sub">'+tags+'<span>meta '+fmtHM(total)+'</span></div></div>'+
+      (conc
+        ? '<span class="relogio" style="background:#34A745">00:00:00</span><div class="marcador on">✓</div>'
+        : '<span class="relogio">'+fmtRelogio(falta*60)+'</span>'+
+          '<button class="icone-btn play" data-play="'+it.id+'" title="Iniciar">▶</button>')+
+      '</div>';
+  }
+  const feitas = Math.min(it.feito||0, alvoEfetivo(it));
+  return '<div class="item">'+
+    '<div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
+    '<div class="sub">'+tags+'<span>'+feitas+" de "+alvoEfetivo(it)+'</span></div></div>'+
+    '<button class="icone-btn '+(conc?"done":"edit")+'" data-mais="'+it.id+'" title="Marcar uma">＋</button>'+
+    '<button class="marcador'+(conc?" on":"")+'" data-check="'+it.id+'" title="Concluir">✓</button>'+
+    '</div>';
+}
+function renderObjetivos(){
+  const ativos = E.itens.filter(it=>it.status!=="concluido");
+  const porFreq = f => ativos.filter(it=>it.freq===f);
+  const pinta = (sel,f,txt)=>{
+    const l=porFreq(f);
+    $(sel).innerHTML = l.length ? l.map(linhaObjetivo).join("") : '<p class="vazio">'+txt+"</p>";
+  };
+  pinta("#lista-diaria","diaria","Nenhuma tarefa diária cadastrada.");
+  pinta("#lista-semanal","semanal","Nenhuma tarefa semanal cadastrada.");
+  pinta("#lista-mensal","mensal","Nenhuma tarefa mensal cadastrada.");
+
+  const feitos = E.itens.filter(it=>it.status==="concluido");
+  $("#lista-feitos").innerHTML = feitos.length ? feitos.map(it=>
+    '<div class="item"><div class="info"><div class="nome">'+esc(it.nome)+'</div>'+
+    '<div class="sub"><span class="tag ok">meta batida</span><span>'+
+    (it.tipo==="estudo"? fmtHM(it.progresso||0) : (it.progresso||0)+"x")+' no total</span></div></div>'+
+    '<button class="icone-btn edit" data-reabrir="'+it.id+'" title="Reabrir">↺</button></div>'
+  ).join("") : '<p class="vazio">Nenhum objetivo finalizado ainda. Ele aparece aqui quando o total da meta for atingido.</p>';
+
+  const d=metricasDoDia();
+  const pend = ativos.filter(it=>it.freq==="diaria" && restante(it)>0).length;
+  $("#hoje-resumo").innerHTML = d.meta
+    ? "<b>"+d.pct+"%</b> do dia concluído · "+pend+" objetivo(s) diário(s) em aberto<br>"+
+      fmtHM(Math.max(0,d.meta-d.feito))+" ainda planejados para hoje"
+    : "Sem plano para hoje. Cadastre objetivos na aba Tarefas.";
+}
+
+/* --- Perfil --- */
+function renderPerfil(){
+  const u=E.usuario||{};
+  $("#pf-foto").src = fotoOu(u);
+  $("#pf-nome").value=u.nome||""; $("#pf-email").value=u.email||"";
+  $("#pf-senha").value=u.senha||""; $("#pf-nasc").value=u.nasc||"";
+  if(u.sexo) $("#pf-sexo").value=u.sexo;
+  if(u.escola) $("#pf-escola").value=u.escola;
+  if(u.pais) $("#pf-pais").value=u.pais;
+  $("#pf-termos").checked=!!u.termos;
+  $("#pf-armazenamento").textContent =
+    "Salvo em: "+Store.modo+". "+E.itens.length+" objetivo(s), "+
+    Object.keys(E.hist).length+" dia(s) de histórico, "+E.pontos+" pontos.";
+}
+
+function renderTudo(){
+  virarPeriodos();
+  if(telaAtual==="home") renderHome();
+  if(telaAtual==="tarefas"){ renderCrud(); renderCargo(); }
+  if(telaAtual==="objetivos") renderObjetivos();
+  if(telaAtual==="perfil") renderPerfil();
+}
+
+/* ---------- 7. CRONÔMETRO ---------- */
+const T = {itemId:null, restanteSeg:0, totalSeg:0, rodando:false, ultimo:0, acumulado:0};
+let loop=null;
+function abrirFoco(idv){
+  const it=E.itens.find(x=>x.id===idv); if(!it) return;
+  T.itemId=idv; T.rodando=false; T.acumulado=0;
+  T.totalSeg = alvoEfetivo(it)*60;
+  T.restanteSeg = restante(it)*60;
+  $("#fc-cat").textContent = it.cat+" · "+{diaria:"diário",semanal:"semanal",mensal:"mensal"}[it.freq];
+  $("#fc-titulo").textContent = it.nome;
+  $("#fc-meta").textContent = "Meta do período: "+fmtHM(alvoEfetivo(it))+
+    ((it.saldo||0)>0 ? " (inclui "+fmtHM(it.saldo)+" acumulados)" : "");
+  pintarFoco();
+  $("#foco").classList.add("on");
+}
+function pintarFoco(){
+  $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
+  const r=94, c=2*Math.PI*r;
+  const frac = T.totalSeg ? (T.restanteSeg/T.totalSeg) : 0;
+  const arco=$("#fc-arco");
+  arco.setAttribute("stroke-dasharray", c.toFixed(1));
+  arco.setAttribute("stroke-dashoffset", (c*(1-frac)).toFixed(1));
+  $("#fc-play").style.display = T.rodando ? "none" : "flex";
+  $("#fc-pausa").style.display = T.rodando ? "flex" : "none";
+}
+function tocar(){
+  if(T.rodando || !T.itemId) return;
+  if(T.restanteSeg<=0){ aviso("Este objetivo já está concluído no período."); return; }
+  T.rodando=true; T.ultimo=Date.now();
+  if(loop) clearInterval(loop);
+  loop=setInterval(tique,250);
+  pintarFoco();
+}
+function tique(){
+  if(!T.rodando) return;
+  const agora=Date.now(), delta=(agora-T.ultimo)/1000;
+  T.ultimo=agora;
+  T.restanteSeg = Math.max(0, T.restanteSeg-delta);
+  T.acumulado += delta;
+  $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
+  const r=94,c=2*Math.PI*r;
+  $("#fc-arco").setAttribute("stroke-dashoffset", (c*(1-(T.totalSeg? T.restanteSeg/T.totalSeg:0))).toFixed(1));
+  if(T.acumulado>=30){ descarregar(); salvar(); }
+  if(T.restanteSeg<=0) zerou();
+}
+function descarregar(){
+  const it=E.itens.find(x=>x.id===T.itemId);
+  if(it && T.acumulado>0){ creditarEstudo(it, T.acumulado/60); }
+  T.acumulado=0;
+}
+function pausar(){
+  if(!T.rodando) return;
+  T.rodando=false; clearInterval(loop); loop=null;
+  descarregar(); salvar(true); pintarFoco(); renderTudo();
+  aviso("Pausado. O tempo já feito foi salvo.");
+}
+function encerrar(){
+  const it=E.itens.find(x=>x.id===T.itemId);
+  T.rodando=false; clearInterval(loop); loop=null;
+  descarregar(); salvar(true);
+  $("#foco").classList.remove("on");
+  renderTudo();
+  if(it) aviso("Sessão encerrada. "+fmtHM(restante(it))+" ainda faltam.");
+}
+function zerou(){
+  T.rodando=false; clearInterval(loop); loop=null;
+  descarregar();
+  const it=E.itens.find(x=>x.id===T.itemId);
+  $("#foco").classList.remove("on");
+  if(it) concluirCiclo(it,true);
+}
+
+/* ---------- 8. AUTENTICAÇÃO ---------- */
+function entrar(){
+  const em=$("#in-email").value.trim().toLowerCase(), se=$("#in-senha").value;
+  if(!E.usuario){ $("#erro-login").textContent="Nenhuma conta neste aparelho. Crie uma conta primeiro."; return; }
+  if(em!==(E.usuario.email||"").toLowerCase() || se!==E.usuario.senha){
+    $("#erro-login").textContent="Email ou senha não conferem."; return;
+  }
+  $("#erro-login").textContent=""; $("#in-senha").value="";
+  E.logado=true; salvar(true); ir("home");
+}
+function criarConta(){
+  const nome=$("#cad-nome").value.trim(), em=$("#cad-email").value.trim(),
+        s1=$("#cad-senha").value, s2=$("#cad-senha2").value;
+  if(nome.length<2){ $("#erro-cadastro").textContent="Escreva seu nome."; return; }
+  if(!/^\S+@\S+\.\S+$/.test(em)){ $("#erro-cadastro").textContent="Email inválido."; return; }
+  if(s1.length<4){ $("#erro-cadastro").textContent="A senha precisa de ao menos 4 caracteres."; return; }
+  if(s1!==s2){ $("#erro-cadastro").textContent="As senhas não são iguais."; return; }
+  if(!$("#cad-termos").checked){ $("#erro-cadastro").textContent="É preciso aceitar os termos."; return; }
+  $("#erro-cadastro").textContent="";
+  E.usuario={nome,email:em,senha:s1,foto:null,nasc:"",sexo:"Prefiro não informar",
+    escola:"Superior",pais:"Brasil",cargo:"auto",termos:true};
+  E.logado=true; salvar(true);
+  ir("home");
+  modal({selo:"ok",icone:"✓",titulo:"Conta criada",
+    texto:"Bem-vindo, "+esc(nome.split(" ")[0])+".<br>Agora cadastre seus objetivos na aba Tarefas.",
+    botoes:[{r:"Começar",c:"btn-verde",f:()=>ir("tarefas")},{r:"Ver o painel",c:"btn-cinza"}]});
+}
+function recuperar(){
+  const em=$("#rec-email").value.trim().toLowerCase(), nova=$("#rec-nova").value;
+  if(!E.usuario || em!==(E.usuario.email||"").toLowerCase()){
+    $("#erro-rec").textContent="Email não encontrado neste aparelho."; return; }
+  if(nova.length<4){ $("#erro-rec").textContent="A nova senha precisa de ao menos 4 caracteres."; return; }
+  $("#erro-rec").textContent="";
+  E.usuario.senha=nova; salvar(true);
+  $("#rec-nova").value="";
+  modal({selo:"info",icone:"✉",titulo:"Enviado",
+    texto:"Sua nova senha já está valendo. Faça o login para continuar.",
+    botoes:[{r:"OK",c:"btn-azul",f:()=>ir("login")}]});
+}
+
+/* ---------- 9. FOTO DE PERFIL ---------- */
+function lerFoto(arq){
+  const fr=new FileReader();
+  fr.onload = ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const lado=Math.min(img.width,img.height);
+      const cv=document.createElement("canvas"); cv.width=cv.height=280;
+      const cx=cv.getContext("2d");
+      cx.drawImage(img,(img.width-lado)/2,(img.height-lado)/2,lado,lado,0,0,280,280);
+      E.usuario.foto = cv.toDataURL("image/jpeg",.82);
+      salvar(true); renderPerfil(); aviso("Foto atualizada.");
+    };
+    img.onerror=()=>aviso("Não foi possível ler essa imagem.");
+    img.src=ev.target.result;
+  };
+  fr.readAsDataURL(arq);
+}
+
+/* ---------- 10. DADOS DE EXEMPLO ---------- */
+function carregarDemo(){
+  const mk=(tipo,nome,cat,freq,alvo,acum,totalMeta)=>({
+    id:id(),tipo,nome,cat,freq,qtd:tipo==="estudo"?alvo/60:alvo,uni:tipo==="estudo"?"horas":"vezes",
+    alvo,totalMeta,acum,status:"andamento",feito:0,saldo:0,progresso:0,
+    periodoRef:chavePeriodo(freq,hoje()),criadoEm:chaveDia(),ultimaConclusao:null});
+  E.itens = [
+    mk("estudo","Inglês","Idioma","diaria",60,true,360*60),
+    mk("estudo","Faculdade EAD","Faculdade","diaria",120,true,800*60),
+    mk("estudo","Curso AWS","Certificação","diaria",60,false,120*60),
+    mk("estudo","Projeto portfólio","Projeto","semanal",300,true,200*60),
+    mk("tarefa","Enviar currículos","Outro","semanal",5,true,100),
+    mk("tarefa","Entrevistas","Outro","mensal",5,false,60),
+    mk("tarefa","Conexões no LinkedIn","Outro","mensal",4,true,48)
+  ];
+  E.itens[0].saldo=60; E.itens[1].feito=45;
+  E.hist={}; E.pontos=0; E.concluidos=0;
+  for(let i=44;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const fds=[0,6].includes(d.getDay());
+    const base=fds? 40:130;
+    const min=Math.max(0, Math.round(base + Math.sin(i/3)*45 + (Math.random()*60-25)));
+    if(min<15 && Math.random()<.4) continue;
+    const tarefas=Math.random()<.55?1:0;
+    const pontos=Math.round(min/6)+tarefas*8+(min>0?10:0);
+    E.hist[chaveDia(d)]={min,tarefas,pontos};
+    E.pontos+=pontos; E.concluidos+= (min>0?1:0)+tarefas;
+  }
+  salvar(true); renderTudo();
+  modal({selo:"ok",icone:"✓",titulo:"Exemplo carregado",
+    texto:"7 objetivos e 45 dias de histórico foram criados para você testar os gráficos.",
+    botoes:[{r:"Ver o painel",c:"btn-verde",f:()=>ir("home")},{r:"OK",c:"btn-cinza"}]});
+}
+function exportar(){
+  const txt=JSON.stringify(E,null,2);
+  try{
+    const b=new Blob([txt],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(b); a.download="devlog-backup.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+    aviso("Backup gerado.");
+  }catch(e){
+    modal({selo:"info",icone:"⇩",titulo:"Backup",
+      texto:"Copie o conteúdo abaixo e guarde em um arquivo .json:<br><textarea style='width:100%;height:120px;font-size:10px' readonly>"+esc(txt)+"</textarea>",
+      botoes:[{r:"Fechar",c:"btn-cinza"}]});
+  }
+}
+
+/* ---------- 11. EVENTOS ---------- */
+$$(".nav-btn").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
+$("#b-entrar").onclick=entrar;
+$("#in-senha").addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
+$("#b-ir-cadastro").onclick=()=>ir("cadastro");
+$("#b-esqueci").onclick=()=>ir("esqueci");
+$("#b-criar").onclick=criarConta;
+$("#b-recuperar").onclick=recuperar;
+$$("[data-voltar-login]").forEach(b=>b.onclick=()=>ir("login"));
+
+["#p-tipo","#p-freq","#p-acum"].forEach(sel=>{
+  $(sel).addEventListener("click",e=>{
+    const b=e.target.closest(".pill"); if(!b) return;
+    $$(sel+" .pill").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    if(sel==="#p-tipo") atualizarFormPorTipo();
+    textoAcumulo();
+  });
+});
+$("#b-salvar-item").onclick=salvarItem;
+$("#b-cancelar-item").onclick=()=>{ limparForm(); aviso("Formulário limpo."); };
+$("#f-busca").addEventListener("input",renderCrud);
+$("#lista-crud").addEventListener("click",e=>{
+  const d=e.target.closest("[data-del]"), ed=e.target.closest("[data-edit]");
+  if(d) excluirItem(d.dataset.del);
+  if(ed) editarItem(ed.dataset.edit);
+});
+$("#p-cargo").addEventListener("click",e=>{
+  const b=e.target.closest("[data-cargo]"); if(!b||!E.usuario) return;
+  E.usuario.cargo=b.dataset.cargo; salvar(true); renderCargo(); aviso("Cargo atualizado.");
+});
+
+$("#tela-objetivos").addEventListener("click",e=>{
+  const pl=e.target.closest("[data-play]");
+  const ck=e.target.closest("[data-check]");
+  const ma=e.target.closest("[data-mais]");
+  const rb=e.target.closest("[data-reabrir]");
+  if(pl) abrirFoco(pl.dataset.play);
+  if(ma){
+    const it=E.itens.find(x=>x.id===ma.dataset.mais); if(!it) return;
+    if(restante(it)<=0){ aviso("Já concluído neste período."); return; }
+    it.feito=(it.feito||0)+1; it.progresso=(it.progresso||0)+1;
+    if(restante(it)<=0){ E.pontos+=8; E.concluidos+=1; registrarHistorico(0,1,8); it.saldo=0;
+      if(it.totalMeta>0 && it.progresso>=it.totalMeta) it.status="concluido";
+      bip(920,.3); aviso("Concluído! +8 pontos"); }
+    salvar(true); renderTudo();
+  }
+  if(ck){
+    const it=E.itens.find(x=>x.id===ck.dataset.check); if(!it) return;
+    if(restante(it)<=0) desfazerCiclo(it); else concluirCiclo(it,true);
+  }
+  if(rb){
+    const it=E.itens.find(x=>x.id===rb.dataset.reabrir); if(!it) return;
+    it.status="andamento"; it.feito=0; it.periodoRef=chavePeriodo(it.freq,hoje());
+    salvar(true); renderTudo(); aviso("Objetivo reaberto.");
+  }
+});
+
+$("#fc-play").onclick=tocar;
+$("#fc-pausa").onclick=pausar;
+$("#fc-para").onclick=encerrar;
+$("#fc-fechar").onclick=()=>{ if(T.rodando) pausar(); $("#foco").classList.remove("on"); renderTudo(); };
+
+$("#b-foto").onclick=()=>$("#in-foto").click();
+$("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.target.files[0]); e.target.value=""; });
+$("#b-tirar-foto").onclick=()=>{ if(E.usuario){ E.usuario.foto=null; salvar(true); renderPerfil(); aviso("Foto removida."); } };
+$("#b-salvar-perfil").onclick=()=>{
+  const nome=$("#pf-nome").value.trim(), em=$("#pf-email").value.trim(), se=$("#pf-senha").value;
+  if(nome.length<2){ $("#erro-perfil").textContent="Escreva seu nome."; return; }
+  if(!/^\S+@\S+\.\S+$/.test(em)){ $("#erro-perfil").textContent="Email inválido."; return; }
+  if(se.length<4){ $("#erro-perfil").textContent="A senha precisa de ao menos 4 caracteres."; return; }
+  if(!$("#pf-termos").checked){ $("#erro-perfil").textContent="É preciso aceitar os termos."; return; }
+  $("#erro-perfil").textContent="";
+  Object.assign(E.usuario,{nome,email:em,senha:se,nasc:$("#pf-nasc").value,sexo:$("#pf-sexo").value,
+    escola:$("#pf-escola").value,pais:$("#pf-pais").value,termos:true});
+  salvar(true); renderTudo();
+  modal({selo:"ok",icone:"✓",titulo:"Salvo",texto:"Seu perfil foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
+};
+$("#b-demo").onclick=()=>modal({selo:"info",icone:"⚙",titulo:"Carregar exemplo",
+  texto:"Isso substitui seus objetivos e o histórico por dados de demonstração.",
+  botoes:[{r:"Carregar",c:"btn-roxo",f:carregarDemo},{r:"Cancelar",c:"btn-cinza"}]});
+$("#b-exportar").onclick=exportar;
+$("#b-zerar").onclick=()=>modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo",
+  texto:"Objetivos, histórico, pontos e conta serão apagados deste aparelho.",
+  botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
+    await Store.apagar(CHAVE); E=estadoNovo(); salvar(true); ir("login"); aviso("Tudo apagado.");
+  }},{r:"Cancelar",c:"btn-cinza"}]});
+$("#b-sair").onclick=()=>{ E.logado=false; salvar(true); ir("login"); };
+
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden && T.rodando){ descarregar(); salvar(true); }
+  else if(!document.hidden && T.rodando){ T.ultimo=Date.now(); }
+});
+window.addEventListener("beforeunload",()=>{ if(T.rodando) descarregar(); Store.gravar(CHAVE,E); });
+
+/* vira o dia sozinho enquanto o app fica aberto */
+setInterval(()=>{ if(virarPeriodos()) renderTudo(); }, 60000);
+
+/* ---------- 12. PARTIDA ---------- */
+(async function iniciar(){
+  const salvo = await Store.ler(CHAVE);
+  if(salvo && typeof salvo==="object"){ E = Object.assign(estadoNovo(), salvo); }
+  virarPeriodos();
+  limparForm();
+  if(E.logado && E.usuario){ ir("home"); }
+  else{
+    if(E.usuario) $("#in-email").value = E.usuario.email||"";
+    ir("login");
+  }
+})();
+
+})();
+</script>
+</body>
+</html>
