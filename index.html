@@ -81,9 +81,15 @@ button{cursor:pointer;border:none;background:none;color:inherit}
   stroke-linecap:round;stroke-linejoin:round}
 .nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
 
-/* ---------- Área rolável ---------- */
+/* ---------- Área rolável ----------
+   O respiro de baixo não pode ser só env(safe-area-inset-bottom): esse
+   valor cobre a faixinha do indicador de "home" (uns 34px), mas não a
+   barra de navegação do próprio Safari (setas, aba, "..."), que fica por
+   cima do conteúdo e é bem mais alta. Sem essa folga extra, o último
+   card da lista (com os botões de editar/excluir) fica embaixo da barra
+   do navegador quando ela volta a aparecer no fim do scroll. */
 #palco{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-  padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 34px)}
+  padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 96px)}
 .tela{display:none;animation:sobe .22s ease}
 .tela.on{display:block}
 @keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
