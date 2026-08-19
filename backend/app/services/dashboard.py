@@ -45,6 +45,7 @@ class ResumoPessoal:
     minutos_mes: int = 0
     sequencia_dias: int = 0
     concluidas_hoje: int = 0
+    concluidas_total: int = 0
     atrasadas: int = 0
     pendentes_hoje: int = 0
     estado_sessao: str | None = None
@@ -197,6 +198,7 @@ async def resumo_pessoal(
         ),
         sequencia_dias=await sequencia_de_dias(sessao, usuario_id=usuario.id, hoje=hoje),
         concluidas_hoje=int(concluidas_hoje.scalar_one() or 0),
+        concluidas_total=por_status.get(StatusOcorrencia.CONCLUIDA, 0),
         atrasadas=por_status.get(StatusOcorrencia.PERDIDA, 0),
         pendentes_hoje=int(pendentes_hoje.scalar_one() or 0),
         estado_sessao=estado.value if estado else None,

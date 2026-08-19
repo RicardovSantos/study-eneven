@@ -13,6 +13,10 @@ import { aviso } from "../components/toast.js";
 import { alvoEfetivo, restante, tetoAcumulo } from "../services/objetivos.js";
 import { ir } from "../router.js";
 import { emitir, EVENTOS } from "../core/bus.js";
+import { COM_SERVIDOR } from "../config.js";
+import * as objetivosApi from "../api/objetivos.js";
+import { ErroDaApi } from "../api/client.js";
+import { paraApiObjetivo, sincronizarObjetivosCrud } from "../dados/online.js";
 
 let editandoId = null;
 
@@ -48,7 +52,7 @@ export function limparForm(){
   atualizarFormPorTipo(); textoAcumulo(); $("#erro-form").textContent="";
 }
 /* garante que um valor gravado apareça no <select> mesmo se não estiver na lista */
-export function salvarItem(){
+export async function salvarItem(){
   const nome=$("#f-nome").value.trim();
   const qtd=parseFloat($("#f-qtd").value);
   const total=parseFloat($("#f-total").value);
@@ -60,6 +64,25 @@ export function salvarItem(){
   const alvo = tipo==="estudo" ? (uni==="horas"? qtd*60 : qtd) : qtd;
   const totalMeta = tipo==="estudo" ? (total>0? total*60 : 0) : (total>0? total : 0);
   const freq=lerPills("#p-freq");
+  const acum = lerPills("#p-acum")==="1";
+  const status = $("#f-status").value;
+
+  if(COM_SERVIDOR){
+    const dados = paraApiObjetivo({tipo, nome, freq, alvo, totalMeta, acum, status});
+    try{
+      if(editandoId) await objetivosApi.editar(editandoId, dados);
+      else await objetivosApi.criar(dados);
+      await sincronizarObjetivosCrud();
+      const eraEdicao = !!editandoId;
+      limparForm(); emitir(EVENTOS.REDESENHAR);
+      modal(eraEdicao
+        ? {selo:"ok",icone:"✓",titulo:"Editado",texto:"O objetivo foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]}
+        : {selo:"ok",icone:"✓",titulo:"Salvo",texto:"Objetivo adicionado à sua lista.",botoes:[{r:"OK",c:"btn-verde"}]});
+    }catch(e){
+      $("#erro-form").textContent = e instanceof ErroDaApi ? e.message : "Não deu para salvar. Confira sua conexão.";
+    }
+    return;
+  }
 
   if(editandoId){
     const it=E.itens.find(x=>x.id===editandoId);
@@ -106,7 +129,21 @@ export function excluirItem(idv){
     texto:"<b>Nome:</b> "+esc(it.nome)+"<br><b>Andamento:</b> "+(it.status==="concluido"?"Concluído":"Andamento")+
       "<br><span style='color:#E23B3B'>Confirme os dados antes de excluir.</span>",
     botoes:[
-      {r:"Excluir",c:"btn-vermelho",f:()=>{
+      {r:"Excluir",c:"btn-vermelho",f: async ()=>{
+        if(COM_SERVIDOR){
+          try{
+            const r = await objetivosApi.excluir(idv);
+            await sincronizarObjetivosCrud();
+            if(editandoId===idv) limparForm();
+            emitir(EVENTOS.REDESENHAR);
+            modal({selo:"perigo",icone: r.excluido?"🗑":"📦",
+              titulo: r.excluido?"Excluído":"Arquivado", texto:r.detalhe,
+              botoes:[{r:"OK",c:"btn-cinza"}]});
+          }catch(e){
+            aviso(e instanceof ErroDaApi ? e.message : "Não deu para excluir. Confira sua conexão.");
+          }
+          return;
+        }
         E.itens = E.itens.filter(x=>x.id!==idv);
         if(editandoId===idv) limparForm();
         salvar(true); emitir(EVENTOS.REDESENHAR);

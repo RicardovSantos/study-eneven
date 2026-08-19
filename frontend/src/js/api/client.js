@@ -108,8 +108,8 @@ export function renovar() {
 }
 
 export const api = {
-  get: (caminho) => enviar("GET", caminho),
-  post: (caminho, corpo) => enviar("POST", caminho, corpo ?? {}),
-  patch: (caminho, corpo) => enviar("PATCH", caminho, corpo),
-  delete: (caminho) => enviar("DELETE", caminho),
+  get: (caminho, opcoes) => enviar("GET", caminho, undefined, opcoes),
+  post: (caminho, corpo, opcoes) => enviar("POST", caminho, corpo ?? {}, opcoes),
+  patch: (caminho, corpo, opcoes) => enviar("PATCH", caminho, corpo, opcoes),
+  delete: (caminho, opcoes) => enviar("DELETE", caminho, undefined, opcoes),
 };

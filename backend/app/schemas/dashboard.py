@@ -18,6 +18,7 @@ class ResumoUsuario(BaseModel):
     minutos_mes: int
     sequencia_dias: int
     concluidas_hoje: int
+    concluidas_total: int
     atrasadas: int
     pendentes_hoje: int
     estado_sessao: str | None

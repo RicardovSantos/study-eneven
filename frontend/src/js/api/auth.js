@@ -20,6 +20,21 @@ export async function entrar({ identificador, senha }) {
   return dados;
 }
 
+/* Tenta retomar uma sessão existente pelo cookie de refresh (HttpOnly),
+   sem exigir login de novo. Devolve o par completo (usuario, familia_id,
+   papel), diferente de client.renovar() — que só devolve um booleano e
+   serve ao retry automático de 401, não à partida do app.
+
+   semRenovar:true é essencial aqui: sem isso, um primeiro acesso (sem
+   cookie ainda) devolve 401 e o cliente tentaria renovar de novo por
+   cima dessa própria chamada de renovação — dois POSTs em /auth/renovar
+   para o mesmo 401 esperado de "ainda não tem sessão". */
+export async function sessaoAtual() {
+  const dados = await api.post("/api/v1/auth/renovar", undefined, { semRenovar: true });
+  definirToken(dados.access_token);
+  return dados;
+}
+
 export async function sair() {
   try {
     await api.post("/api/v1/auth/sair");

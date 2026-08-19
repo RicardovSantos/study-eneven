@@ -1,11 +1,18 @@
 /* Cronometro da sessao de foco.
 
-   O tempo e calculado por diferenca de Date.now() a cada tique, e nao
-   somando 1 a cada intervalo: se a aba dorme ou o navegador atrasa o
-   timer, a contagem continua correta ao voltar.
+   MODO LOCAL: o tempo e calculado por diferenca de Date.now() a cada
+   tique, e nao somando 1 a cada intervalo — se a aba dorme ou o
+   navegador atrasa o timer, a contagem continua correta ao voltar. O
+   tempo e gravado no objetivo a cada 30 segundos (`descarregar`), para
+   uma queda de energia nao levar a sessao junto.
 
-   O tempo cronometrado e gravado no objetivo a cada 30 segundos
-   (`descarregar`), para uma queda de energia nao levar a sessao junto.
+   MODO API: a contagem visual continua sendo local (mesma resposta
+   imediata de sempre), mas quem manda no tempo que vira ponto e o
+   servidor — ver docs/api.md, secao "Sessões de estudo". A cada 30
+   segundos o cliente manda um heartbeat; `tocar` abre uma sessao de
+   verdade, `pausar`/`encerrar` chamam a API. Se o heartbeat falhar (sem
+   rede), so avisa e tenta de novo no proximo ciclo — o relogio local
+   continua andando normalmente.
 
    Nao importa o relogio flutuante: avisa por SESSAO_MUDOU. */
 
@@ -16,9 +23,14 @@ import { modal } from "../components/modal.js";
 import { aviso } from "../components/toast.js";
 import { alvoEfetivo, restante, creditarEstudo, concluirCiclo } from "./objetivos.js";
 import { emitir, em, EVENTOS } from "../core/bus.js";
+import { COM_SERVIDOR } from "../config.js";
+import * as sessoesApi from "../api/sessoes.js";
+import { ErroDaApi } from "../api/client.js";
+import { sincronizarOcorrenciasEstudar } from "../dados/online.js";
 
-export const T = {itemId:null, restanteSeg:0, totalSeg:0, rodando:false, ultimo:0, acumulado:0};
+export const T = {itemId:null, sessaoId:null, restanteSeg:0, totalSeg:0, rodando:false, ultimo:0, acumulado:0};
 let loop=null;
+
 export function abrirFoco(idv){
   const it=E.itens.find(x=>x.id===idv); if(!it) return;
   if(T.rodando && T.itemId && T.itemId!==idv){
@@ -26,14 +38,14 @@ export function abrirFoco(idv){
     modal({selo:"info",icone:"⏱",titulo:"Cronômetro em uso",
       texto:"<b>"+esc(anterior? anterior.nome : "Outro objetivo")+"</b> está rodando agora."+
         "<br>Quer pausar e trocar para <b>"+esc(it.nome)+"</b>?",
-      botoes:[{r:"Trocar",c:"btn-roxo",f:()=>{ pausar(true); montarFoco(it); }},{r:"Cancelar",c:"btn-cinza"}]});
+      botoes:[{r:"Trocar",c:"btn-roxo",f: async ()=>{ await pausar(true); montarFoco(it); }},{r:"Cancelar",c:"btn-cinza"}]});
     return;
   }
   if(T.rodando && T.itemId===idv){ $("#foco").classList.add("on"); emitir(EVENTOS.SESSAO_MUDOU); return; }
   montarFoco(it);
 }
 export function montarFoco(it){
-  T.itemId=it.id; T.rodando=false; T.acumulado=0;
+  T.itemId=it.id; T.sessaoId=null; T.rodando=false; T.acumulado=0;
   T.totalSeg = alvoEfetivo(it)*60;
   T.restanteSeg = restante(it)*60;
   $("#fc-cat").textContent = it.cat+" · "+({diaria:"diário",semanal:"semanal",mensal:"mensal"}[it.freq]||"");
@@ -84,9 +96,27 @@ export function pintarControles(){
     ? "Minimizar mantém o tempo contando na tarja flutuante."
     : "Encerrar salva o tempo já feito e sai do cronômetro.";
 }
-export function tocar(){
+export async function tocar(){
   if(T.rodando || !T.itemId) return;
   if(T.restanteSeg<=0){ aviso("Este objetivo já está concluído no período."); return; }
+
+  if(COM_SERVIDOR){
+    const it = E.itens.find(x=>x.id===T.itemId);
+    try{
+      if(!T.sessaoId){
+        const s = await sessoesApi.abrir({
+          objetivo_id: it?.objetivoId, ocorrencia_id: it?.ocorrenciaId || T.itemId,
+        });
+        T.sessaoId = s.id;
+      }else{
+        await sessoesApi.retomar(T.sessaoId);
+      }
+    }catch(e){
+      aviso(e instanceof ErroDaApi ? e.message : "Não deu para iniciar a sessão. Confira sua conexão.");
+      return;
+    }
+  }
+
   T.rodando=true; T.ultimo=Date.now();
   if(loop) clearInterval(loop);
   loop=setInterval(tique,250);
@@ -106,30 +136,67 @@ export function tique(){
   atualizarPonta(frac);
   const seg = Math.round(T.restanteSeg);
   if(seg !== ultimoSegVisto){ ultimoSegVisto = seg; emitir(EVENTOS.SESSAO_MUDOU); }
-  if(T.acumulado>=30){ descarregar(); salvar(); }
+  if(T.acumulado>=30){ descarregar(); if(!COM_SERVIDOR) salvar(); }
   if(T.restanteSeg<=0) zerou();
 }
 let ultimoSegVisto = -1;
-export function descarregar(){
+/* Fire-and-forget de propósito: nem tique() nem os pontos de chamada
+   abaixo esperam esta função terminar — o relógio na tela não pode
+   travar esperando a rede. Uma falha de heartbeat só é avisada; o
+   tempo local continua contando e o próximo ciclo tenta de novo. */
+export async function descarregar(){
+  if(T.acumulado<=0) return;
+  const acumulado = T.acumulado;
+  T.acumulado = 0;
+
+  if(COM_SERVIDOR){
+    if(!T.sessaoId) return;
+    try{ await sessoesApi.heartbeat(T.sessaoId); }
+    catch(e){ console.warn("heartbeat falhou:", e.message); }
+    return;
+  }
+
   const it=E.itens.find(x=>x.id===T.itemId);
-  if(it && T.acumulado>0){ creditarEstudo(it, T.acumulado/60); }
-  T.acumulado=0;
+  if(it) creditarEstudo(it, acumulado/60);
 }
-export function pausar(silencioso){
+export async function pausar(silencioso){
   if(!T.rodando) return;
   T.rodando=false; clearInterval(loop); loop=null;
-  descarregar(); salvar(true); pintarFoco(); emitir(EVENTOS.REDESENHAR); emitir(EVENTOS.SESSAO_MUDOU);
+  await descarregar();
+  if(COM_SERVIDOR){
+    if(T.sessaoId){ try{ await sessoesApi.pausar(T.sessaoId); }catch(e){ /* segue mesmo assim */ } }
+  }else{
+    salvar(true);
+  }
+  pintarFoco(); emitir(EVENTOS.REDESENHAR); emitir(EVENTOS.SESSAO_MUDOU);
   if(!silencioso) aviso("Pausado. O tempo já feito foi salvo.");
 }
-export function encerrar(){
+export async function encerrar(){
   const it=E.itens.find(x=>x.id===T.itemId);
   T.rodando=false; clearInterval(loop); loop=null;
-  descarregar(); salvar(true);
+  await descarregar();
+
+  let avisoTexto = it ? "Sessão encerrada. "+fmtHM(restante(it))+" ainda faltam." : "Sessão encerrada.";
+  if(COM_SERVIDOR && T.sessaoId){
+    try{
+      const r = await sessoesApi.finalizar(T.sessaoId, {});
+      avisoTexto = r.pontos_creditados>0
+        ? "Sessão encerrada. +"+r.pontos_creditados+" pontos."
+        : "Sessão encerrada.";
+      await sincronizarOcorrenciasEstudar();
+    }catch(e){
+      aviso(e instanceof ErroDaApi ? e.message : "Não deu para encerrar no servidor.");
+    }
+  }else if(!COM_SERVIDOR){
+    salvar(true);
+  }
+
+  T.sessaoId=null;
   $("#foco").classList.remove("on");
   T.itemId=null;
   emitir(EVENTOS.FECHAR_PIP);
   emitir(EVENTOS.REDESENHAR); emitir(EVENTOS.SESSAO_MUDOU);
-  if(it) aviso("Sessão encerrada. "+fmtHM(restante(it))+" ainda faltam.");
+  aviso(avisoTexto);
 }
 export function fecharFoco(){
   // minimizar não pausa mais: o relógio continua correndo na tarja flutuante
@@ -138,15 +205,27 @@ export function fecharFoco(){
   emitir(EVENTOS.SESSAO_MUDOU);
   if(T.rodando) aviso("Continua contando aqui embaixo.");
 }
-export function zerou(){
+export async function zerou(){
   T.rodando=false; clearInterval(loop); loop=null;
-  descarregar();
+  await descarregar();
   const it=E.itens.find(x=>x.id===T.itemId);
+
+  if(COM_SERVIDOR && T.sessaoId){
+    try{
+      const r = await sessoesApi.finalizar(T.sessaoId, {});
+      await sincronizarOcorrenciasEstudar();
+      if(r.ocorrencia_concluida) aviso("Concluído! +"+r.pontos_creditados+" pontos.");
+    }catch(e){
+      aviso(e instanceof ErroDaApi ? e.message : "Não deu para encerrar no servidor.");
+    }
+    T.sessaoId=null;
+  }
+
   T.itemId=null;
   emitir(EVENTOS.FECHAR_PIP);
   $("#foco").classList.remove("on");
   emitir(EVENTOS.SESSAO_MUDOU);
-  if(it) concluirCiclo(it,true);
+  if(!COM_SERVIDOR && it) concluirCiclo(it,true);
 }
 
 /* O relogio flutuante pede a reabertura do foco por evento, para nao

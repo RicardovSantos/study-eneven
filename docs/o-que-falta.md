@@ -102,22 +102,48 @@ de um dependente (L2 em `pendencias.md`).
 
 ## Front-end — ligando na API
 
-A camada de comunicação está pronta e testada num navegador de verdade
-(22 cenários em `frontend/testes-integracao.mjs`), mas **as telas ainda
-falam com `localStorage`**. Falta trocar o miolo.
+**As quatro telas do MVP (login/cadastro, Objetivos, Estudar, Home) já
+falam com a API de verdade quando `VITE_API_URL` está configurado.**
+Testado de ponta a ponta num navegador real, contra o backend rodando —
+cadastro, criar/editar objetivo, abrir sessão de estudo com heartbeat,
+pausar, encerrar, concluir manualmente, ver os gráficos da Home, sair e
+entrar de novo (14 cenários em `frontend/testes-integracao.mjs`, mais os
+22 do cliente puro). As 40 verificações de regressão em modo local
+continuam passando sem alteração nenhuma — o modo local não foi tocado.
 
 - [x] Cliente HTTP com refresh automático do token
-- [ ] Trocar o login local pelo `/auth`
-- [ ] Trocar o CRUD local pelo `/objetivos`
-- [ ] Trocar o cronômetro local pelas `/sessoes` com heartbeat
-- [ ] Ligar os painéis em `/dashboard`
-- [ ] Telas novas: Família, Progresso, Recompensas
-- [ ] Menu por papel (responsável e dependente veem coisas diferentes)
-- [ ] Estados de carregando, erro e offline
+- [x] Login/cadastro/sair pela API (cookie HttpOnly, token em memória)
+- [x] Sessão silenciosa na partida (retoma pelo cookie, sem novo login)
+- [x] CRUD de objetivos pela API
+- [x] Execução (tela Estudar) e conclusão de ocorrências pela API
+- [x] Cronômetro com sessão real no servidor (abrir/heartbeat/pausar/
+      retomar/finalizar) — a contagem visual continua local e instantânea;
+      quem credita o tempo é o servidor
+- [x] Painel (Home) com pontos, sequência e gráficos vindos da API
 
-Enquanto isso não for feito, o app publicado continua em modo local —
-que funciona, mas é de um usuário só, sem servidor. O modo é escolhido
-por `VITE_API_URL` no build: vazio = local, preenchido = API.
+O que essa entrega **não fez**, de propósito, por não ter onde plugar
+ainda (endpoint inexistente no backend):
+
+- [ ] Editar perfil (nome/e-mail/senha) — mostra "em construção"
+- [ ] Recuperar senha por e-mail — mostra "em construção", orienta a
+      falar com o responsável
+- [ ] Carregar dados de exemplo / apagar conta — desativados no modo
+      online, com aviso explicando o motivo
+- [ ] CRUD de matéria — todo objetivo aparece com a categoria "Sem
+      matéria" (a API já tem `materia_id`, falta a tela)
+- [ ] Configurar pontos fixos de tarefa no formulário — hoje todo
+      objetivo tipo "tarefa" recebe 5 pontos fixos por padrão
+- [ ] Configurar adiantamento (`permite_adiantar` etc.) no formulário —
+      hoje todo objetivo nasce sem permissão de adiantar
+- [ ] Telas novas: Família, Progresso (dependente), Recompensas
+- [ ] Menu por papel — hoje o dependente vê as mesmas abas do
+      responsável; a API já bloqueia as ações (403), só a interface não
+      esconde os botões ainda
+- [ ] Estado de "carregando" explícito — hoje uma tela online demora
+      exatamente o tempo do fetch antes de aparecer; sem esqueleto/spinner
+
+O modo é escolhido por `VITE_API_URL` no build: vazio = local (o que o
+Pages publica hoje), preenchido = API.
 
 ## Dívidas conhecidas
 

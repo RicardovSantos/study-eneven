@@ -36,10 +36,13 @@ import {
 import { renderTudo } from "./pages/index.js";
 import { renderCrud, salvarItem, editarItem, excluirItem, limparForm,
          atualizarFormPorTipo, textoAcumulo } from "./pages/objetivos.js";
-import { entrar, criarConta, recuperar } from "./auth/local-auth.js";
+import { entrar, criarConta, recuperar, sair, tentarSessaoOnline } from "./auth/local-auth.js";
 import { lerFoto } from "./utils/image.js";
 import { carregarDemo } from "./utils/demo.js";
 import { exportarBackup } from "./utils/backup.js";
+import { COM_SERVIDOR } from "./config.js";
+import * as objetivosApi from "./api/objetivos.js";
+import { ErroDaApi } from "./api/client.js";
 
 /* ---------- Eventos ---------- */
 $$(".nav-btn").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
@@ -53,9 +56,11 @@ $("#cad-senha2").addEventListener("keydown",e=>{ if(e.key==="Enter") criarConta(
 $("#b-recuperar").onclick=recuperar;
 $("#rec-nova").addEventListener("keydown",e=>{ if(e.key==="Enter") recuperar(); });
 $("#b-ajuda").onclick=()=>modal({selo:"info",icone:"?",titulo:"Ajuda do suporte",
-  texto:"O DevLog roda inteiro no seu aparelho, sem servidor e sem cadastro remoto.<br><br>"+
-    "Se você esqueceu o email da conta, use <b>Apagar tudo</b> na aba Perfil e comece de novo — "+
-    "exporte os dados antes, se quiser guardar o histórico.",
+  texto: COM_SERVIDOR
+    ? "Fale com o responsável da sua família para redefinir sua senha ou recuperar o acesso."
+    : "O DevLog roda inteiro no seu aparelho, sem servidor e sem cadastro remoto.<br><br>"+
+      "Se você esqueceu o email da conta, use <b>Apagar tudo</b> na aba Perfil e comece de novo — "+
+      "exporte os dados antes, se quiser guardar o histórico.",
   botoes:[{r:"Entendi",c:"btn-azul"}]});
 $$("[data-voltar-login]").forEach(b=>b.onclick=()=>ir("login"));
 
@@ -80,15 +85,33 @@ $("#lista-crud").addEventListener("click",e=>{
   else if(ed) editarItem(ed.dataset.edit);
 });
 
-$("#tela-estudar").addEventListener("click",e=>{
+$("#tela-estudar").addEventListener("click", async e=>{
   const pl=e.target.closest("[data-play]");
   const ck=e.target.closest("[data-check]");
   const ma=e.target.closest("[data-mais]");
   const rb=e.target.closest("[data-reabrir]");
+
   if(pl){ abrirFoco(pl.dataset.play); return; }
+
   if(ma){
     const it=E.itens.find(x=>x.id===ma.dataset.mais); if(!it) return;
     if(restante(it)<=0){ aviso("Já concluído neste período."); return; }
+    if(COM_SERVIDOR){
+      try{
+        await objetivosApi.registrarProgresso(it.id, 1);
+        // uma unidade a mais pode ter batido a meta: pergunta ao servidor
+        // se ja pode concluir (ele e quem calcula pontos e credita).
+        const atualizado = (await objetivosApi.ocorrencias()).find(o=>o.id===it.id);
+        if(atualizado && atualizado.realizado>=atualizado.meta){
+          const r = await objetivosApi.concluir(it.id, {});
+          bip(920,.3); aviso("Concluído! +"+r.pontos_creditados+" pontos");
+        }
+        renderTudo();
+      }catch(e2){
+        aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para marcar. Confira sua conexão.");
+      }
+      return;
+    }
     // pontos e alvo são lidos antes de mexer no saldo, senão mudam no meio do caminho
     const pts = pontosDe(it), alvoCiclo = alvoEfetivo(it), saldoAntes = it.saldo||0, statusAntes = it.status;
     it.feito=(it.feito||0)+1; it.progresso=(it.progresso||0)+1;
@@ -102,12 +125,33 @@ $("#tela-estudar").addEventListener("click",e=>{
     salvar(true); renderTudo();
     return;
   }
+
   if(ck){
     const it=E.itens.find(x=>x.id===ck.dataset.check); if(!it) return;
+    if(COM_SERVIDOR){
+      try{
+        if(restante(it)<=0){
+          await objetivosApi.desfazer(it.id);
+          aviso("Reaberto.");
+        }else{
+          const r = await objetivosApi.concluir(it.id, {});
+          bip(920,.3);
+          aviso(r.pontos_creditados>0 ? "Concluído! +"+r.pontos_creditados+" pontos" : "Concluído.");
+        }
+        renderTudo();
+      }catch(e2){
+        aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para atualizar. Confira sua conexão.");
+      }
+      return;
+    }
     if(restante(it)<=0) desfazerCiclo(it); else concluirCiclo(it,true);
     return;
   }
+
   if(rb){
+    // "Reabrir" na lista de concluídos só existe no modo local — na API
+    // o mesmo botão de check (data-check) já reabre a ocorrência.
+    if(COM_SERVIDOR) return;
     const it=E.itens.find(x=>x.id===rb.dataset.reabrir); if(!it) return;
     it.status="andamento"; it.feito=0; it.periodoRef=chavePeriodo(it.freq,hoje());
     salvar(true); renderTudo(); aviso("Objetivo reaberto.");
@@ -138,6 +182,16 @@ $("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.tar
 $("#b-tirar-foto").onclick=()=>{ if(E.usuario){ E.usuario.foto=null; salvar(true); renderTudo(); aviso("Foto removida."); } };
 $("#b-salvar-perfil").onclick=()=>{
   if(!E.usuario){ $("#erro-perfil").textContent="Nenhuma conta ativa neste aparelho."; return; }
+  if(COM_SERVIDOR){
+    // Ainda não existe endpoint para editar o próprio perfil (nome,
+    // e-mail, senha) — ver docs/o-que-falta.md. Fingir que salvou
+    // localmente enganaria: o próximo login mostraria os dados antigos.
+    $("#erro-perfil").textContent="";
+    modal({selo:"info",icone:"⚙",titulo:"Em construção",
+      texto:"Editar o perfil ainda não está disponível neste servidor.",
+      botoes:[{r:"Entendi",c:"btn-azul"}]});
+    return;
+  }
   const nome=$("#pf-nome").value.trim(), em=$("#pf-email").value.trim(), se=$("#pf-senha").value;
   if(nome.length<2){ $("#erro-perfil").textContent="Escreva seu nome."; return; }
   if(!/^\S+@\S+\.\S+$/.test(em)){ $("#erro-perfil").textContent="Email inválido."; return; }
@@ -150,33 +204,59 @@ $("#b-salvar-perfil").onclick=()=>{
   salvar(true); renderTudo();
   modal({selo:"ok",icone:"✓",titulo:"Salvo",texto:"Seu perfil foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
 };
-$("#b-demo").onclick=()=>modal({selo:"info",icone:"⚙",titulo:"Carregar exemplo",
-  texto:"Isso substitui seus objetivos e o histórico por dados de demonstração.",
-  botoes:[{r:"Carregar",c:"btn-roxo",f:carregarDemo},{r:"Cancelar",c:"btn-cinza"}]});
+$("#b-demo").onclick=()=>{
+  if(COM_SERVIDOR){
+    modal({selo:"info",icone:"⚙",titulo:"Em construção",
+      texto:"Carregar dados de exemplo ainda não está disponível neste servidor. "+
+        "Cadastre seus objetivos de verdade na aba Objetivos.",
+      botoes:[{r:"Entendi",c:"btn-azul"}]});
+    return;
+  }
+  modal({selo:"info",icone:"⚙",titulo:"Carregar exemplo",
+    texto:"Isso substitui seus objetivos e o histórico por dados de demonstração.",
+    botoes:[{r:"Carregar",c:"btn-roxo",f:carregarDemo},{r:"Cancelar",c:"btn-cinza"}]});
+};
 $("#b-exportar").onclick=exportarBackup;
-$("#b-zerar").onclick=()=>modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo",
-  texto:"Objetivos, histórico, pontos e conta serão apagados deste aparelho.",
-  botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
-    if(T.rodando) pausar(true);
-    fecharPiP(); T.itemId=null;
-    await apagarTudo(); T.itemId=null;
-    salvar(true); ir("login"); aviso("Tudo apagado.");
-  }},{r:"Cancelar",c:"btn-cinza"}]});
-$("#b-sair").onclick=()=>{ if(T.rodando) pausar(true); fecharPiP(); T.itemId=null; E.logado=false; salvar(true); ir("login"); };
+$("#b-zerar").onclick=()=>{
+  if(COM_SERVIDOR){
+    modal({selo:"info",icone:"⚙",titulo:"Em construção",
+      texto:"Apagar a conta ainda não está disponível por aqui. Fale com o responsável da sua família.",
+      botoes:[{r:"Entendi",c:"btn-azul"}]});
+    return;
+  }
+  modal({selo:"perigo",icone:"🗑",titulo:"Apagar tudo",
+    texto:"Objetivos, histórico, pontos e conta serão apagados deste aparelho.",
+    botoes:[{r:"Apagar tudo",c:"btn-vermelho",f:async()=>{
+      if(T.rodando) pausar(true);
+      fecharPiP(); T.itemId=null;
+      await apagarTudo(); T.itemId=null;
+      salvar(true); ir("login"); aviso("Tudo apagado.");
+    }},{r:"Cancelar",c:"btn-cinza"}]});
+};
+$("#b-sair").onclick=async ()=>{
+  if(T.rodando) await pausar(true);
+  fecharPiP(); T.itemId=null;
+  await sair();
+};
 
 
 document.addEventListener("visibilitychange",()=>{
   if(!T.rodando) return;
   // o tempo real continua valendo: ao voltar, o próprio tique aplica o intervalo passado
-  if(document.hidden){ descarregar(); salvar(true); }
+  if(document.hidden){ descarregar(); if(!COM_SERVIDOR) salvar(true); }
   else tique();
 });
-function despedida(){ if(T.rodando) descarregar(); Store.gravar(CHAVE, E); }
+function despedida(){ if(T.rodando) descarregar(); if(!COM_SERVIDOR) Store.gravar(CHAVE, E); }
 window.addEventListener("pagehide", despedida);
 window.addEventListener("beforeunload", despedida);
 
-/* vira o dia sozinho enquanto o app fica aberto */
-setInterval(()=>{ if(virarPeriodos()) renderTudo(); }, 60000);
+/* Vira o dia sozinho enquanto o app fica aberto. Com servidor, quem
+   decide se algo venceu é a própria API a cada consulta — então aqui
+   basta redesenhar, que já dispara a busca fresca (ver pages/index.js). */
+setInterval(()=>{
+  if(COM_SERVIDOR) renderTudo();
+  else if(virarPeriodos()) renderTudo();
+}, 60000);
 
 /* Fechar o modal pelo veu ou pelo Esc. */
 $("#veu").addEventListener("click", e=>{ if(e.target.id==="veu") fecharModal(); });
@@ -190,6 +270,17 @@ ativarArrasto();
 
 /* ---------- Partida ---------- */
 async function iniciar(){
+  limparForm();
+
+  if(COM_SERVIDOR){
+    // Sem localStorage aqui: a sessão de verdade vive no cookie de
+    // refresh (HttpOnly) e no token em memória, nunca no navegador em
+    // texto legível por script.
+    const retomou = await tentarSessaoOnline();
+    ir(retomou ? "home" : "login");
+    return;
+  }
+
   await carregar();
 
   /* Completa campos que versoes antigas do estado nao tinham, para um
@@ -206,7 +297,6 @@ async function iniciar(){
   }
   if(E.logado && !E.usuario) E.logado=false;
   virarPeriodos();
-  limparForm();
   if(E.logado && E.usuario){ ir("home"); }
   else{
     if(E.usuario) $("#in-email").value = E.usuario.email||"";

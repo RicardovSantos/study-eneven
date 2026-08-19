@@ -138,6 +138,22 @@ async def test_resumo_junta_as_metricas(sessao):
     assert r.estado_sessao is None
 
 
+async def test_resumo_traz_o_total_de_concluidas_no_historico(sessao):
+    """Estatística 'Concluídos' da Home: contagem vitalícia, não só de hoje."""
+    a = await _familia(sessao)
+    o = await _objetivo(sessao, a, permite_adiantar=True, max_adiantamentos=2)
+    ocs = await agenda.gerar_para_objetivo(sessao, o, ate=HOJE + timedelta(days=2), hoje=HOJE)
+    for oc in ocs:
+        await ocorrencias.concluir(
+            sessao, ocorrencia=oc, objetivo=o, familia_id=a.familia_id,
+            papel=PapelFamiliar.ADMIN, minutos_validos=40, hoje=HOJE, agora=em(HOJE),
+        )
+    usuario = await repo.por_id(sessao, a.usuario.id)
+    r = await dashboard.resumo_pessoal(sessao, usuario=usuario, hoje=HOJE)
+    assert r.concluidas_total == 3
+    assert r.concluidas_hoje == 3
+
+
 async def test_resumo_da_familia_lista_so_dependentes(sessao):
     a = await _familia(sessao)
     await auth.criar_dependente(
