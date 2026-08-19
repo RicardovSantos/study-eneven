@@ -28,6 +28,7 @@
 .nav-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;
   stroke-linecap:round;stroke-linejoin:round}
 .nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
+.nav-btn.escondido{display:none}
 
 /* ---------- Área rolável ----------
    O respiro de baixo não pode ser só env(safe-area-inset-bottom): esse

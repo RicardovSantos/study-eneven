@@ -12,7 +12,7 @@ inicial conferida em SQL. O que está pronto roda; o que falta está aqui.
 | 0 — Segurança do estado atual | ✅ concluída |
 | 1 — Separação do front-end | ✅ concluída |
 | 2 — Backend, banco e autenticação | 🟡 núcleo pronto, falta rodar no PostgreSQL |
-| 3 — Família, papéis e permissões | 🟡 backend pronto, falta a tela |
+| 3 — Família, papéis e permissões | 🟡 tela básica (listar/cadastrar dependente) pronta; falta redefinir senha, desativar conta e geofences |
 | 4 — Objetivos, ocorrências e sessões | 🟡 backend pronto, falta a tela |
 | 5 — Dashboards, pontos e recompensas | 🟡 backend pronto, falta a tela |
 | 6 — Tempo real (WebSocket) | ⬜ não começou |
@@ -135,10 +135,16 @@ ainda (endpoint inexistente no backend):
       objetivo tipo "tarefa" recebe 5 pontos fixos por padrão
 - [ ] Configurar adiantamento (`permite_adiantar` etc.) no formulário —
       hoje todo objetivo nasce sem permissão de adiantar
-- [ ] Telas novas: Família, Progresso (dependente), Recompensas
-- [ ] Menu por papel — hoje o dependente vê as mesmas abas do
-      responsável; a API já bloqueia as ações (403), só a interface não
-      esconde os botões ainda
+- [x] Tela Família (responsável) — lista os dependentes com resumo
+      (minutos hoje, concluídos hoje, pontos, sequência de dias) e
+      cadastra um novo dependente (`POST /auth/dependentes`)
+- [x] Menu por papel — o dependente não vê mais as abas Objetivos nem
+      Família (antes a API já bloqueava com 403, só a interface não
+      escondia os botões); modo local continua com as 4 abas de sempre
+- [ ] Telas novas: Progresso (dependente acompanhar o próprio
+      histórico/sequência em mais detalhe), Recompensas (trilhas,
+      níveis, solicitar/confirmar prêmio) — endpoints prontos, tela não
+      construída ainda
 - [ ] Estado de "carregando" explícito — hoje uma tela online demora
       exatamente o tempo do fetch antes de aparecer; sem esqueleto/spinner
 

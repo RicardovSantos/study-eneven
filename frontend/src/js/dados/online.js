@@ -107,6 +107,14 @@ export async function sincronizarOcorrenciasEstudar(){
     .map(([objetivoId, oc]) => itemEstudar(porId.get(objetivoId), oc));
 }
 
+/* Popula E.familiaDependentes com o resumo de cada dependente, no
+   formato que pages/familia.js já lê. Só chamada quando E.papel é
+   "admin" — a API 403a a pessoa dependente aqui (ver router.js). */
+export async function sincronizarFamilia(){
+  const d = await painelApi.familia();
+  E.familiaDependentes = d.dependentes;
+}
+
 /* Popula E.pontos/E.concluidos/E.hist a partir do painel, no formato
    que renderHome() e metricasDoDia() já leem. */
 export async function sincronizarPainelHome(){

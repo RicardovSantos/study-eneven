@@ -23,6 +23,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
     <button class="nav-btn" type="button" data-ir="estudar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Estudar</button>
+    <button class="nav-btn" type="button" data-ir="familia">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 8 12ZM17 11a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"/><path d="M2.5 19c.5-3.4 3-5.5 5.5-5.5s5 2.1 5.5 5.5M15 19c.4-2.6 1.9-4.5 4-5"/></svg>Família</button>
     <button class="nav-btn" type="button" data-ir="perfil">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
   </nav>
@@ -205,6 +207,30 @@
       <div class="card"><h2>Tarefas semanais</h2><div id="lista-semanal"></div></div>
       <div class="card"><h2>Tarefas mensal</h2><div id="lista-mensal"></div></div>
       <div class="card"><h2>Objetivos concluídos</h2><div id="lista-feitos"></div></div>
+    </section>
+
+    <!-- ===================== FAMÍLIA ===================== -->
+    <section class="tela" id="tela-familia">
+      <h1 class="pagina-titulo">Família</h1>
+
+      <div class="card">
+        <h2>Dependentes</h2>
+        <div id="lista-familia"><p class="vazio">Nenhum dependente cadastrado ainda.</p></div>
+      </div>
+
+      <div class="card">
+        <h2>Adicionar dependente</h2>
+        <div class="campo"><label for="fam-nome">Nome</label>
+          <input id="fam-nome" placeholder="Nome de exibição"></div>
+        <div class="campo"><label for="fam-username">Usuário</label>
+          <input id="fam-username" placeholder="Ex.: joaozinho" autocapitalize="none"></div>
+        <div class="campo"><label for="fam-parentesco">Parentesco</label>
+          <input id="fam-parentesco" placeholder="Ex.: Filho, Filha (opcional)"></div>
+        <div class="campo"><label for="fam-senha">Senha temporária</label>
+          <input id="fam-senha" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres, com letra e número"></div>
+        <p class="erro" id="erro-familia" role="alert"></p>
+        <button class="btn btn-verde" type="button" id="b-add-dependente">Adicionar dependente</button>
+      </div>
     </section>
 
     <!-- ===================== PERFIL ===================== -->

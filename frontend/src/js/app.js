@@ -18,6 +18,7 @@ import { $, $$ } from "./utils/dom.js";
 import { Store } from "./stores/storage.js";
 import { E, CHAVE, salvar, carregar, apagarTudo, estadoNovo } from "./stores/app-store.js";
 import { hoje, chaveDia, chavePeriodo } from "./utils/dates.js";
+import { esc } from "./utils/format.js";
 import { modal, fecharModal } from "./components/modal.js";
 import { aviso } from "./components/toast.js";
 import { bip } from "./utils/sound.js";
@@ -42,6 +43,9 @@ import { carregarDemo } from "./utils/demo.js";
 import { exportarBackup } from "./utils/backup.js";
 import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
+import { criarDependente } from "./api/auth.js";
+import { sincronizarFamilia } from "./dados/online.js";
+import { renderFamilia } from "./pages/familia.js";
 import { ErroDaApi } from "./api/client.js";
 
 /* ---------- Eventos ---------- */
@@ -84,6 +88,33 @@ $("#lista-crud").addEventListener("click",e=>{
   if(d) excluirItem(d.dataset.del);
   else if(ed) editarItem(ed.dataset.edit);
 });
+
+$("#b-add-dependente").onclick = async ()=>{
+  const nome = $("#fam-nome").value.trim();
+  const username = $("#fam-username").value.trim().toLowerCase();
+  const parentesco = $("#fam-parentesco").value.trim();
+  const senha = $("#fam-senha").value;
+  if(nome.length<2){ $("#erro-familia").textContent="Escreva o nome do dependente."; return; }
+  if(username.length<3){ $("#erro-familia").textContent="O usuário precisa de ao menos 3 caracteres."; return; }
+  if(senha.length<8 || /^\d+$/.test(senha) || /^[a-zA-Z]+$/.test(senha)){
+    $("#erro-familia").textContent="A senha precisa de ao menos 8 caracteres, com letra e número."; return;
+  }
+  $("#erro-familia").textContent="";
+  try{
+    await criarDependente({
+      nome_exibicao: nome, username, senha_temporaria: senha,
+      parentesco: parentesco || null,
+    });
+    $("#fam-nome").value=""; $("#fam-username").value="";
+    $("#fam-parentesco").value=""; $("#fam-senha").value="";
+    await sincronizarFamilia(); renderFamilia();
+    modal({selo:"ok",icone:"✓",titulo:"Dependente cadastrado",
+      texto:"Anote o usuário e a senha temporária para repassar a ele: <b>"+esc(username)+"</b>.",
+      botoes:[{r:"OK",c:"btn-verde"}]});
+  }catch(e){
+    $("#erro-familia").textContent = e instanceof ErroDaApi ? e.message : "Não deu para cadastrar. Confira sua conexão.";
+  }
+};
 
 $("#tela-estudar").addEventListener("click", async e=>{
   const pl=e.target.closest("[data-play]");

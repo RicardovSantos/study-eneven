@@ -14,10 +14,13 @@ import { virarPeriodos } from "../services/objetivos.js";
 import { COM_SERVIDOR } from "../config.js";
 import {
   sincronizarObjetivosCrud, sincronizarOcorrenciasEstudar, sincronizarPainelHome,
+  sincronizarFamilia,
 } from "../dados/online.js";
+import { E } from "../stores/app-store.js";
 import { renderHome } from "./home.js";
 import { renderCrud } from "./objetivos.js";
 import { renderObjetivos as renderEstudar } from "./estudar.js";
+import { renderFamilia } from "./familia.js";
 import { renderPerfil } from "./perfil.js";
 import { em, EVENTOS } from "../core/bus.js";
 import { aviso } from "../components/toast.js";
@@ -30,6 +33,7 @@ export async function renderTudo(){
       if(tela === "objetivos") await sincronizarObjetivosCrud();
       if(tela === "estudar")   await sincronizarOcorrenciasEstudar();
       if(tela === "home")      await sincronizarPainelHome();
+      if(tela === "familia" && E.papel === "admin") await sincronizarFamilia();
     }catch(e){
       // Uma falha de rede não pode deixar a tela travada num "carregando"
       // silencioso: avisa e desenha com o que já estava em E.
@@ -42,6 +46,7 @@ export async function renderTudo(){
   if(tela === "home")      renderHome();
   if(tela === "objetivos") renderCrud();
   if(tela === "estudar")   renderEstudar();
+  if(tela === "familia")   renderFamilia();
   if(tela === "perfil")    renderPerfil();
 }
 
