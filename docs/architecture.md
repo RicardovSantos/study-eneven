@@ -107,10 +107,7 @@ npm run preview  # serve o dist/
 `.github/workflows/deploy-pages.yml` faz o build a cada push na `main` e
 publica no Pages.
 
-**Falta uma ação manual:** em *Settings → Pages → Source*, trocar para
-**GitHub Actions**. Enquanto isso não for feito, o Pages segue servindo o
-`index.html` antigo da raiz — o site não quebra, só não recebe as
-mudanças novas.
-
-O `index.html` da raiz foi mantido de propósito como rede de segurança e
-deve ser removido depois que a publicação por Actions estiver confirmada.
+O Pages já está configurado para *GitHub Actions* e a primeira
+publicação por esse caminho passou em 19/08 (commit `54d8517`). Com isso
+confirmado, o `index.html` da raiz — que servia de rede de segurança
+durante a transição — foi removido.
