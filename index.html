@@ -332,12 +332,12 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 
   <!-- ===================== NAVEGAÇÃO ===================== -->
   <nav id="nav" aria-label="Navegação principal">
-    <button class="nav-btn" type="button" data-ir="tarefas">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Tarefas</button>
+    <button class="nav-btn" type="button" data-ir="objetivos">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Objetivos</button>
     <button class="nav-btn" type="button" data-ir="home">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
-    <button class="nav-btn" type="button" data-ir="objetivos">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Objetivos</button>
+    <button class="nav-btn" type="button" data-ir="estudar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Estudar</button>
     <button class="nav-btn" type="button" data-ir="perfil">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
   </nav>
@@ -438,8 +438,8 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
     </section>
 
     <!-- ===================== TAREFAS (CRUD) ===================== -->
-    <section class="tela" id="tela-tarefas">
-      <h1 class="pagina-titulo">Configurar tarefas</h1>
+    <section class="tela" id="tela-objetivos">
+      <h1 class="pagina-titulo">Configurar objetivos</h1>
 
       <div class="card">
         <h2 id="form-titulo">Adicionar Objetivo</h2>
@@ -503,13 +503,13 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
           <input id="f-busca" placeholder="Procurar">
           <button type="button" id="b-pesquisar">Pesquisar</button>
         </div>
-        <h2 style="font-size:13.5px;margin-bottom:10px">Editar ou excluir minhas tarefas</h2>
+        <h2 style="font-size:13.5px;margin-bottom:10px">Editar ou excluir meus objetivos</h2>
         <div id="lista-crud"></div>
       </div>
     </section>
 
     <!-- ===================== OBJETIVOS (executar) ===================== -->
-    <section class="tela" id="tela-objetivos">
+    <section class="tela" id="tela-estudar">
       <h1 class="pagina-titulo">Lista de tarefas para completar</h1>
 
       <div class="card">
@@ -940,7 +940,7 @@ function graficoLinha(alvoEl, valores, rotulos){
 }
 
 /* ---------- 6. TELAS ---------- */
-const TELAS_INTERNAS = ["home","tarefas","objetivos","perfil"];
+const TELAS_INTERNAS = ["home","objetivos","estudar","perfil"];
 let telaAtual="login";
 function ir(nome){
   telaAtual = nome;
@@ -977,7 +977,7 @@ function renderHome(){
   $("#dia-txt").textContent = d.pct+"%";
   $("#dia-detalhe").textContent = d.meta
     ? fmtHM(d.feito)+" de "+fmtHM(d.meta)+" planejados para hoje"
-    : "Sem objetivos diários. Cadastre um na aba Tarefas.";
+    : "Sem objetivos diários. Cadastre um na aba Objetivos.";
 
   // Semana
   const dom = domingoDa(hoje()), rot=["dom","seg","ter","qua","qui","sex","sáb"], vals=[];
@@ -1110,8 +1110,8 @@ function editarItem(idv){
   $("#f-qtd").value=it.qtd; definirSelect("#f-uni", it.uni);
   $("#f-total").value = it.tipo==="estudo" ? Math.round((it.totalMeta||0)/60) : (it.totalMeta||0);
   textoAcumulo();
-  ir("tarefas");
-  $("#tela-tarefas .card").scrollIntoView({block:"start",behavior:"smooth"});
+  ir("objetivos");
+  $("#tela-objetivos .card").scrollIntoView({block:"start",behavior:"smooth"});
   $("#f-nome").focus();
 }
 function excluirItem(idv){
@@ -1212,7 +1212,7 @@ function renderObjetivos(){
   $("#hoje-resumo").innerHTML = d.meta
     ? "<b>"+d.pct+"%</b> do dia concluído · "+pend+" objetivo(s) diário(s) em aberto<br>"+
       fmtHM(Math.max(0,d.meta-d.feito))+" ainda planejados para hoje"
-    : "Sem plano para hoje. Cadastre objetivos na aba Tarefas.";
+    : "Sem plano para hoje. Cadastre objetivos na aba Objetivos.";
 }
 
 /* --- Perfil --- */
@@ -1234,8 +1234,8 @@ function renderPerfil(){
 function renderTudo(){
   virarPeriodos();
   if(telaAtual==="home") renderHome();
-  if(telaAtual==="tarefas") renderCrud();
-  if(telaAtual==="objetivos") renderObjetivos();
+  if(telaAtual==="objetivos") renderCrud();
+  if(telaAtual==="estudar") renderObjetivos();
   if(telaAtual==="perfil") renderPerfil();
 }
 
@@ -1532,8 +1532,8 @@ function criarConta(){
   $("#cad-senha").value=""; $("#cad-senha2").value="";
   ir("home");
   modal({selo:"ok",icone:"✓",titulo:"Conta criada",
-    texto:"Bem-vindo, "+esc(nome.split(" ")[0])+".<br>Agora cadastre seus objetivos na aba Tarefas.",
-    botoes:[{r:"Começar",c:"btn-verde",f:()=>ir("tarefas")},{r:"Ver o painel",c:"btn-cinza"}]});
+    texto:"Bem-vindo, "+esc(nome.split(" ")[0])+".<br>Agora cadastre seus objetivos na aba Objetivos.",
+    botoes:[{r:"Começar",c:"btn-verde",f:()=>ir("objetivos")},{r:"Ver o painel",c:"btn-cinza"}]});
 }
 function recuperar(){
   const em=$("#rec-email").value.trim().toLowerCase(), nova=$("#rec-nova").value;
@@ -1660,7 +1660,7 @@ $("#lista-crud").addEventListener("click",e=>{
   else if(ed) editarItem(ed.dataset.edit);
 });
 
-$("#tela-objetivos").addEventListener("click",e=>{
+$("#tela-estudar").addEventListener("click",e=>{
   const pl=e.target.closest("[data-play]");
   const ck=e.target.closest("[data-check]");
   const ma=e.target.closest("[data-mais]");
