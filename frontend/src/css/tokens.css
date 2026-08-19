@@ -1,0 +1,34 @@
+/* ============================================================
+   DEVLOG — tokens.css
+   Design tokens extraidos do prototipo Figma.
+   ============================================================ */
+
+/* ============================================================
+   DEVLOG — Design tokens (extraídos do protótipo Figma)
+   ============================================================ */
+:root{
+  --roxo:#5B4FE8;
+  --roxo-esc:#463BC9;
+  --roxo-claro:#7A70F0;
+  --nav:#2B2A63;
+  --branco:#FFFFFF;
+  --verde:#56D364;
+  --verde-esc:#34A745;
+  --azul:#2F6BE4;
+  --azul-esc:#2455BD;
+  --vermelho:#E23B3B;
+  --amarelo:#F2B705;
+  --texto:#1C1B33;
+  --texto-fraco:#6B6B85;
+  --linha:#D9D8EC;
+  --campo:#FFFFFF;
+  /* cartão lavanda do protótipo (não é branco puro) */
+  --cartao:#E9E9F4;
+  --cartao-alt:#F3F3FA;
+  --chart:#7C6FD6;
+  --chart-linha:#9B3FE0;
+  --r:18px;
+  --r-sm:10px;
+  --sombra:0 4px 14px rgba(24,20,70,.14);
+  --fonte:"Segoe UI",Roboto,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}

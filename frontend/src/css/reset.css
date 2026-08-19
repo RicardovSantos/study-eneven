@@ -1,0 +1,18 @@
+/* ============================================================
+   DEVLOG — reset.css
+   Normalizacao, tipografia base e foco visivel.
+   ============================================================ */
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--fonte);
+  background:#3E36A8;
+  color:var(--texto);
+  display:flex;justify-content:center;
+  min-height:100vh;min-height:100dvh;
+  font-size:15px;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:3px solid #FFD84D;outline-offset:2px;border-radius:6px}

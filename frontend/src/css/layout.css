@@ -1,0 +1,49 @@
+/* ============================================================
+   DEVLOG — layout.css
+   Moldura do app, navegacao principal e area rolavel.
+   ============================================================ */
+
+/* ---------- Moldura do app ---------- */
+#app{
+  width:100%;max-width:460px;background:var(--roxo);
+  display:flex;flex-direction:column;
+  height:100vh;height:100dvh;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,.35);
+}
+
+/* ---------- Barra de navegação ---------- */
+#nav{
+  display:none;margin:14px 14px 0;background:var(--nav);
+  border-radius:999px;padding:8px 6px;
+  justify-content:space-around;align-items:center;
+  box-shadow:var(--sombra);flex:0 0 auto;
+}
+#nav.on{display:flex}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:#C9C6F2;font-size:10.5px;font-weight:600;padding:4px 10px;
+  border-radius:14px;transition:color .15s,background .15s;
+}
+.nav-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.nav-btn.ativo{color:#fff;background:rgba(255,255,255,.14)}
+
+/* ---------- Área rolável ----------
+   O respiro de baixo não pode ser só env(safe-area-inset-bottom): esse
+   valor cobre a faixinha do indicador de "home" (uns 34px), mas não a
+   barra de navegação do próprio Safari (setas, aba, "..."), que fica por
+   cima do conteúdo e é bem mais alta. Sem essa folga extra, o último
+   card da lista (com os botões de editar/excluir) fica embaixo da barra
+   do navegador quando ela volta a aparecer no fim do scroll. */
+#palco{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:14px 14px calc(env(safe-area-inset-bottom,0px) + 96px)}
+.tela{display:none;animation:sobe .22s ease}
+.tela.on{display:block}
+@keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Título da página, sobre o fundo roxo (como no protótipo) */
+.pagina-titulo{
+  color:#fff;font-size:17px;font-weight:800;text-align:center;
+  margin:4px 0 12px;letter-spacing:.01em;text-shadow:0 2px 8px rgba(0,0,0,.22);
+}

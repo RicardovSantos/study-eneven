@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5B4FE8">
+<meta name="description" content="DevLog — registre seus estudos e cumpra suas metas diárias sem procrastinar.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DevLog — estudos e tarefas sem procrastinar</title>
+<script type="module" src="/src/js/app.js"></script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== NAVEGAÇÃO ===================== -->
+  <nav id="nav" aria-label="Navegação principal">
+    <button class="nav-btn" type="button" data-ir="objetivos">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M6 16l9.5-9.5a2.1 2.1 0 0 0-3-3L3 13v3h3z"/></svg>Objetivos</button>
+    <button class="nav-btn" type="button" data-ir="home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M6 10v10h12V10"/></svg>Home</button>
+    <button class="nav-btn" type="button" data-ir="estudar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Estudar</button>
+    <button class="nav-btn" type="button" data-ir="perfil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
+  </nav>
+
+  <main id="palco">
+
+    <!-- ===================== LOGIN ===================== -->
+    <section class="tela on" id="tela-login">
+      <div class="marca">DevLog<small>ESTUDAR HOJE, NÃO AMANHÃ</small></div>
+      <div class="card">
+        <h2>Login</h2>
+        <div class="campo"><label for="in-email">Email</label>
+          <input id="in-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="in-senha">Senha</label>
+          <input id="in-senha" type="password" autocomplete="current-password" placeholder="Digite a senha"></div>
+        <p class="erro" id="erro-login" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-entrar">Entrar</button>
+        <button class="link" type="button" id="b-esqueci">Esqueci a senha?</button>
+        <button class="btn btn-cinza" type="button" id="b-ir-cadastro">Cadastrar-se</button>
+      </div>
+      <p class="rodape">Seus dados ficam salvos apenas neste aparelho.</p>
+    </section>
+
+    <!-- ===================== CADASTRO ===================== -->
+    <section class="tela" id="tela-cadastro">
+      <div class="marca" style="font-size:28px;margin:26px 0 16px;text-align:center;color:#fff;font-weight:800">DevLog</div>
+      <div class="card">
+        <h2>Criar conta</h2>
+        <div class="campo"><label for="cad-nome">Nome completo</label>
+          <input id="cad-nome" autocomplete="name" placeholder="Digite seu nome completo"></div>
+        <div class="campo"><label for="cad-email">Email</label>
+          <input id="cad-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="cad-senha">Senha</label>
+          <input id="cad-senha" type="password" autocomplete="new-password" placeholder="Mínimo de 4 caracteres"></div>
+        <div class="campo"><label for="cad-senha2">Repetir senha</label>
+          <input id="cad-senha2" type="password" autocomplete="new-password" placeholder="Repita a senha"></div>
+        <label class="check"><input type="checkbox" id="cad-termos">
+          <span>Aceito os termos de uso e o tratamento dos meus dados dentro da LGPD.</span></label>
+        <p class="erro" id="erro-cadastro" role="alert"></p>
+        <button class="btn btn-verde" type="button" id="b-criar">Cadastrar-se</button>
+        <button class="link" type="button" data-voltar-login>Voltar para o login</button>
+      </div>
+    </section>
+
+    <!-- ===================== RECUPERAR SENHA ===================== -->
+    <section class="tela" id="tela-esqueci">
+      <div class="marca" style="font-size:28px;margin:26px 0 16px;text-align:center;color:#fff;font-weight:800">DevLog</div>
+      <div class="card">
+        <h2>Cadastrar nova senha</h2>
+        <div class="campo"><label for="rec-email">Email</label>
+          <input id="rec-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <p class="legenda">Você receberá um e-mail com o link para cadastrar uma nova senha.
+          Como o DevLog funciona sem servidor, a nova senha é gravada direto neste aparelho.</p>
+        <div class="campo"><label for="rec-nova">Nova senha</label>
+          <input id="rec-nova" type="password" autocomplete="new-password" placeholder="Nova senha"></div>
+        <p class="erro" id="erro-rec" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-recuperar">Enviar</button>
+        <button class="link" type="button" id="b-ajuda">Ajuda do suporte?</button>
+        <button class="btn btn-cinza" type="button" data-voltar-login>Voltar ↩</button>
+      </div>
+    </section>
+
+    <!-- ===================== HOME / DASHBOARD ===================== -->
+    <section class="tela" id="tela-home">
+      <div class="perfil-topo">
+        <img class="avatar" id="home-foto" alt="Foto de perfil">
+        <div class="avatar-nome" id="home-nome">—</div>
+      </div>
+
+      <div class="card">
+        <h2>Dia</h2>
+        <div class="barra"><i id="dia-barra" style="width:0"></i><b id="dia-txt">0%</b></div>
+        <p class="legenda" style="margin:8px 0 0;text-align:center" id="dia-detalhe">—</p>
+      </div>
+
+      <div class="card">
+        <h2>Semana</h2>
+        <div id="g-semana"></div>
+        <p class="legenda" style="margin:6px 0 0;text-align:center" id="semana-detalhe">—</p>
+      </div>
+
+      <div class="card">
+        <h2>Mensal</h2>
+        <div id="g-mensal"></div>
+        <p class="legenda" style="margin:6px 0 0;text-align:center" id="mensal-detalhe">—</p>
+      </div>
+
+      <div class="card placares">
+        <div class="placar"><div class="rot">Concluídos</div><div class="val">🏆 <span id="pl-concl">0</span></div></div>
+        <div class="placar"><div class="rot">Pontos</div><div class="val">💎 <span id="pl-pontos">0</span></div></div>
+      </div>
+
+      <div class="card">
+        <h2>Histórico mensal</h2>
+        <table class="hist"><thead><tr><th>Mês</th><th>Estudo</th><th>Concluídos</th><th>Pontos</th></tr></thead>
+        <tbody id="tb-hist"></tbody></table>
+      </div>
+    </section>
+
+    <!-- ===================== TAREFAS (CRUD) ===================== -->
+    <section class="tela" id="tela-objetivos">
+      <h1 class="pagina-titulo">Configurar objetivos</h1>
+
+      <div class="card">
+        <h2 id="form-titulo">Adicionar Objetivo</h2>
+
+        <div class="campo"><label>Tipo</label>
+          <div class="pills" id="p-tipo">
+            <button class="pill on" type="button" data-v="estudo">Estudo ⏱</button>
+            <button class="pill" type="button" data-v="tarefa">Tarefa ✓</button>
+          </div></div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-nome">Nome</label>
+            <input id="f-nome" placeholder="Ex.: Inglês, Faculdade"></div>
+          <div class="campo"><label for="f-cat">Curso/Certificação</label>
+            <select id="f-cat">
+              <option>Faculdade</option><option>Curso online</option><option>Certificação</option>
+              <option>Idioma</option><option>Projeto</option><option>Leitura</option>
+              <option>Exercício</option><option>Outro</option>
+            </select></div>
+        </div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-status">Concluído/Andamento</label>
+            <select id="f-status"><option value="andamento">Andamento</option><option value="concluido">Concluído</option></select></div>
+          <div class="campo"><label for="f-total" id="lb-total">Total da tarefa (horas)</label>
+            <input id="f-total" type="number" min="0" step="1" value="360" title="Total de horas até concluir o objetivo"></div>
+        </div>
+
+        <div class="dupla">
+          <div class="campo"><label for="f-qtd">Quantidade</label>
+            <input id="f-qtd" type="number" min="1" step="1" value="1"></div>
+          <div class="campo"><label for="f-uni">Horas/Minutos</label>
+            <select id="f-uni"><option value="horas">horas</option><option value="minutos">minutos</option></select></div>
+        </div>
+
+        <div class="campo"><label>Frequência</label>
+          <div class="pills" id="p-freq">
+            <button class="pill on" type="button" data-v="diaria">Diária</button>
+            <button class="pill" type="button" data-v="semanal">Semanal</button>
+            <button class="pill" type="button" data-v="mensal">Mensal</button>
+          </div></div>
+
+        <div class="campo"><label>Acúmulo de pendências</label>
+          <div class="pills" id="p-acum">
+            <button class="pill on" type="button" data-v="1">Acumulativo</button>
+            <button class="pill" type="button" data-v="0">Não acumulativo</button>
+          </div>
+          <p class="legenda" id="acum-txt" style="margin:7px 0 0"></p>
+        </div>
+
+        <p class="erro" id="erro-form" role="alert"></p>
+        <div class="btn-par">
+          <button class="btn btn-roxo" type="button" id="b-salvar-item">Adicionar</button>
+          <button class="btn btn-cinza" type="button" id="b-cancelar-item">Limpar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="busca">
+          <label for="f-busca" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Pesquisar objetivos</label>
+          <input id="f-busca" placeholder="Procurar">
+          <button type="button" id="b-pesquisar">Pesquisar</button>
+        </div>
+        <h2 style="font-size:13.5px;margin-bottom:10px">Editar ou excluir meus objetivos</h2>
+        <div id="lista-crud"></div>
+      </div>
+    </section>
+
+    <!-- ===================== OBJETIVOS (executar) ===================== -->
+    <section class="tela" id="tela-estudar">
+      <h1 class="pagina-titulo">Lista de tarefas para completar</h1>
+
+      <div class="card">
+        <h2>Hoje</h2>
+        <p class="legenda" style="text-align:center;margin:0" id="hoje-resumo">—</p>
+      </div>
+      <div class="card"><h2>Tarefas Diárias</h2><div id="lista-diaria"></div></div>
+      <div class="card"><h2>Tarefas semanais</h2><div id="lista-semanal"></div></div>
+      <div class="card"><h2>Tarefas mensal</h2><div id="lista-mensal"></div></div>
+      <div class="card"><h2>Objetivos concluídos</h2><div id="lista-feitos"></div></div>
+    </section>
+
+    <!-- ===================== PERFIL ===================== -->
+    <section class="tela" id="tela-perfil">
+      <div class="card">
+        <h2>Perfil</h2>
+        <div class="foto-caixa">
+          <img class="avatar" id="pf-foto" alt="Foto de perfil">
+          <button class="mais" type="button" id="b-foto" title="Trocar foto" aria-label="Trocar foto de perfil">＋</button>
+          <input type="file" id="in-foto" accept="image/*" hidden>
+        </div>
+        <button class="link" type="button" id="b-tirar-foto">Remover foto</button>
+
+        <div class="campo"><label for="pf-nome">Nome</label>
+          <input id="pf-nome" autocomplete="name" placeholder="Digite seu nome completo"></div>
+        <div class="campo"><label for="pf-email">Email</label>
+          <input id="pf-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo"><label for="pf-senha">Senha</label>
+          <input id="pf-senha" type="password" autocomplete="new-password" placeholder="Deixe em branco para manter a atual"></div>
+
+        <div class="dupla">
+          <div class="campo"><label for="pf-nasc">Nascimento</label><input id="pf-nasc" type="date"></div>
+          <div class="campo"><label for="pf-sexo">Sexo</label>
+            <select id="pf-sexo"><option>Masculino</option><option>Feminino</option><option>Outro</option>
+            <option>Prefiro não informar</option></select></div>
+        </div>
+        <div class="dupla">
+          <div class="campo"><label for="pf-escola">Nível escolar</label>
+            <select id="pf-escola"><option>Fundamental</option><option>Médio</option><option>Técnico</option>
+            <option>Superior</option><option>Pós-graduação</option></select></div>
+          <div class="campo"><label for="pf-pais">País</label>
+            <select id="pf-pais"><option>Brasil</option><option>Portugal</option><option>Angola</option>
+            <option>Moçambique</option><option>Estados Unidos</option><option>Outro</option></select></div>
+        </div>
+
+        <label class="check"><input type="checkbox" id="pf-termos">
+          <span><b>Aceita os termos</b><br>Aceito os termos de uso de dados dentro da lei LGPD.</span></label>
+
+        <p class="erro" id="erro-perfil" role="alert"></p>
+        <button class="btn btn-azul" type="button" id="b-salvar-perfil">Salvar</button>
+      </div>
+
+      <div class="card">
+        <h2>Meus dados</h2>
+        <p class="legenda" id="pf-armazenamento">—</p>
+        <div class="btn-par">
+          <button class="btn btn-linha" type="button" id="b-demo">Carregar exemplo</button>
+          <button class="btn btn-cinza" type="button" id="b-exportar">Exportar dados</button>
+        </div>
+        <div style="height:10px"></div>
+        <div class="btn-par">
+          <button class="btn btn-vermelho" type="button" id="b-zerar">Apagar tudo</button>
+          <button class="btn btn-cinza" type="button" id="b-sair">Sair da conta</button>
+        </div>
+      </div>
+      <p class="rodape">DevLog · versão 1.1 · feito para não deixar estudo para depois</p>
+    </section>
+
+    </section>
+
+  </main>
+
+  <!-- relógio flutuante: continua à vista ao sair da tela do cronômetro -->
+  <div id="mini" role="status" aria-live="off">
+    <button id="mini-abrir" type="button" aria-label="Voltar ao cronômetro">
+      <span class="ponto" aria-hidden="true"></span>
+      <span><b id="mini-tempo">00:00:00</b><small id="mini-nome">—</small></span>
+    </button>
+    <button id="mini-pip" type="button" title="Soltar em janela flutuante"
+      aria-label="Soltar o relógio em uma janela flutuante">⧉</button>
+    <button id="mini-fechar" type="button" title="Encerrar sessão"
+      aria-label="Encerrar a sessão de estudo">✕</button>
+  </div>
+
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div id="veu"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="md-titulo">
+  <div class="selo ok" id="md-selo" aria-hidden="true">✓</div>
+  <h3 id="md-titulo">Salvo</h3>
+  <p id="md-texto"></p>
+  <div id="md-botoes"></div>
+</div></div>
+
+<!-- ===================== CRONÔMETRO ===================== -->
+<div id="foco" role="dialog" aria-modal="true" aria-label="Cronômetro de estudo">
+  <div class="cat" id="fc-cat">—</div>
+  <div class="titulo" id="fc-titulo">—</div>
+  <div class="anel" id="fc-anel">
+    <svg viewBox="0 0 210 210" aria-hidden="true">
+      <defs>
+        <linearGradient id="fc-gradiente" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#56D364"/>
+          <stop offset="100%" stop-color="#2FE0C4"/>
+        </linearGradient>
+      </defs>
+      <circle class="trilho" cx="105" cy="105" r="94"/>
+      <circle class="arco" id="fc-arco" cx="105" cy="105" r="94"/>
+      <circle class="ponta" id="fc-ponta" cx="105" cy="11" r="6.5"/>
+    </svg>
+    <div class="tempo" id="fc-tempo" role="timer" aria-live="off">00:00:00</div>
+  </div>
+  <div class="meta" id="fc-meta">—</div>
+  <div class="controles">
+    <div class="ctrl-grupo">
+      <button class="ctrl ctrl-toggle" type="button" id="fc-toggle" aria-label="Iniciar cronômetro">
+        <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M9 6.4v11.2a1 1 0 0 0 1.53.85l8.6-5.6a1 1 0 0 0 0-1.7l-8.6-5.6A1 1 0 0 0 9 6.4Z"/></svg>
+        <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+          <rect fill="currentColor" x="6.5" y="5" width="4" height="14" rx="1.6"/><rect fill="currentColor" x="13.5" y="5" width="4" height="14" rx="1.6"/></svg>
+      </button>
+      <span class="ctrl-legenda" id="fc-legenda-toggle">Iniciar</span>
+    </div>
+    <div class="ctrl-grupo">
+      <button class="ctrl ctrl-sair" type="button" id="fc-fechar" aria-label="Minimizar">
+        <svg class="ic-minimizar" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 9.5 12 15l6-5.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="ic-encerrar" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+          <path d="M5 12.5 9.8 17 19 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="ctrl-legenda" id="fc-legenda-sair">Minimizar</span>
+    </div>
+  </div>
+  <p style="color:#C9C6F2;font-size:11.5px;max-width:290px;margin:0" id="fc-dica">
+    Minimizar mantém o tempo contando na tarja flutuante.</p>
+</div>
+
+<div id="aviso" role="status" aria-live="polite"></div>
+
+</body>
+</html>

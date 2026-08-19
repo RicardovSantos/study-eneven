@@ -1,0 +1,168 @@
+/* ============================================================
+   DEVLOG — components.css
+   Pecas reutilizadas por varias telas.
+   ============================================================ */
+
+/* ---------- Cartões ---------- */
+.card{background:var(--cartao);border-radius:var(--r);padding:16px 14px;margin-bottom:12px;box-shadow:var(--sombra)}
+.card h2{margin:0 0 12px;font-size:16px;text-align:center;font-weight:800;color:var(--texto)}
+.card h3{margin:0 0 8px;font-size:13.5px;font-weight:700;color:var(--texto-fraco);letter-spacing:.02em;text-transform:uppercase}
+.legenda{font-size:12px;color:var(--texto-fraco);margin:0 0 10px;line-height:1.45}
+
+/* ---------- Formulários ---------- */
+.campo{margin-bottom:10px}
+.campo label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px;color:var(--texto)}
+.campo input,.campo select,.campo textarea{
+  width:100%;padding:10px 11px;border:1px solid var(--linha);border-radius:var(--r-sm);
+  background:var(--campo);color:var(--texto);
+}
+.campo input::placeholder{color:#A6A4BE}
+.campo input:focus,.campo select:focus{border-color:var(--roxo);background:#fff}
+/* auto-fit: as colunas viram uma só quando não cabem lado a lado.
+   min-width:0 é o que impede um campo largo (a data, por exemplo) de
+   estourar a própria coluna e invadir a vizinha. */
+.dupla{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tripla{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.dupla>*,.tripla>*{min-width:0}
+.campo input,.campo select{max-width:100%}
+/* o campo de data nativo tem largura mínima própria e o ícone do
+   calendário fica por cima do texto quando aperta; isto o obriga a
+   respeitar a largura da coluna */
+input[type="date"]{appearance:none;-webkit-appearance:none;min-width:0}
+input[type="date"]::-webkit-date-and-time-value{text-align:left}
+input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 4px;padding:0;flex:0 0 auto}
+
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:11px 14px;
+  border-radius:999px;font-weight:700;font-size:14.5px;line-height:1.2;text-align:center;
+  transition:transform .1s,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-roxo{background:var(--roxo);color:#fff}
+.btn-verde{background:var(--verde-esc);color:#fff}
+.btn-vermelho{background:var(--vermelho);color:#fff}
+.btn-cinza{background:#D6D5E7;color:#3A3960}
+.btn-linha{background:#fff;border:1.6px solid var(--roxo);color:var(--roxo)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-par{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* Seletores em pílula (tipo, frequência, acumulativo…) */
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:40px;
+  text-align:center;padding:8px 10px;border:1.5px solid var(--linha);border-radius:999px;
+  font-size:12.5px;font-weight:600;color:var(--texto-fraco);background:#fff;min-width:70px}
+.pill.on{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.pill.on.verde{background:var(--verde-esc);border-color:var(--verde-esc)}
+
+
+.check{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.4;margin:10px 0}
+.check input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--roxo);flex:0 0 auto}
+
+/* ---------- Listas ---------- */
+/* Linhas “em faixa”, como no protótipo (fundo alternado + cantos) */
+.item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:12px;background:#fff;margin-bottom:6px}
+.item:nth-child(even){background:var(--cartao-alt)}
+.item:last-child{margin-bottom:0}
+.item .info{flex:1 1 auto;min-width:0}
+.item .nome{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .sub{font-size:11px;color:var(--texto-fraco);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.item .qtd{font-size:12.5px;font-weight:700;color:var(--texto-fraco);flex:0 0 auto}
+.tag{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:999px;letter-spacing:.03em;text-transform:uppercase}
+.tag.acum{background:#FFF0C9;color:#8A6300}
+.tag.fixo{background:#E7E5FB;color:#4A3FC9}
+.tag.ok{background:#DDF5E1;color:#227A32}
+.tag.cat{background:#EDECFB;color:#5B4FE8}
+
+.icone-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;color:#fff;font-size:15px}
+.icone-btn.play{background:var(--azul);border-radius:50%;font-size:13px}
+.icone-btn.edit{background:var(--azul)}
+.icone-btn.del{background:var(--vermelho)}
+.icone-btn.done{background:var(--verde-esc)}
+.relogio{font-variant-numeric:tabular-nums;font-weight:800;font-size:12px;background:var(--nav);color:#fff;
+  padding:7px 9px;border-radius:999px;flex:0 0 auto;letter-spacing:.02em}
+.relogio.pronto{background:var(--verde-esc)}
+/* círculo de conclusão das tarefas de estudo */
+.marcador{width:32px;height:32px;border-radius:50%;border:2.5px solid #B9B7D2;background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#B9B7D2;font-weight:900;font-size:14px}
+.marcador.on{background:var(--verde-esc);border-color:var(--verde-esc);color:#fff}
+/* caixa quadrada azul das tarefas mensais */
+.caixa{width:28px;height:28px;border-radius:7px;border:2px solid #B9B7D2;background:#fff;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:transparent;font-weight:900;font-size:14px}
+.caixa.on{background:var(--azul);border-color:var(--azul);color:#fff}
+
+.vazio{text-align:center;color:var(--texto-fraco);font-size:12.5px;padding:18px 8px;line-height:1.5}
+
+/* ---------- Tabela de histórico ---------- */
+table.hist{width:100%;border-collapse:collapse;font-size:12.5px}
+table.hist th{text-align:left;color:var(--texto-fraco);font-size:11px;text-transform:uppercase;
+  padding:6px 4px;border-bottom:1.5px solid var(--linha)}
+table.hist td{padding:8px 4px;border-bottom:1px solid var(--linha)}
+table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right}
+
+/* ---------- Modais ---------- */
+#veu{position:fixed;inset:0;background:rgba(18,15,55,.62);display:none;align-items:center;justify-content:center;
+  padding:22px;z-index:60}
+#veu.on{display:flex}
+.modal{background:#fff;border-radius:20px;padding:22px 18px;width:100%;max-width:300px;text-align:center;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);animation:pop .18s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.modal .selo{width:56px;height:56px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;
+  justify-content:center;font-size:28px;color:#fff}
+.modal .selo.ok{background:var(--verde-esc)}
+.modal .selo.info{background:var(--azul)}
+.modal .selo.perigo{background:var(--vermelho)}
+.modal h3{margin:0 0 6px;font-size:17px}
+.modal p{margin:0 0 14px;font-size:13px;color:var(--texto-fraco);line-height:1.5}
+#md-botoes .btn-par{margin-top:0}
+
+/* ---------- Aviso flutuante ---------- */
+/* fica no topo: embaixo a barra do navegador do celular tapava a tarja */
+/* Tarja de aviso: fica escondida por opacity+visibility, e não por um
+   deslocamento em % da própria altura. Vazia ela media só 22px de altura,
+   então o -320% antigo não era suficiente para tirá-la da tela e sobrava
+   uma pílula escura aparecendo por cima da navegação. */
+#aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 78px);
+  transform:translate(-50%,-18px);opacity:0;visibility:hidden;
+  background:var(--nav);color:#fff;
+  padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;
+  transition:transform .28s ease,opacity .28s ease,visibility .28s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center;pointer-events:none}
+#aviso.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+
+/* ---------- Gráficos ---------- */
+.grafico{width:100%;height:auto;display:block}
+.foto-caixa{position:relative;width:100px;margin:0 auto 12px}
+.foto-caixa .avatar{width:100px;height:100px;border-color:var(--roxo)}
+.foto-caixa .mais{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;
+  background:var(--verde-esc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;
+  border:3px solid #fff}
+/* Busca com botão "Pesquisar", como no protótipo */
+.busca{display:flex;gap:8px;margin-bottom:12px;background:#fff;border:1px solid var(--linha);
+  border-radius:999px;padding:4px 4px 4px 6px;align-items:center}
+.busca input{flex:1 1 auto;min-width:0;padding:7px 8px;border:none;background:none;outline:none}
+.busca button{background:var(--roxo);color:#fff;font-size:12.5px;font-weight:700;
+  padding:8px 14px;border-radius:999px;flex:0 0 auto}
+.rodape{text-align:center;color:#D8D5FF;font-size:11px;padding:6px 0 2px;line-height:1.6}
+
+/* ---------- Relógio flutuante (fica na tela ao sair do cronômetro) ----------
+   position:absolute dentro de #app: como #app tem altura fixa da tela e é
+   quem NÃO rola (só o #palco interno rola), a tarja já fica presa à tela,
+   não ao conteúdo. Arrastável: veja a seção 7b do JS. */
+#mini{position:absolute;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  display:none;align-items:center;gap:2px;z-index:50;
+  background:var(--nav);border-radius:999px;padding:5px 6px 5px 12px;
+  box-shadow:0 10px 26px rgba(20,15,70,.45);border:2px solid rgba(255,255,255,.22);
+  touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#mini.on{display:flex}
+#mini.arrastando{cursor:grabbing;box-shadow:0 16px 34px rgba(20,15,70,.55);transition:none}
+#mini-abrir{display:flex;align-items:center;gap:9px;color:#fff;padding:2px 4px 2px 0;text-align:left}
+#mini-abrir .ponto{width:9px;height:9px;border-radius:50%;background:var(--verde);flex:0 0 auto}
+#mini.parado #mini-abrir .ponto{background:var(--amarelo);animation:none}
+#mini.rodando #mini-abrir .ponto{animation:pulsa 1.6s ease-in-out infinite}
+@keyframes pulsa{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+#mini-tempo{display:block;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+#mini-nome{display:block;font-size:9.5px;font-weight:600;color:#C9C6F2;max-width:112px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.04em}
+#mini-pip,#mini-fechar{width:32px;height:32px;border-radius:50%;color:#fff;flex:0 0 auto;
+  display:none;align-items:center;justify-content:center;font-size:14px;background:rgba(255,255,255,.14)}
+#mini-pip.on,#mini-fechar.on{display:flex}

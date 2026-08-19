@@ -1,0 +1,63 @@
+/* ============================================================
+   DEVLOG — pages.css
+   Estilos especificos de telas.
+   ============================================================ */
+
+/* ---------- Login ---------- */
+#tela-login .marca{text-align:center;color:#fff;font-size:38px;font-weight:800;letter-spacing:.01em;
+  margin:34px 0 20px;text-shadow:0 3px 10px rgba(0,0,0,.25)}
+#tela-login .marca small{display:block;font-size:12.5px;font-weight:500;opacity:.85;letter-spacing:.06em;margin-top:4px}
+.link{display:block;width:100%;min-height:40px;padding:10px 4px;text-align:center;font-size:12.5px;
+  color:var(--azul);text-decoration:underline;margin:4px 0;background:none}
+.erro{color:var(--vermelho);font-size:12.5px;margin:6px 0 0;min-height:16px;font-weight:600}
+
+/* ---------- Dashboard ---------- */
+.perfil-topo{display:flex;flex-direction:column;align-items:center;margin-bottom:14px}
+.avatar{width:86px;height:86px;border-radius:50%;border:4px solid #fff;object-fit:cover;background:#DDDCEC;
+  display:block;box-shadow:var(--sombra)}
+.avatar-nome{color:#fff;font-size:20px;font-weight:800;margin-top:8px;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+
+.barra{position:relative;height:24px;background:#C9C7DE;border-radius:999px;overflow:hidden}
+.barra i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--verde),var(--verde-esc));
+  border-radius:999px;transition:width .5s ease}
+.barra b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#1C1B33;text-shadow:0 1px 0 rgba(255,255,255,.55)}
+
+
+.placares{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:center}
+.placar .rot{font-size:12px;color:var(--texto-fraco);font-weight:600}
+.placar .val{font-size:22px;font-weight:800;margin-top:2px}
+
+/* ---------- Cronômetro em foco ----------
+   Redesenho: só 2 controles (alternar play/pausa + sair), cada um com
+   legenda embaixo pra não depender só do ícone. O botão de sair muda de
+   ícone/legenda conforme o estado — é a mesma ação de sempre (minimizar
+   se está rodando, encerrar se já está pausado), só que agora ela avisa
+   visualmente o que vai acontecer em vez de parecer sempre um "fechar". */
+#foco{position:fixed;inset:0;background:linear-gradient(160deg,#4A3FD1,#2B2A63);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:70;padding:26px;text-align:center}
+#foco.on{display:flex}
+#foco .titulo{color:#fff;font-size:19px;font-weight:800;max-width:300px}
+#foco .cat{color:#C9C6F2;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+#foco .tempo{color:#fff;font-size:clamp(24px,7.6vw,34px);font-weight:800;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;pointer-events:none}
+#foco .meta{color:#C9C6F2;font-size:12.5px}
+.anel{width:228px;height:228px;position:relative;display:flex;align-items:center;justify-content:center;margin:2px 0}
+.anel svg{position:absolute;inset:0;transform:rotate(-90deg);overflow:visible}
+.anel circle{fill:none;stroke-width:11;stroke-linecap:round}
+.anel .trilho{stroke:rgba(255,255,255,.14)}
+.anel .arco{stroke:url(#fc-gradiente);transition:stroke-dashoffset .9s linear}
+.anel .ponta{fill:#fff;opacity:0;transition:opacity .3s ease;filter:drop-shadow(0 0 5px rgba(86,211,100,.85))}
+.anel.rodando .ponta{opacity:1;animation:pulsa-ponta 1.6s ease-in-out infinite}
+@keyframes pulsa-ponta{0%,100%{r:6.5}50%{r:8.5}}
+.controles{display:flex;gap:30px;align-items:flex-start}
+.ctrl-grupo{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ctrl{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .12s ease}
+.ctrl:active{transform:scale(.92)}
+.ctrl svg{width:24px;height:24px}
+.ctrl-toggle{background:linear-gradient(135deg,var(--azul),var(--azul-esc))}
+.ctrl-sair{width:52px;height:52px;margin-top:6px;background:rgba(255,255,255,.14);
+  border:1.5px solid rgba(255,255,255,.22)}
+.ctrl-sair svg{width:20px;height:20px}
+.ctrl-legenda{color:#C9C6F2;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}

@@ -1,0 +1,12 @@
+/* ============================================================
+   DEVLOG — responsive.css
+   Adaptacoes por caracteristica do dispositivo.
+
+   O layout e mobile-first e a moldura (#app) tem largura maxima
+   fixa de 460px, centralizada. Por isso nao existem breakpoints
+   de largura: a mesma coluna serve do celular ao desktop. O que
+   varia aqui sao preferencias do usuario e recortes de tela.
+   ============================================================ */
+
+/* Respeita quem pediu menos animacao no sistema. */
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

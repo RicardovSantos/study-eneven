@@ -1,0 +1,66 @@
+name: Publicar no GitHub Pages
+
+# O site deixou de ser um arquivo solto na raiz: agora passa pelo build
+# do Vite. Este workflow faz esse build e publica o resultado, para o
+# endereco continuar atualizando sozinho a cada push na main.
+#
+# IMPORTANTE: exige que o Pages esteja configurado para "GitHub Actions"
+# em Settings -> Pages -> Source. Enquanto essa opcao nao for trocada, o
+# Pages continua servindo a versao antiga da raiz, sem quebrar nada.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicacao por vez; nao cancela a que ja esta rodando.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      # Pages de projeto serve em /study-eneven/, entao os caminhos dos
+      # assets precisam desse prefixo. No dominio proprio (Fase 7) o
+      # padrao "/" volta a valer.
+      - run: npm run build
+        env:
+          VITE_BASE: /study-eneven/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
