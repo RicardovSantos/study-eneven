@@ -1,5 +1,9 @@
 # Pendências e decisões
 
+> Para a lista do que **ainda não foi construído**, por fase, veja
+> [`o-que-falta.md`](o-que-falta.md). Este arquivo cuida do que está
+> travado esperando alguém, e das decisões já tomadas.
+
 Lista viva do que está travado, esperando alguém ou já decidido. Atualizar
 a cada fase.
 
