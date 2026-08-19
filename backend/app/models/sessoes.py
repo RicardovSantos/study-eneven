@@ -99,7 +99,9 @@ class SessaoEstudo(PKUUID, Timestamps, Base):
     # de perder a resposta. Com isso, o reenvio não credita pontos de novo.
     chave_finalizacao: Mapped[str | None] = mapped_column(String(64), unique=True)
 
-    eventos: Mapped[list["EventoSessao"]] = relationship(back_populates="sessao")
+    eventos: Mapped[list["EventoSessao"]] = relationship(
+        back_populates="sessao", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     __table_args__ = (
         CheckConstraint("segundos_brutos >= 0", name="brutos_nao_negativos"),

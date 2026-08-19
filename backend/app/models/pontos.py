@@ -97,7 +97,9 @@ class TrilhaRecompensa(PKUUID, Timestamps, Base):
     filtro: Mapped[dict | None] = mapped_column(JSONB_PORTATIL)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    niveis: Mapped[list["NivelRecompensa"]] = relationship(back_populates="trilha")
+    niveis: Mapped[list["NivelRecompensa"]] = relationship(
+        back_populates="trilha", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     __table_args__ = (Index("ix_tracks_beneficiario", "beneficiario_id"),)
 

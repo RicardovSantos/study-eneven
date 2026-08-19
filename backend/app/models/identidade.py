@@ -62,7 +62,9 @@ class Familia(PKUUID, Timestamps, Base):
     exige_localizacao: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     pontos_por_minuto: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 
-    membros: Mapped[list["MembroFamilia"]] = relationship(back_populates="familia")
+    membros: Mapped[list["MembroFamilia"]] = relationship(
+        back_populates="familia", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     __table_args__ = (
         CheckConstraint(

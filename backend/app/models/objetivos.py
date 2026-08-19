@@ -111,7 +111,12 @@ class Objetivo(PKUUID, Timestamps, Base):
     )
     arquivado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    ocorrencias: Mapped[list["Ocorrencia"]] = relationship(back_populates="objetivo")
+    # passive_deletes deixa o ON DELETE CASCADE do banco fazer o trabalho.
+    # Sem isso o ORM tenta primeiro anular a FK dos filhos, o que esbarra
+    # no NOT NULL e derruba a exclusão do pai.
+    ocorrencias: Mapped[list["Ocorrencia"]] = relationship(
+        back_populates="objetivo", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     __table_args__ = (
         CheckConstraint("meta_periodo > 0", name="meta_positiva"),

@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.api.v1 import auth as auth_v1
+from app.api.v1 import objetivos as objetivos_v1
 from app.core.config import get_settings
 from app.db.session import engine
 
@@ -41,6 +42,7 @@ if s.CORS_ORIGINS:
 
 
 app.include_router(auth_v1.router, prefix=s.API_PREFIX)
+app.include_router(objetivos_v1.router, prefix=s.API_PREFIX)
 
 
 @app.get("/health/live", tags=["saúde"])
