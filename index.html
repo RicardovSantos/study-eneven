@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#5B4FE8">
 <meta name="description" content="DevLog — registre seus estudos e cumpra suas metas diárias sem procrastinar.">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -253,11 +255,17 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 
 /* ---------- Aviso flutuante ---------- */
 /* fica no topo: embaixo a barra do navegador do celular tapava a tarja */
-#aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 78px);transform:translate(-50%,-320%);
+/* Tarja de aviso: fica escondida por opacity+visibility, e não por um
+   deslocamento em % da própria altura. Vazia ela media só 22px de altura,
+   então o -320% antigo não era suficiente para tirá-la da tela e sobrava
+   uma pílula escura aparecendo por cima da navegação. */
+#aviso{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 78px);
+  transform:translate(-50%,-18px);opacity:0;visibility:hidden;
   background:var(--nav);color:#fff;
-  padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;transition:transform .28s ease;
+  padding:11px 18px;border-radius:999px;font-size:13px;font-weight:600;z-index:80;
+  transition:transform .28s ease,opacity .28s ease,visibility .28s ease;
   box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:88vw;text-align:center;pointer-events:none}
-#aviso.on{transform:translate(-50%,0)}
+#aviso.on{transform:translate(-50%,0);opacity:1;visibility:visible}
 
 /* ---------- Gráficos ---------- */
 .grafico{width:100%;height:auto;display:block}
