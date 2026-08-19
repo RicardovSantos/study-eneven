@@ -34,6 +34,13 @@ android/app/build/
 storage/
 uploads/
 
+# Capturas geradas pelos testes de navegador
+frontend/*.png
+
+# Banco de desenvolvimento local
+*.db
+*.sqlite3
+
 # Sistema operacional e editores
 .DS_Store
 Thumbs.db

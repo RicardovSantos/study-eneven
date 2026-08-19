@@ -100,12 +100,13 @@ Nada começou. A Fase 9 tem uma dependência que não é técnica: **conversar
 sobre consentimento** antes de implementar captura de tela e localização
 de um dependente (L2 em `pendencias.md`).
 
-## Front-end — o buraco maior
+## Front-end — ligando na API
 
-O back-end das fases 2 a 5 está pronto e testado, mas **o front-end
-continua falando com `localStorage`**. Nenhuma tela chama a API ainda.
+A camada de comunicação está pronta e testada num navegador de verdade
+(22 cenários em `frontend/testes-integracao.mjs`), mas **as telas ainda
+falam com `localStorage`**. Falta trocar o miolo.
 
-- [ ] Cliente HTTP com refresh automático do token
+- [x] Cliente HTTP com refresh automático do token
 - [ ] Trocar o login local pelo `/auth`
 - [ ] Trocar o CRUD local pelo `/objetivos`
 - [ ] Trocar o cronômetro local pelas `/sessoes` com heartbeat
@@ -114,9 +115,9 @@ continua falando com `localStorage`**. Nenhuma tela chama a API ainda.
 - [ ] Menu por papel (responsável e dependente veem coisas diferentes)
 - [ ] Estados de carregando, erro e offline
 
-Enquanto isso não for feito, o app publicado continua sendo o de arquivo
-único com dados locais — que funciona, mas é de um usuário só, sem
-servidor.
+Enquanto isso não for feito, o app publicado continua em modo local —
+que funciona, mas é de um usuário só, sem servidor. O modo é escolhido
+por `VITE_API_URL` no build: vazio = local, preenchido = API.
 
 ## Dívidas conhecidas
 

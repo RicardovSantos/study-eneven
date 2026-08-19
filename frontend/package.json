@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node testes-regressao.mjs http://localhost:4173/"
+    "test": "node testes-regressao.mjs http://localhost:4173/",
+    "test:integracao": "node testes-integracao.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"

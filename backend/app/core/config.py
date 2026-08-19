@@ -7,7 +7,7 @@ faltar, a aplicação recusa a subir em vez de rodar com algo inseguro.
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, PostgresDsn, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     APP_BASE_URL: str = "http://localhost:5173"
     API_PREFIX: str = "/api/v1"
 
-    DATABASE_URL: PostgresDsn
+    # String e nao PostgresDsn: em desenvolvimento vale apontar para
+    # SQLite e rodar o sistema inteiro sem instalar um servidor. O
+    # validador abaixo exige PostgreSQL em produção.
+    DATABASE_URL: str
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # Sem padrão de propósito: uma chave fraca aqui compromete todas as sessões.
@@ -35,7 +38,11 @@ class Settings(BaseSettings):
     # que rodam sobre http) ele quebraria o refresh silenciosamente.
     COOKIE_SECURE: bool | None = None
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
-    CORS_ORIGINS: list[str] = []
+    # String separada por vírgula, e não list[str]: o pydantic-settings
+    # tenta desserializar campos de tipo complexo como JSON antes de
+    # qualquer validador rodar, então "https://a.com" quebraria na
+    # subida. A lista sai da propriedade `cors_origins`.
+    CORS_ORIGINS: str = ""
 
     STORAGE_BACKEND: Literal["local", "s3"] = "local"
     STORAGE_PATH: str = "/app/storage"
@@ -49,13 +56,17 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def _lista_de_origens(cls, v: str | list[str]) -> list[str]:
-        """Aceita "https://a.com,https://b.com" além de lista JSON."""
-        if isinstance(v, str):
-            return [origem.strip() for origem in v.split(",") if origem.strip()]
-        return v
+    @model_validator(mode="after")
+    def _banco_coerente_com_o_ambiente(self):
+        url = self.DATABASE_URL
+        if "+" not in url.split("://")[0]:
+            raise ValueError(
+                "DATABASE_URL precisa de driver assíncrono "
+                "(postgresql+asyncpg://… ou sqlite+aiosqlite://…)"
+            )
+        if self.ENVIRONMENT == "production" and not url.startswith("postgresql"):
+            raise ValueError("em produção o banco precisa ser PostgreSQL")
+        return self
 
     @field_validator("JWT_SECRET_KEY")
     @classmethod
@@ -64,6 +75,10 @@ class Settings(BaseSettings):
         if v.lower() in proibidas:
             raise ValueError("JWT_SECRET_KEY está com um valor de exemplo")
         return v
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     @property
     def producao(self) -> bool:

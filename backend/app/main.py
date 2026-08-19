@@ -33,10 +33,10 @@ app = FastAPI(
     openapi_url=None if s.producao else "/api/openapi.json",
 )
 
-if s.CORS_ORIGINS:
+if s.cors_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=s.CORS_ORIGINS,
+        allow_origins=s.cors_origins,
         allow_credentials=True,       # o refresh token viaja em cookie
         allow_methods=["*"],
         allow_headers=["*"],

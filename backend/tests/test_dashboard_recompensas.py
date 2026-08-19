@@ -15,7 +15,8 @@ from app.models.enums import (
 )
 from app.models.objetivos import Materia, Objetivo
 from app.repositories import usuarios as repo
-from app.services import agenda, auth, dashboard, ocorrencias, pontos as servico_pontos
+from app.services import agenda, auth, dashboard, ocorrencias
+from app.services import pontos as servico_pontos
 from app.services import recompensas as servico_rec
 
 HOJE = date(2026, 8, 19)
@@ -194,6 +195,7 @@ async def test_niveis_sao_numerados_sozinhos(sessao):
     trilha = await _trilha_com_niveis(sessao, a, v)
 
     from sqlalchemy import select
+
     from app.models.pontos import NivelRecompensa
     r = await sessao.execute(
         select(NivelRecompensa.numero).where(NivelRecompensa.trilha_id == trilha.id)
@@ -240,6 +242,7 @@ async def test_avaliar_duas_vezes_nao_duplica_desbloqueio(sessao):
     p = await servico_rec.avaliar(sessao, trilha=trilha)
 
     from sqlalchemy import func, select
+
     from app.models.pontos import DesbloqueioRecompensa
     r = await sessao.execute(
         select(func.count()).select_from(DesbloqueioRecompensa)
@@ -289,10 +292,11 @@ async def test_fluxo_solicitar_e_confirmar_entrega(sessao):
     trilha = await _trilha_com_niveis(sessao, a, v)
     o = await _objetivo(sessao, a)
     await _pontuar(sessao, a, o, HOJE, 120)
-    p = await servico_rec.avaliar(sessao, trilha=trilha)
+    await servico_rec.avaliar(sessao, trilha=trilha)
+
+    from sqlalchemy import select
 
     from app.models.pontos import DesbloqueioRecompensa
-    from sqlalchemy import select
     r = await sessao.execute(
         select(DesbloqueioRecompensa).where(
             DesbloqueioRecompensa.beneficiario_id == a.usuario.id

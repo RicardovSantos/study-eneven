@@ -7,7 +7,31 @@
    
    Sai com codigo 1 se algum cenario falhar ou se houver erro de JS. */
 
-import { chromium } from 'playwright';
+/* O Playwright não entra no package.json de propósito: instalá-lo como
+   dependência faria o workflow do Pages baixar ~150 MB de navegadores a
+   cada build, sem nenhum ganho para a publicação.
+
+   Tenta o pacote local primeiro; se não houver, procura na instalação
+   global. (Import de ESM não honra NODE_PATH — isso vale só para
+   CommonJS —, por isso a busca é feita à mão.) */
+import { execSync } from "node:child_process";
+
+async function carregarPlaywright() {
+  try {
+    return await import("playwright");
+  } catch {
+    try {
+      const global = execSync("npm root -g", { encoding: "utf8" }).trim();
+      return await import(`${global}/playwright/index.mjs`);
+    } catch {
+      console.error(
+        "Playwright não encontrado. Instale com:  npm i -g playwright"
+      );
+      process.exit(2);
+    }
+  }
+}
+const { chromium } = await carregarPlaywright();
 const OUT = process.env.OUT || '.';
 const URL = process.argv[2];
 const b = await chromium.launch();

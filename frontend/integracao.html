@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>DevLog — banco de provas da API</title>
+</head>
+<body>
+<!--
+  Página de desenvolvimento, não faz parte do app.
+
+  Serve para exercitar o cliente da API dentro de um navegador de
+  verdade: fetch real, CORS real, cookie HttpOnly real. Coisas que um
+  teste em Node não consegue provar.
+
+  O Vite só empacota o index.html, então este arquivo nunca vai para o
+  build de produção.
+
+  Uso:  npm run dev   →   http://localhost:5173/integracao.html
+-->
+<h1>Banco de provas da API</h1>
+<pre id="saida">carregando…</pre>
+<script type="module">
+import * as auth from "/src/js/api/auth.js";
+import * as objetivos from "/src/js/api/objetivos.js";
+import * as sessoes from "/src/js/api/sessoes.js";
+import * as painel from "/src/js/api/painel.js";
+import { definirToken, temToken, renovar, ErroDaApi } from "/src/js/api/client.js";
+import { API_URL, COM_SERVIDOR } from "/src/js/config.js";
+
+window.devlog = {
+  auth, objetivos, sessoes, painel,
+  definirToken, temToken, renovar, ErroDaApi,
+  API_URL, COM_SERVIDOR,
+};
+document.querySelector("#saida").textContent =
+  `pronto · API_URL=${API_URL || "(vazio: modo local)"} · com servidor: ${COM_SERVIDOR}`;
+</script>
+</body>
+</html>
