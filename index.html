@@ -232,26 +232,39 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 .modal p{margin:0 0 14px;font-size:13px;color:var(--texto-fraco);line-height:1.5}
 #md-botoes .btn-par{margin-top:0}
 
-/* ---------- Cronômetro em foco ---------- */
+/* ---------- Cronômetro em foco ----------
+   Redesenho: só 2 controles (alternar play/pausa + sair), cada um com
+   legenda embaixo pra não depender só do ícone. O botão de sair muda de
+   ícone/legenda conforme o estado — é a mesma ação de sempre (minimizar
+   se está rodando, encerrar se já está pausado), só que agora ela avisa
+   visualmente o que vai acontecer em vez de parecer sempre um "fechar". */
 #foco{position:fixed;inset:0;background:linear-gradient(160deg,#4A3FD1,#2B2A63);display:none;
-  flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:70;padding:26px;text-align:center}
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:70;padding:26px;text-align:center}
 #foco.on{display:flex}
 #foco .titulo{color:#fff;font-size:19px;font-weight:800;max-width:300px}
 #foco .cat{color:#C9C6F2;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
-#foco .tempo{color:#fff;font-size:clamp(30px,10vw,44px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+#foco .tempo{color:#fff;font-size:clamp(24px,7.6vw,34px);font-weight:800;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;pointer-events:none}
 #foco .meta{color:#C9C6F2;font-size:12.5px}
-.anel{width:210px;height:210px;position:relative;display:flex;align-items:center;justify-content:center}
-.anel svg{position:absolute;inset:0;transform:rotate(-90deg)}
-.anel circle{fill:none;stroke-width:12;stroke-linecap:round}
-.anel .trilho{stroke:rgba(255,255,255,.16)}
-.anel .arco{stroke:var(--verde);transition:stroke-dashoffset .9s linear}
-.controles{display:flex;gap:14px}
-.ctrl{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:22px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3)}
-.ctrl.play{background:var(--azul)}
-.ctrl.pausa{background:var(--azul)}
-.ctrl.para{background:var(--vermelho)}
-.ctrl.fechar{background:rgba(255,255,255,.2)}
+.anel{width:228px;height:228px;position:relative;display:flex;align-items:center;justify-content:center;margin:2px 0}
+.anel svg{position:absolute;inset:0;transform:rotate(-90deg);overflow:visible}
+.anel circle{fill:none;stroke-width:11;stroke-linecap:round}
+.anel .trilho{stroke:rgba(255,255,255,.14)}
+.anel .arco{stroke:url(#fc-gradiente);transition:stroke-dashoffset .9s linear}
+.anel .ponta{fill:#fff;opacity:0;transition:opacity .3s ease;filter:drop-shadow(0 0 5px rgba(86,211,100,.85))}
+.anel.rodando .ponta{opacity:1;animation:pulsa-ponta 1.6s ease-in-out infinite}
+@keyframes pulsa-ponta{0%,100%{r:6.5}50%{r:8.5}}
+.controles{display:flex;gap:30px;align-items:flex-start}
+.ctrl-grupo{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ctrl{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .12s ease}
+.ctrl:active{transform:scale(.92)}
+.ctrl svg{width:24px;height:24px}
+.ctrl-toggle{background:linear-gradient(135deg,var(--azul),var(--azul-esc))}
+.ctrl-sair{width:52px;height:52px;margin-top:6px;background:rgba(255,255,255,.14);
+  border:1.5px solid rgba(255,255,255,.22)}
+.ctrl-sair svg{width:20px;height:20px}
+.ctrl-legenda{color:#C9C6F2;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 
 /* ---------- Aviso flutuante ---------- */
 /* fica no topo: embaixo a barra do navegador do celular tapava a tarja */
@@ -589,20 +602,43 @@ table.hist td:not(:first-child),table.hist th:not(:first-child){text-align:right
 <div id="foco" role="dialog" aria-modal="true" aria-label="Cronômetro de estudo">
   <div class="cat" id="fc-cat">—</div>
   <div class="titulo" id="fc-titulo">—</div>
-  <div class="anel">
-    <svg viewBox="0 0 210 210" aria-hidden="true"><circle class="trilho" cx="105" cy="105" r="94"/>
-      <circle class="arco" id="fc-arco" cx="105" cy="105" r="94"/></svg>
+  <div class="anel" id="fc-anel">
+    <svg viewBox="0 0 210 210" aria-hidden="true">
+      <defs>
+        <linearGradient id="fc-gradiente" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#56D364"/>
+          <stop offset="100%" stop-color="#2FE0C4"/>
+        </linearGradient>
+      </defs>
+      <circle class="trilho" cx="105" cy="105" r="94"/>
+      <circle class="arco" id="fc-arco" cx="105" cy="105" r="94"/>
+      <circle class="ponta" id="fc-ponta" cx="105" cy="11" r="6.5"/>
+    </svg>
     <div class="tempo" id="fc-tempo" role="timer" aria-live="off">00:00:00</div>
   </div>
   <div class="meta" id="fc-meta">—</div>
   <div class="controles">
-    <button class="ctrl play" type="button" id="fc-play" title="Iniciar" aria-label="Iniciar">▶</button>
-    <button class="ctrl pausa" type="button" id="fc-pausa" title="Pausar" aria-label="Pausar">⏸</button>
-    <button class="ctrl para" type="button" id="fc-para" title="Encerrar e salvar" aria-label="Encerrar e salvar">⏹</button>
-    <button class="ctrl fechar" type="button" id="fc-fechar" title="Voltar" aria-label="Voltar">✕</button>
+    <div class="ctrl-grupo">
+      <button class="ctrl ctrl-toggle" type="button" id="fc-toggle" aria-label="Iniciar cronômetro">
+        <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M9 6.4v11.2a1 1 0 0 0 1.53.85l8.6-5.6a1 1 0 0 0 0-1.7l-8.6-5.6A1 1 0 0 0 9 6.4Z"/></svg>
+        <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+          <rect fill="currentColor" x="6.5" y="5" width="4" height="14" rx="1.6"/><rect fill="currentColor" x="13.5" y="5" width="4" height="14" rx="1.6"/></svg>
+      </button>
+      <span class="ctrl-legenda" id="fc-legenda-toggle">Iniciar</span>
+    </div>
+    <div class="ctrl-grupo">
+      <button class="ctrl ctrl-sair" type="button" id="fc-fechar" aria-label="Minimizar">
+        <svg class="ic-minimizar" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 9.5 12 15l6-5.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="ic-encerrar" viewBox="0 0 24 24" aria-hidden="true" style="display:none">
+          <path d="M5 12.5 9.8 17 19 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <span class="ctrl-legenda" id="fc-legenda-sair">Minimizar</span>
+    </div>
   </div>
-  <p style="color:#C9C6F2;font-size:11.5px;max-width:290px;margin:0">
-    O tempo continua contando mesmo com o app em segundo plano. Ao zerar, o objetivo é concluído sozinho.</p>
+  <p style="color:#C9C6F2;font-size:11.5px;max-width:290px;margin:0" id="fc-dica">
+    Minimizar mantém o tempo contando na tarja flutuante.</p>
 </div>
 
 <div id="aviso" role="status" aria-live="polite"></div>
@@ -1223,7 +1259,7 @@ function montarFoco(it){
     ((it.saldo||0)>0 ? " (inclui "+fmtHM(it.saldo)+" acumulados)" : "");
   pintarFoco();
   $("#foco").classList.add("on");
-  $("#fc-play").focus();
+  $("#fc-toggle").focus();
   sincronizarFlutuante();
 }
 function pintarFoco(){
@@ -1233,8 +1269,37 @@ function pintarFoco(){
   const arco=$("#fc-arco");
   arco.setAttribute("stroke-dasharray", c.toFixed(1));
   arco.setAttribute("stroke-dashoffset", (c*(1-frac)).toFixed(1));
-  $("#fc-play").style.display = T.rodando ? "none" : "flex";
-  $("#fc-pausa").style.display = T.rodando ? "flex" : "none";
+  atualizarPonta(frac);
+  $("#fc-anel").classList.toggle("rodando", T.rodando);
+  pintarControles();
+}
+/* Ponta do relógio: um pontinho no fim do arco visível, pra reforçar que
+   o tempo está mesmo correndo (mesma matemática do arco, só que
+   convertida pra um ponto — ver comentário da seção 7 sobre o SVG
+   estar rotacionado -90° via CSS: o cálculo abaixo usa o ângulo "antes"
+   dessa rotação, e o navegador rotaciona o ponto junto com o arco). */
+function atualizarPonta(frac){
+  const p=$("#fc-ponta"); if(!p) return;
+  const t = frac*2*Math.PI, r=94;
+  p.setAttribute("cx", (105 + r*Math.cos(t)).toFixed(2));
+  p.setAttribute("cy", (105 + r*Math.sin(t)).toFixed(2));
+}
+/* Botão único de play/pausa + botão de sair com ícone/legenda que mudam
+   conforme o estado: rodando -> "minimizar" (some da tela, mas o tempo
+   continua contando na tarja flutuante); pausado -> "encerrar" (para de
+   vez e sai, sem impressão de que ia só "fechar"). */
+function pintarControles(){
+  $(".ic-play").style.display = T.rodando ? "none" : "flex";
+  $(".ic-pause").style.display = T.rodando ? "flex" : "none";
+  $("#fc-toggle").setAttribute("aria-label", T.rodando ? "Pausar" : "Iniciar cronômetro");
+  $("#fc-legenda-toggle").textContent = T.rodando ? "Pausar" : "Iniciar";
+  $(".ic-minimizar").style.display = T.rodando ? "flex" : "none";
+  $(".ic-encerrar").style.display = T.rodando ? "none" : "flex";
+  $("#fc-fechar").setAttribute("aria-label", T.rodando ? "Minimizar" : "Encerrar e sair");
+  $("#fc-legenda-sair").textContent = T.rodando ? "Minimizar" : "Encerrar";
+  $("#fc-dica").textContent = T.rodando
+    ? "Minimizar mantém o tempo contando na tarja flutuante."
+    : "Encerrar salva o tempo já feito e sai do cronômetro.";
 }
 function tocar(){
   if(T.rodando || !T.itemId) return;
@@ -1253,8 +1318,9 @@ function tique(){
   T.restanteSeg = Math.max(0, T.restanteSeg-delta);
   T.acumulado += delta;
   $("#fc-tempo").textContent = fmtRelogio(T.restanteSeg);
-  const r=94,c=2*Math.PI*r;
-  $("#fc-arco").setAttribute("stroke-dashoffset", (c*(1-(T.totalSeg? T.restanteSeg/T.totalSeg:0))).toFixed(1));
+  const r=94,c=2*Math.PI*r, frac = T.totalSeg? T.restanteSeg/T.totalSeg : 0;
+  $("#fc-arco").setAttribute("stroke-dashoffset", (c*(1-frac)).toFixed(1));
+  atualizarPonta(frac);
   const seg = Math.round(T.restanteSeg);
   if(seg !== ultimoSegVisto){ ultimoSegVisto = seg; sincronizarFlutuante(); }
   if(T.acumulado>=30){ descarregar(); salvar(); }
@@ -1622,10 +1688,10 @@ $("#tela-objetivos").addEventListener("click",e=>{
   }
 });
 
-$("#fc-play").onclick=tocar;
-$("#fc-pausa").onclick=()=>pausar(false);
-$("#fc-para").onclick=encerrar;
-$("#fc-fechar").onclick=fecharFoco;
+$("#fc-toggle").onclick=()=> T.rodando ? pausar(false) : tocar();
+// sair muda de comportamento conforme o estado (ver pintarControles): rodando
+// minimiza (tempo continua na tarja flutuante), pausado encerra de vez.
+$("#fc-fechar").onclick=()=> T.rodando ? fecharFoco() : encerrar();
 
 /* Relógio flutuante */
 $("#mini-abrir").onclick=()=>{ if(T.itemId) abrirFoco(T.itemId); };
