@@ -3,14 +3,22 @@
 from datetime import date, datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from sqlalchemy import (
-    Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer,
-    String, Text, UniqueConstraint,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ENUM, INET, UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, PKUUID, Timestamps
+from app.db.base import PKUUID, Base, Timestamps
+from app.db.tipos import INET_PORTATIL
 from app.models.enums import PapelFamiliar, Plataforma, StatusMembro
 
 
@@ -32,7 +40,10 @@ class Usuario(PKUUID, Timestamps, Base):
     )
 
     __table_args__ = (
-        CheckConstraint("char_length(username) >= 3", name="username_minimo"),
+        # length() e nao char_length(): equivalente no PostgreSQL para texto e
+        # tambem valido no SQLite, o que permite rodar os testes de
+        # integracao sem um servidor PostgreSQL no ambiente.
+        CheckConstraint("length(username) >= 3", name="username_minimo"),
         Index("ix_users_ativo", "ativo"),
     )
 
@@ -42,7 +53,7 @@ class Familia(PKUUID, Timestamps, Base):
 
     nome: Mapped[str] = mapped_column(String(120), nullable=False)
     dono_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
     )
 
     # Padrões da família; cada objetivo pode sobrescrever o que faz sentido.
@@ -75,21 +86,21 @@ class MembroFamilia(PKUUID, Timestamps, Base):
     __tablename__ = "family_members"
 
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     usuario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     papel: Mapped[PapelFamiliar] = mapped_column(
-        ENUM(PapelFamiliar, name="papel_familiar", create_type=True), nullable=False
+        sa.Enum(PapelFamiliar, name="papel_familiar"), nullable=False
     )
     parentesco: Mapped[str | None] = mapped_column(String(60))
     status: Mapped[StatusMembro] = mapped_column(
-        ENUM(StatusMembro, name="status_membro", create_type=True),
+        sa.Enum(StatusMembro, name="status_membro"),
         default=StatusMembro.ATIVO, nullable=False,
     )
     criado_por_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
 
     familia: Mapped["Familia"] = relationship(back_populates="membros")
@@ -114,18 +125,18 @@ class RefreshToken(PKUUID, Timestamps, Base):
     __tablename__ = "refresh_tokens"
 
     usuario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     token_hash: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
     dispositivo_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("devices.id", ondelete="CASCADE")
+        sa.Uuid(as_uuid=True), ForeignKey("devices.id", ondelete="CASCADE")
     )
     expira_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revogado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     substituido_por_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("refresh_tokens.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("refresh_tokens.id", ondelete="SET NULL")
     )
-    ip: Mapped[str | None] = mapped_column(INET)
+    ip: Mapped[str | None] = mapped_column(INET_PORTATIL)
     user_agent: Mapped[str | None] = mapped_column(Text)
 
     __table_args__ = (
@@ -137,11 +148,11 @@ class Dispositivo(PKUUID, Timestamps, Base):
     __tablename__ = "devices"
 
     usuario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     instalacao_id: Mapped[str] = mapped_column(String(128), nullable=False)
     plataforma: Mapped[Plataforma] = mapped_column(
-        ENUM(Plataforma, name="plataforma", create_type=True), nullable=False
+        sa.Enum(Plataforma, name="plataforma"), nullable=False
     )
     modelo: Mapped[str | None] = mapped_column(String(120))
     versao_android: Mapped[str | None] = mapped_column(String(30))

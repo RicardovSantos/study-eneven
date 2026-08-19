@@ -13,16 +13,30 @@ impedir que a mesma aula reapareça na data original depois de concluída.
 from datetime import date, datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from sqlalchemy import (
-    Boolean, CheckConstraint, Date, DateTime, ForeignKey, Index, Integer,
-    SmallInteger, String, Text, UniqueConstraint,
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    SmallInteger,
+    String,
+    Text,
+    UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, PKUUID, Timestamps
+from app.db.base import PKUUID, Base, Timestamps
+from app.db.tipos import JSONB_PORTATIL
 from app.models.enums import (
-    Frequencia, MomentoConclusao, StatusObjetivo, StatusOcorrencia, TipoObjetivo,
+    Frequencia,
+    MomentoConclusao,
+    StatusObjetivo,
+    StatusOcorrencia,
+    TipoObjetivo,
 )
 
 
@@ -30,7 +44,7 @@ class Materia(PKUUID, Timestamps, Base):
     __tablename__ = "subjects"
 
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     nome: Mapped[str] = mapped_column(String(80), nullable=False)
     cor: Mapped[str | None] = mapped_column(String(7))
@@ -46,22 +60,22 @@ class Objetivo(PKUUID, Timestamps, Base):
     __tablename__ = "objectives"
 
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     # Titular é quem cumpre; criador é quem cadastrou. São diferentes
     # quando o responsável cadastra um objetivo para o dependente.
     titular_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     criador_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     materia_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("subjects.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("subjects.id", ondelete="SET NULL")
     )
 
     tipo: Mapped[TipoObjetivo] = mapped_column(
-        ENUM(TipoObjetivo, name="tipo_objetivo", create_type=True), nullable=False
+        sa.Enum(TipoObjetivo, name="tipo_objetivo"), nullable=False
     )
     nome: Mapped[str] = mapped_column(String(160), nullable=False)
     descricao: Mapped[str | None] = mapped_column(Text)
@@ -72,9 +86,9 @@ class Objetivo(PKUUID, Timestamps, Base):
     meta_total: Mapped[int | None] = mapped_column(Integer)
 
     frequencia: Mapped[Frequencia] = mapped_column(
-        ENUM(Frequencia, name="frequencia", create_type=True), nullable=False
+        sa.Enum(Frequencia, name="frequencia"), nullable=False
     )
-    dias_semana: Mapped[list[int] | None] = mapped_column(JSONB)   # 0=domingo
+    dias_semana: Mapped[list[int] | None] = mapped_column(JSONB_PORTATIL)   # 0=domingo
     horario_sugerido: Mapped[str | None] = mapped_column(String(5))
     inicia_em: Mapped[date | None] = mapped_column(Date)
     prazo_final: Mapped[date | None] = mapped_column(Date)
@@ -92,7 +106,7 @@ class Objetivo(PKUUID, Timestamps, Base):
     exige_aprovacao_final: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     status: Mapped[StatusObjetivo] = mapped_column(
-        ENUM(StatusObjetivo, name="status_objetivo", create_type=True),
+        sa.Enum(StatusObjetivo, name="status_objetivo"),
         default=StatusObjetivo.ANDAMENTO, nullable=False,
     )
     arquivado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -121,10 +135,10 @@ class Ocorrencia(PKUUID, Timestamps, Base):
     __tablename__ = "objective_occurrences"
 
     objetivo_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False
     )
     titular_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
 
     prevista_para: Mapped[date] = mapped_column(Date, nullable=False)
@@ -132,12 +146,12 @@ class Ocorrencia(PKUUID, Timestamps, Base):
     realizado: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     status: Mapped[StatusOcorrencia] = mapped_column(
-        ENUM(StatusOcorrencia, name="status_ocorrencia", create_type=True),
+        sa.Enum(StatusOcorrencia, name="status_ocorrencia"),
         default=StatusOcorrencia.PENDENTE, nullable=False,
     )
     concluida_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     momento_conclusao: Mapped[MomentoConclusao | None] = mapped_column(
-        ENUM(MomentoConclusao, name="momento_conclusao", create_type=True)
+        sa.Enum(MomentoConclusao, name="momento_conclusao")
     )
     dias_adiantados: Mapped[int] = mapped_column(SmallInteger, default=0, nullable=False)
     # Ciclo proposital: a ocorrencia aponta para a sessao que a concluiu e
@@ -146,7 +160,7 @@ class Ocorrencia(PKUUID, Timestamps, Base):
     # `use_alter` faz esta constraint ser adicionada por ALTER TABLE depois
     # que ambas existem. Sem isso a migracao inicial falha.
     sessao_conclusao_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True),
+        sa.Uuid(as_uuid=True),
         ForeignKey(
             "study_sessions.id",
             ondelete="SET NULL",

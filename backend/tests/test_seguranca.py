@@ -5,8 +5,12 @@ from uuid import uuid4
 import pytest
 
 from app.core.security import (
-    conferir_senha, criar_access_token, gerar_hash_senha,
-    gerar_refresh_token, hash_refresh_token, ler_access_token,
+    conferir_senha,
+    criar_access_token,
+    gerar_hash_senha,
+    gerar_refresh_token,
+    hash_refresh_token,
+    ler_access_token,
 )
 
 
@@ -58,6 +62,7 @@ def test_token_de_outra_chave_e_recusado():
 def test_token_sem_expiracao_e_recusado():
     """Sem exp, um token roubado valeria para sempre."""
     import jwt
+
     from app.core.config import get_settings
     s = get_settings()
     sem_exp = jwt.encode(
@@ -69,6 +74,7 @@ def test_token_sem_expiracao_e_recusado():
 def test_refresh_nao_pode_ser_usado_como_access():
     """Tipos separados evitam que o token de vida longa vire acesso direto."""
     import jwt
+
     from app.core.config import get_settings
     s = get_settings()
     t = jwt.encode(

@@ -3,14 +3,23 @@
 from datetime import datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from sqlalchemy import (
-    Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer,
-    SmallInteger, String, Text, UniqueConstraint,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    SmallInteger,
+    String,
+    Text,
+    UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ENUM, INET, JSONB, UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, PKUUID, Timestamps
+from app.db.base import PKUUID, Base, Timestamps
+from app.db.tipos import INET_PORTATIL, JSONB_PORTATIL
 from app.models.enums import EscopoTrilha, OrigemPontos, StatusRecompensa
 
 
@@ -30,32 +39,32 @@ class LancamentoPontos(PKUUID, Base):
     __tablename__ = "point_ledger"
 
     beneficiario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     objetivo_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("objectives.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("objectives.id", ondelete="SET NULL")
     )
     materia_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("subjects.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("subjects.id", ondelete="SET NULL")
     )
     sessao_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("study_sessions.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("study_sessions.id", ondelete="SET NULL")
     )
     ocorrencia_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("objective_occurrences.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("objective_occurrences.id", ondelete="SET NULL")
     )
 
     # Aceita negativo: um estorno é um lançamento, não uma exclusão.
     pontos: Mapped[int] = mapped_column(Integer, nullable=False)
     origem: Mapped[OrigemPontos] = mapped_column(
-        ENUM(OrigemPontos, name="origem_pontos", create_type=True), nullable=False
+        sa.Enum(OrigemPontos, name="origem_pontos"), nullable=False
     )
     descricao: Mapped[str | None] = mapped_column(String(200))
     criado_por_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     chave_idempotencia: Mapped[str | None] = mapped_column(String(80), unique=True)
@@ -72,20 +81,20 @@ class TrilhaRecompensa(PKUUID, Timestamps, Base):
     __tablename__ = "reward_tracks"
 
     beneficiario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     criador_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     nome: Mapped[str] = mapped_column(String(120), nullable=False)
     escopo: Mapped[EscopoTrilha] = mapped_column(
-        ENUM(EscopoTrilha, name="escopo_trilha", create_type=True), nullable=False
+        sa.Enum(EscopoTrilha, name="escopo_trilha"), nullable=False
     )
     # Quais matérias ou objetivos entram na conta, conforme o escopo.
-    filtro: Mapped[dict | None] = mapped_column(JSONB)
+    filtro: Mapped[dict | None] = mapped_column(JSONB_PORTATIL)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     niveis: Mapped[list["NivelRecompensa"]] = relationship(back_populates="trilha")
@@ -97,7 +106,7 @@ class NivelRecompensa(PKUUID, Timestamps, Base):
     __tablename__ = "reward_levels"
 
     trilha_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("reward_tracks.id", ondelete="CASCADE"),
+        sa.Uuid(as_uuid=True), ForeignKey("reward_tracks.id", ondelete="CASCADE"),
         nullable=False,
     )
     numero: Mapped[int] = mapped_column(SmallInteger, nullable=False)
@@ -125,21 +134,21 @@ class DesbloqueioRecompensa(PKUUID, Timestamps, Base):
     __tablename__ = "reward_unlocks"
 
     nivel_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("reward_levels.id", ondelete="CASCADE"),
+        sa.Uuid(as_uuid=True), ForeignKey("reward_levels.id", ondelete="CASCADE"),
         nullable=False,
     )
     beneficiario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     status: Mapped[StatusRecompensa] = mapped_column(
-        ENUM(StatusRecompensa, name="status_recompensa", create_type=True),
+        sa.Enum(StatusRecompensa, name="status_recompensa"),
         default=StatusRecompensa.DESBLOQUEADA, nullable=False,
     )
     desbloqueado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     solicitado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     entregue_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     confirmado_por_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
 
     __table_args__ = (
@@ -152,15 +161,15 @@ class Notificacao(PKUUID, Base):
     __tablename__ = "notifications"
 
     destinatario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     tipo: Mapped[str] = mapped_column(String(60), nullable=False)
     titulo: Mapped[str] = mapped_column(String(160), nullable=False)
     mensagem: Mapped[str] = mapped_column(Text, nullable=False)
-    dados: Mapped[dict | None] = mapped_column(JSONB)
+    dados: Mapped[dict | None] = mapped_column(JSONB_PORTATIL)
     lida_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     criada_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
@@ -185,17 +194,17 @@ class RegistroAuditoria(PKUUID, Base):
     __tablename__ = "audit_logs"
 
     ator_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     familia_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="SET NULL")
     )
     acao: Mapped[str] = mapped_column(String(80), nullable=False)
     recurso_tipo: Mapped[str] = mapped_column(String(60), nullable=False)
-    recurso_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    recurso_id: Mapped[UUID | None] = mapped_column(sa.Uuid(as_uuid=True))
     # Nunca guardar token, senha ou coordenada completa aqui (seção 23).
-    metadados: Mapped[dict | None] = mapped_column(JSONB)
-    ip: Mapped[str | None] = mapped_column(INET)
+    metadados: Mapped[dict | None] = mapped_column(JSONB_PORTATIL)
+    ip: Mapped[str | None] = mapped_column(INET_PORTATIL)
     user_agent: Mapped[str | None] = mapped_column(Text)
     ocorrido_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 

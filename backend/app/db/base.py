@@ -3,8 +3,8 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+import sqlalchemy as sa
 from sqlalchemy import DateTime, MetaData, func
-from sqlalchemy.dialects.postgresql import UUID as PgUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 # Nomes previsíveis para índices e constraints. Sem isso, o Alembic gera
@@ -32,7 +32,7 @@ class PKUUID:
     enquanto o aparelho está sem rede.
     """
 
-    id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
+    id: Mapped[UUID] = mapped_column(sa.Uuid(as_uuid=True), primary_key=True, default=uuid4)
 
 
 class Timestamps:

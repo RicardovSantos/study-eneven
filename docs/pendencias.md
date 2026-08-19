@@ -42,5 +42,13 @@ a cada fase.
 - **Sem acesso de rede a `github.io`** a partir desta sessão: não dá para
   conferir o site publicado por aqui. A verificação é feita pelo status do
   workflow e por testes locais no build.
-- **Sem servidor PostgreSQL** na sessão, só o cliente `psql`. Os modelos
-  são validados gerando o DDL do dialeto PostgreSQL, sem banco vivo.
+- **Sem servidor PostgreSQL** na sessão, só o cliente `psql`. Contornado
+  em dois níveis: o DDL do dialeto PostgreSQL é gerado e conferido sem
+  banco vivo (`alembic upgrade head --sql`), e a suíte de testes roda
+  contra SQLite em memória, graças aos tipos com variante em
+  `app/db/tipos.py`.
+
+  **O que isso não cobre** e precisa ser refeito contra o PostgreSQL de
+  verdade quando P1 for resolvido: enums nativos recusando valor
+  inválido, índices parciais, `INET`, `JSONB` com operadores próprios e
+  o comportamento sob concorrência.

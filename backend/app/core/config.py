@@ -30,7 +30,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_MINUTES: int = 15
     REFRESH_TOKEN_DAYS: int = 30
 
-    COOKIE_SECURE: bool = True
+    # Deixe em branco para o padrão seguir o ambiente: um cookie Secure
+    # não é enviado por HTTP, então em desenvolvimento (e nos testes,
+    # que rodam sobre http) ele quebraria o refresh silenciosamente.
+    COOKIE_SECURE: bool | None = None
     COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
     CORS_ORIGINS: list[str] = []
 
@@ -65,6 +68,13 @@ class Settings(BaseSettings):
     @property
     def producao(self) -> bool:
         return self.ENVIRONMENT == "production"
+
+    @property
+    def cookie_secure(self) -> bool:
+        """Secure em produção; configurável para os demais ambientes."""
+        if self.COOKIE_SECURE is not None:
+            return self.COOKIE_SECURE
+        return self.producao
 
 
 @lru_cache

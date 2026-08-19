@@ -3,14 +3,24 @@
 from datetime import datetime
 from uuid import UUID
 
+import sqlalchemy as sa
 from sqlalchemy import (
-    BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, Index,
-    Integer, Numeric, SmallInteger, String, Text, UniqueConstraint,
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID as PgUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base, PKUUID, Timestamps
+from app.db.base import PKUUID, Base, Timestamps
+from app.db.tipos import JSONB_PORTATIL
 from app.models.enums import EstadoSessao, StatusCaptura, TipoSessao
 
 
@@ -35,27 +45,27 @@ class SessaoEstudo(PKUUID, Timestamps, Base):
     __tablename__ = "study_sessions"
 
     ocorrencia_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("objective_occurrences.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("objective_occurrences.id", ondelete="SET NULL")
     )
     objetivo_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("objectives.id", ondelete="CASCADE"), nullable=False
     )
     usuario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     dispositivo_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("devices.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("devices.id", ondelete="SET NULL")
     )
 
     tipo: Mapped[TipoSessao] = mapped_column(
-        ENUM(TipoSessao, name="tipo_sessao", create_type=True),
+        sa.Enum(TipoSessao, name="tipo_sessao"),
         default=TipoSessao.NORMAL, nullable=False,
     )
     estado: Mapped[EstadoSessao] = mapped_column(
-        ENUM(EstadoSessao, name="estado_sessao", create_type=True),
+        sa.Enum(EstadoSessao, name="estado_sessao"),
         default=EstadoSessao.ATIVA, nullable=False,
     )
 
@@ -82,7 +92,7 @@ class SessaoEstudo(PKUUID, Timestamps, Base):
     resumo_final: Mapped[str | None] = mapped_column(Text)
     aprovada_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     aprovada_por_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
 
     # Chave de idempotência: o Android pode reenviar a finalização depois
@@ -121,12 +131,12 @@ class EventoSessao(PKUUID, Base):
     __tablename__ = "session_events"
 
     sessao_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
+        sa.Uuid(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
     tipo: Mapped[str] = mapped_column(String(60), nullable=False)
     ocorrido_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    dados: Mapped[dict | None] = mapped_column(JSONB)
+    dados: Mapped[dict | None] = mapped_column(JSONB_PORTATIL)
     origem: Mapped[str] = mapped_column(String(20), nullable=False)   # web, android, servidor
     sequencia: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
@@ -144,7 +154,7 @@ class LocalConhecido(PKUUID, Timestamps, Base):
     __tablename__ = "known_locations"
 
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
     nome: Mapped[str] = mapped_column(String(80), nullable=False)
     latitude: Mapped[float] = mapped_column(Numeric(9, 6), nullable=False)
@@ -171,14 +181,14 @@ class CapturaTela(PKUUID, Base):
     __tablename__ = "screen_captures"
 
     sessao_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
+        sa.Uuid(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
     usuario_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     familia_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
+        sa.Uuid(as_uuid=True), ForeignKey("families.id", ondelete="CASCADE"), nullable=False
     )
 
     caminho: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -192,7 +202,7 @@ class CapturaTela(PKUUID, Base):
     capturada_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     recebida_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     status: Mapped[StatusCaptura] = mapped_column(
-        ENUM(StatusCaptura, name="status_captura", create_type=True),
+        sa.Enum(StatusCaptura, name="status_captura"),
         default=StatusCaptura.RECEBIDA, nullable=False,
     )
 
@@ -213,14 +223,14 @@ class LocalizacaoSessao(PKUUID, Base):
     __tablename__ = "session_locations"
 
     sessao_id: Mapped[UUID] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
+        sa.Uuid(as_uuid=True), ForeignKey("study_sessions.id", ondelete="CASCADE"),
         nullable=False,
     )
     captura_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("screen_captures.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("screen_captures.id", ondelete="SET NULL")
     )
     local_conhecido_id: Mapped[UUID | None] = mapped_column(
-        PgUUID(as_uuid=True), ForeignKey("known_locations.id", ondelete="SET NULL")
+        sa.Uuid(as_uuid=True), ForeignKey("known_locations.id", ondelete="SET NULL")
     )
 
     latitude: Mapped[float] = mapped_column(Numeric(9, 6), nullable=False)

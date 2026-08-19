@@ -39,7 +39,7 @@ def upgrade() -> None:
         sa.Column('id', sa.UUID(), nullable=False),
         sa.Column('criado_em', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('atualizado_em', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-        sa.CheckConstraint('char_length(username) >= 3', name=op.f('ck_users_username_minimo')),
+        sa.CheckConstraint('length(username) >= 3', name=op.f('ck_users_username_minimo')),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_users')),
         sa.UniqueConstraint('email', name=op.f('uq_users_email')),
         sa.UniqueConstraint('username', name=op.f('uq_users_username'))
