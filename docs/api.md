@@ -68,6 +68,58 @@ Os pontos caem no dia real do estudo, não na data prevista — então uma
 aula adiantada não infla o dia de amanhã nem conta um dia futuro na
 sequência.
 
+## Sessões de estudo
+
+| Método | Rota | O que faz |
+|---|---|---|
+| `POST` | `/sessoes` | abre uma sessão |
+| `GET` | `/sessoes/aberta` | a sessão em andamento de quem chamou |
+| `GET` | `/sessoes/{id}` | detalhe (dono, ou responsável da família) |
+| `POST` | `/sessoes/{id}/heartbeat` | avisa que o aparelho continua vivo |
+| `POST` | `/sessoes/{id}/pausar` | pausa |
+| `POST` | `/sessoes/{id}/retomar` | retoma |
+| `POST` | `/sessoes/{id}/finalizar` | encerra e credita |
+
+### O cliente não declara tempo
+
+O corpo do heartbeat **não tem campo de tempo**. Quem mede é o servidor,
+pela diferença entre dois avisos. O cliente informa apenas o que está
+conseguindo fazer (`capturando`, `localizando`). Mandar `{"segundos":
+99999}` não muda nada — o campo é ignorado, e há teste para isso.
+
+### Silêncio não é estudo
+
+Um intervalo maior que `SESSION_HEARTBEAT_TIMEOUT_SECONDS` (90s por
+padrão) **não vira tempo válido**. Ele entra no tempo bruto, porque o
+relógio de parede andou, mas creditar como estudo seria inventar dado: o
+aparelho pode ter sido fechado.
+
+A sessão passa a `interrupted`, gera o evento
+`session.monitoring_interrupted`, e volta a contar no próximo heartbeat.
+
+### As quatro contagens
+
+| Campo | O que é |
+|---|---|
+| `segundos_brutos` | relógio de parede, do início ao fim |
+| `segundos_validos` | contou como estudo (sem pausas, sem lacunas) |
+| `segundos_verificados` | com captura e localização funcionando |
+| `segundos_nao_verificados` | o resto do tempo válido |
+
+Sessão `normal` nunca gera tempo verificado — a web não consegue
+monitorar outros aplicativos, e fingir que consegue seria mentir para o
+responsável. Uma sessão interrompida nunca fica totalmente verificada.
+
+Dependente pontua **apenas** minutos verificados. Na prática: sessão
+normal de dependente registra o tempo mas não gera ponto.
+
+### Encerramento
+
+`POST /sessoes/{id}/finalizar` credita o tempo na ocorrência e, se a meta
+do período foi batida, conclui e pontua. Aceita `chave_finalizacao`: o
+Android reenvia o encerramento quando perde a resposta, e o reenvio com a
+mesma chave não credita de novo.
+
 ## Erros
 
 | Código | Quando |
