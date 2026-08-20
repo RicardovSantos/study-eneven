@@ -115,6 +115,28 @@ export async function sincronizarFamilia(){
   E.familiaDependentes = d.dependentes;
 }
 
+/* Popula E.trilhas/E.premiosLista com o progresso e os prêmios de
+   E.recompensasBeneficiario (por padrão, a própria pessoa logada).
+   Responsável pode trocar de beneficiário (ver pages/recompensas.js);
+   dependente só tem a si mesmo.
+
+   As duas buscas não podem ser paralelas: só GET /recompensas roda o
+   avaliar() que desbloqueia nível (soma pontos e grava o desbloqueio);
+   GET /recompensas/premios só lista o que já foi desbloqueado. Buscar
+   os prêmios ao mesmo tempo arriscaria ler a lista antes do desbloqueio
+   mais recente ser gravado. */
+export async function sincronizarRecompensas(){
+  if(!E.recompensasBeneficiario){
+    E.recompensasBeneficiario = { id: E.usuario.id, nome: "Eu mesmo" };
+  }
+  if(E.papel === "admin" && !E.familiaDependentes) await sincronizarFamilia();
+
+  const alvo = E.recompensasBeneficiario.id;
+  const ehEu = alvo === E.usuario.id;
+  E.trilhas = await painelApi.recompensas(ehEu ? undefined : alvo);
+  E.premiosLista = await painelApi.premios(ehEu ? undefined : alvo);
+}
+
 /* Popula E.pontos/E.concluidos/E.hist a partir do painel, no formato
    que renderHome() e metricasDoDia() já leem. */
 export async function sincronizarPainelHome(){

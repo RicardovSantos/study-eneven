@@ -14,7 +14,7 @@ inicial conferida em SQL. O que está pronto roda; o que falta está aqui.
 | 2 — Backend, banco e autenticação | 🟡 núcleo pronto, falta rodar no PostgreSQL |
 | 3 — Família, papéis e permissões | 🟡 tela básica (listar/cadastrar dependente) pronta; falta redefinir senha, desativar conta e geofences |
 | 4 — Objetivos, ocorrências e sessões | 🟡 backend pronto, falta a tela |
-| 5 — Dashboards, pontos e recompensas | 🟡 backend pronto, falta a tela |
+| 5 — Dashboards, pontos e recompensas | 🟡 painel e prêmios prontos; falta a tela de Progresso |
 | 6 — Tempo real (WebSocket) | ⬜ não começou |
 | 7 — Deploy no EasyPanel | ⬜ não começou |
 | 8 — APK básico com Capacitor | ⬜ não começou |
@@ -141,10 +141,16 @@ ainda (endpoint inexistente no backend):
 - [x] Menu por papel — o dependente não vê mais as abas Objetivos nem
       Família (antes a API já bloqueava com 403, só a interface não
       escondia os botões); modo local continua com as 4 abas de sempre
-- [ ] Telas novas: Progresso (dependente acompanhar o próprio
-      histórico/sequência em mais detalhe), Recompensas (trilhas,
-      níveis, solicitar/confirmar prêmio) — endpoints prontos, tela não
-      construída ainda
+- [x] Tela Prêmios (trilhas de recompensa) — cada pessoa vê o progresso
+      das próprias trilhas (pontos, barra até o próximo nível, prêmio),
+      solicita o que desbloqueou e o responsável confirma a entrega; o
+      responsável ainda cria a trilha (só no escopo "todos os pontos" —
+      matéria/objetivo específico segue de fora, ver `CRUD de matéria`
+      abaixo) e adiciona níveis, e pode trocar de beneficiário (si
+      mesmo ou um dependente) para gerenciar as trilhas de cada um
+- [ ] Tela Progresso (dependente acompanhar o próprio
+      histórico/sequência em mais detalhe) — endpoint pronto
+      (`GET /historico`), tela não construída ainda
 - [ ] Estado de "carregando" explícito — hoje uma tela online demora
       exatamente o tempo do fetch antes de aparecer; sem esqueleto/spinner
 

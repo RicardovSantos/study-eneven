@@ -165,3 +165,95 @@ async def test_rotas_de_painel_exigem_autenticacao(cliente):
                     "/api/v1/historico", "/api/v1/recompensas"]:
         r = await cliente.get(caminho)
         assert r.status_code == 401, caminho
+
+
+async def _desbloquear_um_premio(cliente, sessao, admin, familia_id, usuario_id, *,
+                                  premio="Uma sobremesa", pontos_necessarios=100, pontos=150):
+    """Cria uma trilha com um nível, credita pontos e avalia — deixa um
+    prêmio desbloqueado pronto para os testes de premios/solicitar/entregar."""
+    from datetime import UTC, datetime
+    from uuid import UUID
+
+    from app.models.enums import Frequencia, OrigemPontos, TipoObjetivo
+    from app.models.objetivos import Objetivo
+    from app.services import pontos as servico_pontos
+
+    familia_id, usuario_id = UUID(familia_id), UUID(usuario_id)
+
+    t = await cliente.post(
+        "/api/v1/recompensas/trilhas", headers=_auth(admin),
+        json={"nome": "Inglês", "escopo": "all", "beneficiario_id": str(usuario_id)},
+    )
+    assert t.status_code == 201, t.text
+    trilha_id = t.json()["trilha_id"]
+    n = await cliente.post(
+        f"/api/v1/recompensas/trilhas/{trilha_id}/niveis", headers=_auth(admin),
+        json={"pontos_necessarios": pontos_necessarios, "premio": premio},
+    )
+    assert n.status_code == 201, n.text
+
+    objetivo = Objetivo(
+        familia_id=familia_id, titular_id=usuario_id, criador_id=usuario_id,
+        tipo=TipoObjetivo.ESTUDO, nome="Curso", meta_periodo=40,
+        frequencia=Frequencia.DIARIA,
+    )
+    sessao.add(objetivo)
+    await sessao.flush()
+    await servico_pontos.creditar(
+        sessao, beneficiario_id=usuario_id, familia_id=familia_id, objetivo=objetivo,
+        pontos=pontos, origem=OrigemPontos.SESSAO_ESTUDO,
+        chave_idempotencia=f"teste:{objetivo.id}", agora=datetime.now(UTC),
+    )
+    await sessao.commit()
+    return trilha_id
+
+
+async def test_premios_trazem_o_texto_do_premio_e_a_trilha(cliente, sessao):
+    cad = await cliente.post("/api/v1/auth/cadastrar", json=RESPONSAVEL)
+    admin = cad.json()["access_token"]
+    eu = cad.json()["usuario"]
+    familia_id = cad.json()["familia_id"]
+
+    await _desbloquear_um_premio(cliente, sessao, admin, familia_id, eu["id"])
+    # /recompensas desbloqueia ao consultar (docstring do endpoint)
+    avaliado = await cliente.get("/api/v1/recompensas", headers=_auth(admin))
+    assert avaliado.status_code == 200
+
+    r = await cliente.get("/api/v1/recompensas/premios", headers=_auth(admin))
+    assert r.status_code == 200
+    corpo = r.json()
+    assert len(corpo) == 1
+    assert corpo[0]["premio"] == "Uma sobremesa"
+    assert corpo[0]["trilha_nome"] == "Inglês"
+    assert corpo[0]["pontos_necessarios"] == 100
+    assert corpo[0]["beneficiario_id"] == eu["id"]
+    assert corpo[0]["status"] == "unlocked"
+
+
+async def test_responsavel_ve_premios_do_dependente(cliente, sessao):
+    cad = await cliente.post("/api/v1/auth/cadastrar", json=RESPONSAVEL)
+    admin = cad.json()["access_token"]
+    familia_id = cad.json()["familia_id"]
+    dep = await _dependente(cliente, admin)
+    eu_dep = (await cliente.get("/api/v1/auth/eu", headers=_auth(dep))).json()
+
+    await _desbloquear_um_premio(cliente, sessao, admin, familia_id, eu_dep["id"])
+    await cliente.get(f"/api/v1/recompensas?beneficiario_id={eu_dep['id']}", headers=_auth(admin))
+
+    r = await cliente.get(
+        f"/api/v1/recompensas/premios?beneficiario_id={eu_dep['id']}", headers=_auth(admin)
+    )
+    assert r.status_code == 200
+    assert len(r.json()) == 1
+    assert r.json()[0]["beneficiario_id"] == eu_dep["id"]
+
+
+async def test_dependente_nao_ve_premios_alheios(cliente):
+    admin = await _admin(cliente)
+    dep = await _dependente(cliente, admin)
+    eu_admin = (await cliente.get("/api/v1/auth/eu", headers=_auth(admin))).json()
+
+    r = await cliente.get(
+        f"/api/v1/recompensas/premios?beneficiario_id={eu_admin['id']}", headers=_auth(dep)
+    )
+    assert r.status_code == 403

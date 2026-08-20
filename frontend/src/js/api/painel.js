@@ -16,7 +16,10 @@ export const recompensas = (beneficiarioId) => {
   return api.get(`/api/v1/recompensas${q}`);
 };
 
-export const premios = () => api.get("/api/v1/recompensas/premios");
+export const premios = (beneficiarioId) => {
+  const q = beneficiarioId ? `?beneficiario_id=${beneficiarioId}` : "";
+  return api.get(`/api/v1/recompensas/premios${q}`);
+};
 
 export const criarTrilha = (dados) => api.post("/api/v1/recompensas/trilhas", dados);
 

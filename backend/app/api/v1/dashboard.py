@@ -5,6 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import Sessao, UsuarioLogado, VinculoAtual
 from app.core.exceptions import NaoEncontrado, SemPermissao
@@ -169,19 +170,50 @@ async def minhas_trilhas(
     return saida
 
 
+def _premio(
+    d: DesbloqueioRecompensa, nivel: NivelRecompensa, trilha: TrilhaRecompensa
+) -> PremioPublico:
+    return PremioPublico(
+        id=d.id, nivel_id=d.nivel_id, status=d.status,
+        desbloqueado_em=d.desbloqueado_em, solicitado_em=d.solicitado_em,
+        entregue_em=d.entregue_em, premio=nivel.premio,
+        pontos_necessarios=nivel.pontos_necessarios, trilha_nome=trilha.nome,
+        beneficiario_id=d.beneficiario_id,
+    )
+
+
 @router.get("/recompensas/premios", response_model=list[PremioPublico])
-async def meus_premios(vinculo: VinculoAtual, sessao: Sessao):
+async def meus_premios(
+    vinculo: VinculoAtual, sessao: Sessao, beneficiario_id: UUID | None = None
+):
+    """Sem beneficiario_id, devolve os prêmios da própria pessoa. Só o
+    responsável pode consultar os de um dependente — mesma regra do
+    endpoint de histórico."""
+    alvo = vinculo.usuario_id
+    if beneficiario_id is not None and beneficiario_id != vinculo.usuario_id:
+        if vinculo.papel != PapelFamiliar.ADMIN:
+            raise SemPermissao("Você só pode ver os próprios prêmios.")
+        if await repo.vinculo_na_familia(sessao, beneficiario_id, vinculo.familia_id) is None:
+            raise NaoEncontrado("Pessoa não encontrada nesta família.")
+        alvo = beneficiario_id
+
     r = await sessao.execute(
-        select(DesbloqueioRecompensa)
+        select(DesbloqueioRecompensa, NivelRecompensa, TrilhaRecompensa)
         .join(NivelRecompensa, NivelRecompensa.id == DesbloqueioRecompensa.nivel_id)
         .join(TrilhaRecompensa, TrilhaRecompensa.id == NivelRecompensa.trilha_id)
         .where(
-            DesbloqueioRecompensa.beneficiario_id == vinculo.usuario_id,
+            DesbloqueioRecompensa.beneficiario_id == alvo,
             TrilhaRecompensa.familia_id == vinculo.familia_id,
         )
         .order_by(DesbloqueioRecompensa.desbloqueado_em.desc())
     )
-    return [PremioPublico.model_validate(d) for d in r.scalars()]
+    return [_premio(d, nivel, trilha) for d, nivel, trilha in r.all()]
+
+
+async def _premio_publico(sessao: AsyncSession, d: DesbloqueioRecompensa) -> PremioPublico:
+    nivel = await sessao.get(NivelRecompensa, d.nivel_id)
+    trilha = await sessao.get(TrilhaRecompensa, nivel.trilha_id)
+    return _premio(d, nivel, trilha)
 
 
 @router.post("/recompensas/premios/{premio_id}/solicitar", response_model=PremioPublico)
@@ -190,7 +222,7 @@ async def solicitar_premio(premio_id: UUID, vinculo: VinculoAtual, sessao: Sessa
         sessao, desbloqueio_id=premio_id, usuario_id=vinculo.usuario_id
     )
     await sessao.commit()
-    return PremioPublico.model_validate(d)
+    return await _premio_publico(sessao, d)
 
 
 @router.post("/recompensas/premios/{premio_id}/entregar", response_model=PremioPublico)
@@ -199,4 +231,4 @@ async def confirmar_entrega(premio_id: UUID, vinculo: VinculoAtual, sessao: Sess
         sessao, desbloqueio_id=premio_id, vinculo=vinculo
     )
     await sessao.commit()
-    return PremioPublico.model_validate(d)
+    return await _premio_publico(sessao, d)

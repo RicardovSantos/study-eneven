@@ -93,3 +93,10 @@ class PremioPublico(BaseModel):
     desbloqueado_em: datetime
     solicitado_em: datetime | None
     entregue_em: datetime | None
+    # Denormalizado do nível/trilha: sem isso a tela precisaria de mais uma
+    # chamada só para mostrar o texto do prêmio (mesmo raciocínio de
+    # ItemHistorico, que já traz objetivo/descrição prontos).
+    premio: str
+    pontos_necessarios: int
+    trilha_nome: str
+    beneficiario_id: UUID

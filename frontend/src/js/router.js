@@ -9,7 +9,7 @@ import { E } from "./stores/app-store.js";
 import { emitir, EVENTOS } from "./core/bus.js";
 import { COM_SERVIDOR } from "./config.js";
 
-export const TELAS_INTERNAS = ["home","objetivos","estudar","familia","perfil"];
+export const TELAS_INTERNAS = ["home","objetivos","estudar","familia","recompensas","perfil"];
 
 let telaAtual = "login";
 export const telaAgora = () => telaAtual;
@@ -20,7 +20,7 @@ export const telaAgora = () => telaAtual;
    responsável cadastra objetivos e vê a Família; o dependente só
    executa e acompanha o próprio progresso. */
 function botaoVisivel(nomeBotao){
-  if(!COM_SERVIDOR) return nomeBotao !== "familia";
+  if(!COM_SERVIDOR) return nomeBotao !== "familia" && nomeBotao !== "recompensas";
   if(nomeBotao === "familia") return E.papel === "admin";
   if(nomeBotao === "objetivos") return E.papel !== "dependent";
   return true;

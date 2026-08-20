@@ -63,6 +63,8 @@ npm test
 # integração — cliente da API num navegador de verdade
 # (exige backend e `npm run dev` no ar)
 npm run test:integracao
+npm run test:app-online     # fluxo completo pela interface
+npm run test:recompensas    # trilhas, níveis, solicitar/confirmar entrega
 ```
 
 O Playwright não está no `package.json` de propósito: instalá-lo faria o

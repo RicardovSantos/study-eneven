@@ -25,6 +25,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5zM6 12v4c0 1.7 2.7 3 6 3s6-1.3 6-3v-4"/></svg>Estudar</button>
     <button class="nav-btn" type="button" data-ir="familia">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 8 12ZM17 11a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2Z"/><path d="M2.5 19c.5-3.4 3-5.5 5.5-5.5s5 2.1 5.5 5.5M15 19c.4-2.6 1.9-4.5 4-5"/></svg>Família</button>
+    <button class="nav-btn" type="button" data-ir="recompensas">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M8 5l1.5 2M16 5l-1.5 2"/><rect x="4" y="9" width="16" height="6" rx="2"/><path d="M6 15v3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-3"/></svg>Prêmios</button>
     <button class="nav-btn" type="button" data-ir="perfil">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M5.6 19a7 7 0 0 1 12.8 0"/></svg>Perfil</button>
   </nav>
@@ -230,6 +232,31 @@
           <input id="fam-senha" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres, com letra e número"></div>
         <p class="erro" id="erro-familia" role="alert"></p>
         <button class="btn btn-verde" type="button" id="b-add-dependente">Adicionar dependente</button>
+      </div>
+    </section>
+
+    <!-- ===================== RECOMPENSAS ===================== -->
+    <section class="tela" id="tela-recompensas">
+      <h1 class="pagina-titulo">Prêmios</h1>
+
+      <div class="card" id="rec-card-quem" style="display:none">
+        <h2>De quem</h2>
+        <div class="pills" id="rec-quem"></div>
+      </div>
+
+      <div class="card">
+        <h2>Trilhas de pontuação</h2>
+        <div id="lista-trilhas"><p class="vazio">Nenhuma trilha criada ainda.</p></div>
+        <div id="rec-nova-trilha" style="display:none;margin-top:12px">
+          <div class="campo"><label for="rec-trilha-nome">Nova trilha (soma todos os pontos)</label>
+            <input id="rec-trilha-nome" placeholder="Ex.: Prêmios do Pedro"></div>
+          <button class="btn btn-roxo" type="button" id="b-criar-trilha">Criar trilha</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Prêmios desbloqueados</h2>
+        <div id="lista-premios"><p class="vazio">Nenhum prêmio desbloqueado ainda.</p></div>
       </div>
     </section>
 

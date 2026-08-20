@@ -44,8 +44,10 @@ import { exportarBackup } from "./utils/backup.js";
 import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
 import { criarDependente } from "./api/auth.js";
-import { sincronizarFamilia } from "./dados/online.js";
+import { sincronizarFamilia, sincronizarRecompensas } from "./dados/online.js";
 import { renderFamilia } from "./pages/familia.js";
+import { renderRecompensas } from "./pages/recompensas.js";
+import * as painelApi from "./api/painel.js";
 import { ErroDaApi } from "./api/client.js";
 
 /* ---------- Eventos ---------- */
@@ -115,6 +117,65 @@ $("#b-add-dependente").onclick = async ()=>{
     $("#erro-familia").textContent = e instanceof ErroDaApi ? e.message : "Não deu para cadastrar. Confira sua conexão.";
   }
 };
+
+async function atualizarRecompensas(){ await sincronizarRecompensas(); renderRecompensas(); }
+
+$("#rec-quem").addEventListener("click", async e=>{
+  const b = e.target.closest("[data-quem]"); if(!b) return;
+  E.recompensasBeneficiario = { id: b.dataset.quem, nome: b.dataset.nome };
+  try{ await atualizarRecompensas(); }
+  catch(e2){ aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para atualizar. Confira sua conexão."); }
+});
+
+$("#b-criar-trilha").onclick = async ()=>{
+  const nome = $("#rec-trilha-nome").value.trim();
+  if(!nome) return;
+  try{
+    await painelApi.criarTrilha({ nome, beneficiario_id: E.recompensasBeneficiario?.id });
+    $("#rec-trilha-nome").value = "";
+    await atualizarRecompensas();
+    aviso("Trilha criada.");
+  }catch(e2){
+    aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para criar a trilha. Confira sua conexão.");
+  }
+};
+
+$("#lista-trilhas").addEventListener("click", e=>{
+  const b = e.target.closest("[data-add-nivel]"); if(!b) return;
+  const trilhaId = b.dataset.addNivel;
+  modal({selo:"info",icone:"🏆",titulo:"Adicionar nível",
+    texto:'<div class="campo"><label for="mv-pontos">Pontos necessários</label>'+
+      '<input id="mv-pontos" type="number" min="1" step="1"></div>'+
+      '<div class="campo"><label for="mv-premio">Prêmio</label>'+
+      '<input id="mv-premio" placeholder="Ex.: Uma sobremesa"></div>',
+    botoes:[{r:"Adicionar",c:"btn-roxo",f: async ()=>{
+      const pontos = parseInt($("#mv-pontos").value, 10);
+      const premio = $("#mv-premio").value.trim();
+      if(!(pontos>0) || !premio){ aviso("Preencha os pontos e o prêmio."); return; }
+      try{
+        await painelApi.adicionarNivel(trilhaId, { pontos_necessarios: pontos, premio });
+        await atualizarRecompensas();
+        aviso("Nível adicionado.");
+      }catch(e2){
+        aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para adicionar o nível. Confira sua conexão.");
+      }
+    }},{r:"Cancelar",c:"btn-cinza"}]});
+  setTimeout(()=>$("#mv-pontos")?.focus(),0);
+});
+
+$("#lista-premios").addEventListener("click", async e=>{
+  const sol = e.target.closest("[data-solicitar]");
+  const ent = e.target.closest("[data-entregar]");
+  if(!sol && !ent) return;
+  try{
+    if(sol) await painelApi.solicitarPremio(sol.dataset.solicitar);
+    if(ent) await painelApi.confirmarEntrega(ent.dataset.entregar);
+    await atualizarRecompensas();
+    aviso(sol ? "Prêmio solicitado." : "Entrega confirmada.");
+  }catch(e2){
+    aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para atualizar. Confira sua conexão.");
+  }
+});
 
 $("#tela-estudar").addEventListener("click", async e=>{
   const pl=e.target.closest("[data-play]");
