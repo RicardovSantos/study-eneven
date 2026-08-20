@@ -27,6 +27,7 @@ import { COM_SERVIDOR } from "../config.js";
 import * as sessoesApi from "../api/sessoes.js";
 import { ErroDaApi } from "../api/client.js";
 import { sincronizarOcorrenciasEstudar } from "../dados/online.js";
+import { ofereceAdiantar } from "./adiantamento.js";
 
 export const T = {itemId:null, sessaoId:null, restanteSeg:0, totalSeg:0, rodando:false, ultimo:0, acumulado:0};
 let loop=null;
@@ -184,6 +185,7 @@ export async function encerrar(){
         ? "Sessão encerrada. +"+r.pontos_creditados+" pontos."
         : "Sessão encerrada.";
       await sincronizarOcorrenciasEstudar();
+      if(r.ocorrencia_concluida) await ofereceAdiantar(r.sessao.ocorrencia_id, it?.nome);
     }catch(e){
       aviso(e instanceof ErroDaApi ? e.message : "Não deu para encerrar no servidor.");
     }
@@ -214,7 +216,10 @@ export async function zerou(){
     try{
       const r = await sessoesApi.finalizar(T.sessaoId, {});
       await sincronizarOcorrenciasEstudar();
-      if(r.ocorrencia_concluida) aviso("Concluído! +"+r.pontos_creditados+" pontos.");
+      if(r.ocorrencia_concluida){
+        aviso("Concluído! +"+r.pontos_creditados+" pontos.");
+        await ofereceAdiantar(r.sessao.ocorrencia_id, it?.nome);
+      }
     }catch(e){
       aviso(e instanceof ErroDaApi ? e.message : "Não deu para encerrar no servidor.");
     }

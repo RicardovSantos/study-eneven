@@ -51,6 +51,7 @@ import { renderFamilia } from "./pages/familia.js";
 import { renderRecompensas } from "./pages/recompensas.js";
 import { renderMaterias } from "./pages/materias.js";
 import { renderProgresso } from "./pages/progresso.js";
+import { ofereceAdiantar } from "./services/adiantamento.js";
 import * as painelApi from "./api/painel.js";
 import * as materiasApi from "./api/materias.js";
 import { ErroDaApi } from "./api/client.js";
@@ -75,7 +76,7 @@ $("#b-ajuda").onclick=()=>modal({selo:"info",icone:"?",titulo:"Ajuda do suporte"
   botoes:[{r:"Entendi",c:"btn-azul"}]});
 $$("[data-voltar-login]").forEach(b=>b.onclick=()=>ir("login"));
 
-["#p-tipo","#p-freq","#p-acum"].forEach(sel=>{
+["#p-tipo","#p-freq","#p-acum","#p-adianta"].forEach(sel=>{
   $(sel).addEventListener("click",e=>{
     const b=e.target.closest(".pill"); if(!b) return;
     $$(sel+" .pill").forEach(x=>x.classList.remove("on"));
@@ -263,6 +264,7 @@ $("#tela-estudar").addEventListener("click", async e=>{
         if(atualizado && atualizado.realizado>=atualizado.meta){
           const r = await objetivosApi.concluir(it.id, {});
           bip(920,.3); aviso("Concluído! +"+r.pontos_creditados+" pontos");
+          await ofereceAdiantar(it.id, it.nome);
         }
         renderTudo();
       }catch(e2){
@@ -295,6 +297,7 @@ $("#tela-estudar").addEventListener("click", async e=>{
           const r = await objetivosApi.concluir(it.id, {});
           bip(920,.3);
           aviso(r.pontos_creditados>0 ? "Concluído! +"+r.pontos_creditados+" pontos" : "Concluído.");
+          await ofereceAdiantar(it.id, it.nome);
         }
         renderTudo();
       }catch(e2){

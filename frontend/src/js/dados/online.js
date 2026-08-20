@@ -59,6 +59,8 @@ function itemCrud(objetivo){
     alvo: objetivo.meta_periodo,
     totalMeta: objetivo.meta_total || 0,
     acum: !!objetivo.acumula_pendencia,
+    permiteAdiantar: !!objetivo.permite_adiantar,
+    maxAdiantamentos: objetivo.max_adiantamentos ?? 1,
     status: STATUS_API_PARA_LOCAL[objetivo.status] || "andamento",
     feito: 0, saldo: 0, progresso: 0,
   };
@@ -184,7 +186,10 @@ export async function sincronizarProgresso({ continuar = false } = {}){
 
 /* Traduz os campos do formulário (já lidos por pages/objetivos.js no
    formato local) para o contrato da API. */
-export function paraApiObjetivo({ tipo, nome, freq, alvo, totalMeta, acum, status, materiaId }){
+export function paraApiObjetivo({
+  tipo, nome, freq, alvo, totalMeta, acum, status, materiaId,
+  permiteAdiantar, maxAdiantamentos,
+}){
   const dados = {
     tipo: TIPO_LOCAL_PARA_API[tipo] || "study",
     nome,
@@ -193,6 +198,8 @@ export function paraApiObjetivo({ tipo, nome, freq, alvo, totalMeta, acum, statu
     meta_total: totalMeta > 0 ? totalMeta : null,
     frequencia: FREQ_LOCAL_PARA_API[freq] || "daily",
     acumula_pendencia: acum,
+    permite_adiantar: !!permiteAdiantar,
+    max_adiantamentos: maxAdiantamentos ?? 1,
   };
   // Tarefa sem cronômetro precisa de pontuação fixa (o banco exige).
   // O formulário ainda não tem esse campo — ver docs/o-que-falta.md.

@@ -194,6 +194,17 @@
           <p class="legenda" id="acum-txt" style="margin:7px 0 0"></p>
         </div>
 
+        <div class="campo" id="campo-adianta" style="display:none">
+          <label>Adiantamento</label>
+          <div class="pills" id="p-adianta">
+            <button class="pill on" type="button" data-v="0">Não permite</button>
+            <button class="pill" type="button" data-v="1">Permite</button>
+          </div>
+          <p class="legenda" style="margin:7px 0 0">Permite concluir uma atividade futura antes da data, respeitando a fila.</p>
+          <div class="campo" style="margin-top:8px"><label for="f-max-adianta">Máximo de adiantamentos simultâneos</label>
+            <input id="f-max-adianta" type="number" min="0" step="1" value="1"></div>
+        </div>
+
         <p class="erro" id="erro-form" role="alert"></p>
         <div class="btn-par">
           <button class="btn btn-roxo" type="button" id="b-salvar-item">Adicionar</button>

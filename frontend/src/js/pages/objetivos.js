@@ -49,6 +49,8 @@ export function limparForm(){
   $("#f-nome").value=""; $("#f-cat").selectedIndex=0; $("#f-status").value="andamento";
   $("#f-qtd").value=1; $("#f-total").value=360;
   marcarPill("#p-tipo","estudo"); marcarPill("#p-freq","diaria"); marcarPill("#p-acum","1");
+  marcarPill("#p-adianta","0"); $("#f-max-adianta").value=1;
+  $("#campo-adianta").style.display = COM_SERVIDOR ? "" : "none";
   atualizarFormPorTipo(); textoAcumulo(); $("#erro-form").textContent="";
 }
 /* garante que um valor gravado apareça no <select> mesmo se não estiver na lista */
@@ -69,7 +71,11 @@ export async function salvarItem(){
 
   if(COM_SERVIDOR){
     const materiaId = $("#f-cat").value || null;
-    const dados = paraApiObjetivo({tipo, nome, freq, alvo, totalMeta, acum, status, materiaId});
+    const permiteAdiantar = lerPills("#p-adianta")==="1";
+    const maxAdiantamentos = parseInt($("#f-max-adianta").value, 10) || 0;
+    const dados = paraApiObjetivo({
+      tipo, nome, freq, alvo, totalMeta, acum, status, materiaId, permiteAdiantar, maxAdiantamentos,
+    });
     try{
       if(editandoId) await objetivosApi.editar(editandoId, dados);
       else await objetivosApi.criar(dados);
@@ -114,8 +120,13 @@ export function editarItem(idv){
   $("#b-salvar-item").textContent="Editar";
   marcarPill("#p-tipo",it.tipo); atualizarFormPorTipo();
   $("#f-nome").value=it.nome;
-  if(COM_SERVIDOR) $("#f-cat").value = it.materiaId || "";
-  else definirSelect("#f-cat", it.cat);
+  if(COM_SERVIDOR){
+    $("#f-cat").value = it.materiaId || "";
+    marcarPill("#p-adianta", it.permiteAdiantar?"1":"0");
+    $("#f-max-adianta").value = it.maxAdiantamentos ?? 1;
+  }else{
+    definirSelect("#f-cat", it.cat);
+  }
   $("#f-status").value=it.status;
   marcarPill("#p-freq",it.freq); marcarPill("#p-acum", it.acum?"1":"0");
   $("#f-qtd").value=it.qtd; definirSelect("#f-uni", it.uni);

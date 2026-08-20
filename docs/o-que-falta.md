@@ -13,7 +13,7 @@ inicial conferida em SQL. O que está pronto roda; o que falta está aqui.
 | 1 — Separação do front-end | ✅ concluída |
 | 2 — Backend, banco e autenticação | 🟡 núcleo pronto, falta rodar no PostgreSQL |
 | 3 — Família, papéis e permissões | 🟡 tela básica (listar/cadastrar dependente) pronta; falta redefinir senha, desativar conta e geofences |
-| 4 — Objetivos, ocorrências e sessões | 🟡 backend pronto, falta a tela |
+| 4 — Objetivos, ocorrências e sessões | 🟡 CRUD, execução e adiantamento prontos; falta aprovação, duplicar/pausar objetivo e a virada de período automática |
 | 5 — Dashboards, pontos e recompensas | ✅ painel, prêmios e histórico recente prontos |
 | 6 — Tempo real (WebSocket) | ⬜ não começou |
 | 7 — Deploy no EasyPanel | ⬜ não começou |
@@ -136,8 +136,17 @@ ainda (endpoint inexistente no backend):
       a matéria de verdade em vez do texto livre "Curso/Certificação"
 - [ ] Configurar pontos fixos de tarefa no formulário — hoje todo
       objetivo tipo "tarefa" recebe 5 pontos fixos por padrão
-- [ ] Configurar adiantamento (`permite_adiantar` etc.) no formulário —
-      hoje todo objetivo nasce sem permissão de adiantar
+- [x] Adiantamento no formulário (`permite_adiantar` +
+      `max_adiantamentos`) — sem isso o motor de adiantamento inteiro
+      da Fase 4 (agenda, `pode_adiantar`, `GET /ocorrencias/{id}/proxima`)
+      ficava inacessível pela interface. Depois de concluir uma
+      atividade, se o objetivo permite, aparece "Adiantar a próxima?";
+      confirmando, conclui a próxima da fila também (o servidor detecta
+      sozinho que é adiantamento pela data prevista). Funciona tanto ao
+      marcar manualmente (✓/+) quanto ao zerar o cronômetro — este
+      último reaproveita a mesma função, mas não foi coberto por teste
+      de navegador (exigiria simular ~1 minuto de cronômetro de
+      verdade); o de marcar manualmente tem 7 verificações
 - [x] Tela Família (responsável) — lista os dependentes com resumo
       (minutos hoje, concluídos hoje, pontos, sequência de dias) e
       cadastra um novo dependente (`POST /auth/dependentes`)

@@ -13,7 +13,8 @@
     "test:app-online": "node testes-app-online.mjs",
     "test:recompensas": "node testes-recompensas.mjs",
     "test:materias": "node testes-materias.mjs",
-    "test:progresso": "node testes-progresso.mjs"
+    "test:progresso": "node testes-progresso.mjs",
+    "test:adiantamento": "node testes-adiantamento.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"
