@@ -44,10 +44,13 @@ import { exportarBackup } from "./utils/backup.js";
 import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
 import { criarDependente } from "./api/auth.js";
-import { sincronizarFamilia, sincronizarRecompensas, sincronizarObjetivosCrud } from "./dados/online.js";
+import {
+  sincronizarFamilia, sincronizarRecompensas, sincronizarObjetivosCrud, sincronizarProgresso,
+} from "./dados/online.js";
 import { renderFamilia } from "./pages/familia.js";
 import { renderRecompensas } from "./pages/recompensas.js";
 import { renderMaterias } from "./pages/materias.js";
+import { renderProgresso } from "./pages/progresso.js";
 import * as painelApi from "./api/painel.js";
 import * as materiasApi from "./api/materias.js";
 import { ErroDaApi } from "./api/client.js";
@@ -148,6 +151,11 @@ $("#lista-materias").addEventListener("click", e=>{
       }},{r:"Cancelar",c:"btn-cinza"}]});
   }
 });
+
+$("#b-mais-historico").onclick = async ()=>{
+  try{ await sincronizarProgresso({ continuar: true }); renderProgresso(); }
+  catch(e2){ aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para carregar mais. Confira sua conexão."); }
+};
 
 $("#b-add-dependente").onclick = async ()=>{
   const nome = $("#fam-nome").value.trim();

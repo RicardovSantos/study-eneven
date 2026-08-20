@@ -14,7 +14,7 @@ inicial conferida em SQL. O que está pronto roda; o que falta está aqui.
 | 2 — Backend, banco e autenticação | 🟡 núcleo pronto, falta rodar no PostgreSQL |
 | 3 — Família, papéis e permissões | 🟡 tela básica (listar/cadastrar dependente) pronta; falta redefinir senha, desativar conta e geofences |
 | 4 — Objetivos, ocorrências e sessões | 🟡 backend pronto, falta a tela |
-| 5 — Dashboards, pontos e recompensas | 🟡 painel e prêmios prontos; falta a tela de Progresso |
+| 5 — Dashboards, pontos e recompensas | ✅ painel, prêmios e histórico recente prontos |
 | 6 — Tempo real (WebSocket) | ⬜ não começou |
 | 7 — Deploy no EasyPanel | ⬜ não começou |
 | 8 — APK básico com Capacitor | ⬜ não começou |
@@ -152,9 +152,13 @@ ainda (endpoint inexistente no backend):
       pra trilha por matéria/objetivo específico, mas isso ainda não
       foi feito — e adiciona níveis, e pode trocar de beneficiário (si
       mesmo ou um dependente) para gerenciar as trilhas de cada um
-- [ ] Tela Progresso (dependente acompanhar o próprio
-      histórico/sequência em mais detalhe) — endpoint pronto
-      (`GET /historico`), tela não construída ainda
+- [x] Histórico recente — card na Home (`GET /historico`, paginado com
+      "Carregar mais") mostrando os últimos lançamentos de pontos, cada
+      um com o objetivo, a origem (sessão de estudo/tarefa/ajuste) e
+      quando aconteceu; cada pessoa vê o próprio, sem seletor de
+      beneficiário para o responsável (diferente de Prêmios) — ficou de
+      fora por escopo, não por limitação técnica: o endpoint já aceita
+      `titular_id`
 - [ ] Estado de "carregando" explícito — hoje uma tela online demora
       exatamente o tempo do fetch antes de aparecer; sem esqueleto/spinner
 

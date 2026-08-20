@@ -14,7 +14,7 @@ import { virarPeriodos } from "../services/objetivos.js";
 import { COM_SERVIDOR } from "../config.js";
 import {
   sincronizarObjetivosCrud, sincronizarOcorrenciasEstudar, sincronizarPainelHome,
-  sincronizarFamilia, sincronizarRecompensas,
+  sincronizarFamilia, sincronizarRecompensas, sincronizarProgresso,
 } from "../dados/online.js";
 import { E } from "../stores/app-store.js";
 import { renderHome } from "./home.js";
@@ -23,6 +23,7 @@ import { renderObjetivos as renderEstudar } from "./estudar.js";
 import { renderFamilia } from "./familia.js";
 import { renderRecompensas } from "./recompensas.js";
 import { renderMaterias } from "./materias.js";
+import { renderProgresso } from "./progresso.js";
 import { renderPerfil } from "./perfil.js";
 import { em, EVENTOS } from "../core/bus.js";
 import { aviso } from "../components/toast.js";
@@ -34,7 +35,7 @@ export async function renderTudo(){
     try{
       if(tela === "objetivos") await sincronizarObjetivosCrud();
       if(tela === "estudar")   await sincronizarOcorrenciasEstudar();
-      if(tela === "home")      await sincronizarPainelHome();
+      if(tela === "home"){ await sincronizarPainelHome(); await sincronizarProgresso(); }
       if(tela === "familia" && E.papel === "admin") await sincronizarFamilia();
       if(tela === "recompensas") await sincronizarRecompensas();
     }catch(e){
@@ -46,7 +47,7 @@ export async function renderTudo(){
     virarPeriodos();
   }
 
-  if(tela === "home")      renderHome();
+  if(tela === "home"){ renderHome(); if(COM_SERVIDOR) renderProgresso(); }
   if(tela === "objetivos"){ renderCrud(); if(COM_SERVIDOR) renderMaterias(); }
   if(tela === "estudar")   renderEstudar();
   if(tela === "familia")   renderFamilia();

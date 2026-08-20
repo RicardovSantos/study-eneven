@@ -166,6 +166,22 @@ export async function sincronizarPainelHome(){
   return d;
 }
 
+const TAMANHO_PAGINA_HISTORICO = 10;
+
+/* Popula E.historico com os últimos lançamentos de pontos, paginados.
+   Chamado sem argumento ao abrir a Home (reinicia do zero); chamado
+   com continuar:true pelo botão "Carregar mais" (acrescenta a
+   próxima página em vez de substituir). */
+export async function sincronizarProgresso({ continuar = false } = {}){
+  if(!continuar){ E.historico = []; E.historicoDeslocamento = 0; E.historicoTemMais = true; }
+  const pagina = await painelApi.historico({
+    limite: TAMANHO_PAGINA_HISTORICO, deslocamento: E.historicoDeslocamento || 0,
+  });
+  E.historico = [...(E.historico || []), ...pagina];
+  E.historicoDeslocamento = (E.historicoDeslocamento || 0) + pagina.length;
+  E.historicoTemMais = pagina.length === TAMANHO_PAGINA_HISTORICO;
+}
+
 /* Traduz os campos do formulário (já lidos por pages/objetivos.js no
    formato local) para o contrato da API. */
 export function paraApiObjetivo({ tipo, nome, freq, alvo, totalMeta, acum, status, materiaId }){

@@ -66,6 +66,7 @@ npm run test:integracao
 npm run test:app-online     # fluxo completo pela interface
 npm run test:recompensas    # trilhas, níveis, solicitar/confirmar entrega
 npm run test:materias       # criar/renomear/arquivar matéria, refletido no objetivo
+npm run test:progresso      # histórico recente na Home, com paginação
 ```
 
 O Playwright não está no `package.json` de propósito: instalá-lo faria o
