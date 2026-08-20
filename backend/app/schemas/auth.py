@@ -51,6 +51,19 @@ class CriarDependente(BaseModel):
         return v.strip().lower()
 
 
+class RedefinirSenhaDependente(BaseModel):
+    """O responsável define uma nova senha — nunca vê a atual."""
+
+    senha_nova: str = Field(min_length=8, max_length=128)
+
+    @field_validator("senha_nova")
+    @classmethod
+    def _senha_com_alguma_forca(cls, v: str) -> str:
+        if v.isdigit() or v.isalpha():
+            raise ValueError("misture letras e números")
+        return v
+
+
 class Credenciais(BaseModel):
     """Aceita username ou e-mail no mesmo campo."""
 

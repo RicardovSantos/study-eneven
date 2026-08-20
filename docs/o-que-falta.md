@@ -12,7 +12,7 @@ inicial conferida em SQL. O que está pronto roda; o que falta está aqui.
 | 0 — Segurança do estado atual | ✅ concluída |
 | 1 — Separação do front-end | ✅ concluída |
 | 2 — Backend, banco e autenticação | 🟡 núcleo pronto, falta rodar no PostgreSQL |
-| 3 — Família, papéis e permissões | 🟡 tela básica (listar/cadastrar dependente) pronta; falta redefinir senha, desativar conta e geofences |
+| 3 — Família, papéis e permissões | 🟡 listar/cadastrar/redefinir senha/desativar dependente prontos; falta geofences e configurações de captura (aguardam a conversa de consentimento antes da Fase 9) |
 | 4 — Objetivos, ocorrências e sessões | 🟡 CRUD, execução e adiantamento prontos; falta aprovação, duplicar/pausar objetivo e a virada de período automática |
 | 5 — Dashboards, pontos e recompensas | ✅ painel, prêmios e histórico recente prontos |
 | 6 — Tempo real (WebSocket) | ⬜ não começou |
@@ -51,9 +51,15 @@ Nada disso avança sem os itens P1–P3 de `pendencias.md`.
 
 ## Fase 3 — o que falta
 
-- [ ] Redefinir a senha de um dependente (o responsável pode trocar, mas
-      nunca ver a atual)
-- [ ] Desativar e reativar conta de dependente
+- [x] Redefinir a senha de um dependente — `POST
+      /auth/dependentes/{id}/redefinir-senha`, o responsável nunca vê a
+      atual, e as sessões abertas do dependente são encerradas
+- [x] Desativar e reativar conta de dependente — `POST
+      /auth/dependentes/{id}/desativar` e `/reativar`; desativar também
+      encerra as sessões abertas (login já recusava conta desativada
+      desde a Fase 2, mas um token ainda válido continuaria
+      autenticando até expirar sem isso). Tela Família ganhou o
+      selo ativo/desativado e os dois botões por dependente
 - [ ] Locais conhecidos (`known_locations`): CRUD das geofences
 - [ ] Configurações por dependente: intervalo de captura, exigência de
       localização, regras de pontuação

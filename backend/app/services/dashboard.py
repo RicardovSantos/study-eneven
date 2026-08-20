@@ -49,6 +49,7 @@ class ResumoPessoal:
     atrasadas: int = 0
     pendentes_hoje: int = 0
     estado_sessao: str | None = None
+    ativo: bool = True
 
 
 async def minutos_no_periodo(
@@ -202,6 +203,7 @@ async def resumo_pessoal(
         atrasadas=por_status.get(StatusOcorrencia.PERDIDA, 0),
         pendentes_hoje=int(pendentes_hoje.scalar_one() or 0),
         estado_sessao=estado.value if estado else None,
+        ativo=usuario.ativo,
     )
 
 

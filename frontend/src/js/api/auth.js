@@ -47,3 +47,12 @@ export const eu = () => api.get("/api/v1/auth/eu");
 
 export const criarDependente = (dados) =>
   api.post("/api/v1/auth/dependentes", dados);
+
+export const redefinirSenhaDependente = (id, senhaNova) =>
+  api.post(`/api/v1/auth/dependentes/${id}/redefinir-senha`, { senha_nova: senhaNova });
+
+export const desativarDependente = (id) =>
+  api.post(`/api/v1/auth/dependentes/${id}/desativar`);
+
+export const reativarDependente = (id) =>
+  api.post(`/api/v1/auth/dependentes/${id}/reativar`);

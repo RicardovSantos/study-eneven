@@ -19,6 +19,7 @@ from app.core.exceptions import (
     CredenciaisInvalidas,
     JaExiste,
     NaoAutenticado,
+    NaoEncontrado,
     SemPermissao,
 )
 from app.core.security import (
@@ -136,6 +137,52 @@ async def criar_dependente(
         parentesco=parentesco,
         criado_por_id=responsavel.id,
     )
+    return dependente
+
+
+async def _exigir_dependente_da_familia(
+    sessao: AsyncSession, *, familia_id: UUID, dependente_id: UUID
+) -> Usuario:
+    """Confere que o alvo é mesmo um dependente desta família — sem
+    isso, o id de outra família (ou do próprio responsável) passaria.
+    404 e não 403: um 403 confirmaria que o id existe em outro lugar."""
+    vinculo_dep = await repo.vinculo_na_familia(sessao, dependente_id, familia_id)
+    if vinculo_dep is None or vinculo_dep.papel != PapelFamiliar.DEPENDENTE:
+        raise NaoEncontrado("Dependente não encontrado.")
+    dependente = await repo.por_id(sessao, dependente_id)
+    if dependente is None:
+        raise NaoEncontrado("Dependente não encontrado.")
+    return dependente
+
+
+async def redefinir_senha_dependente(
+    sessao: AsyncSession, *, familia_id: UUID, dependente_id: UUID, senha_nova: str
+) -> None:
+    """O responsável nunca vê a senha atual — só define uma nova.
+
+    Derruba as sessões abertas do dependente: se o motivo da troca foi
+    perder o controle da conta, deixar sessões antigas valendo anularia
+    o propósito.
+    """
+    dependente = await _exigir_dependente_da_familia(
+        sessao, familia_id=familia_id, dependente_id=dependente_id
+    )
+    dependente.senha_hash = gerar_hash_senha(senha_nova)
+    await sair_de_todos(sessao, usuario_id=dependente.id)
+
+
+async def definir_ativo_dependente(
+    sessao: AsyncSession, *, familia_id: UUID, dependente_id: UUID, ativo: bool
+) -> Usuario:
+    """Desativar derruba as sessões abertas — `entrar()` já recusa
+    conta inativa (ContaDesativada), mas um token ainda válido em
+    memória continuaria autenticando até expirar sem isso."""
+    dependente = await _exigir_dependente_da_familia(
+        sessao, familia_id=familia_id, dependente_id=dependente_id
+    )
+    dependente.ativo = ativo
+    if not ativo:
+        await sair_de_todos(sessao, usuario_id=dependente.id)
     return dependente
 
 

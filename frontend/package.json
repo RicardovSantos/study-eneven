@@ -14,7 +14,8 @@
     "test:recompensas": "node testes-recompensas.mjs",
     "test:materias": "node testes-materias.mjs",
     "test:progresso": "node testes-progresso.mjs",
-    "test:adiantamento": "node testes-adiantamento.mjs"
+    "test:adiantamento": "node testes-adiantamento.mjs",
+    "test:gerenciar-dependente": "node testes-gerenciar-dependente.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"

@@ -68,6 +68,7 @@ npm run test:recompensas    # trilhas, níveis, solicitar/confirmar entrega
 npm run test:materias       # criar/renomear/arquivar matéria, refletido no objetivo
 npm run test:progresso      # histórico recente na Home, com paginação
 npm run test:adiantamento   # formulário + oferta de adiantar após concluir
+npm run test:gerenciar-dependente  # redefinir senha, desativar/reativar
 ```
 
 O Playwright não está no `package.json` de propósito: instalá-lo faria o

@@ -71,6 +71,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 4px;padding:0
 .tag.fixo{background:#E7E5FB;color:#4A3FC9}
 .tag.ok{background:#DDF5E1;color:#227A32}
 .tag.cat{background:#EDECFB;color:#5B4FE8}
+.tag.perigo{background:#FBDCDC;color:#A82424}
 
 .icone-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
   flex:0 0 auto;color:#fff;font-size:15px}

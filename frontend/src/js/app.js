@@ -43,7 +43,9 @@ import { carregarDemo } from "./utils/demo.js";
 import { exportarBackup } from "./utils/backup.js";
 import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
-import { criarDependente } from "./api/auth.js";
+import {
+  criarDependente, redefinirSenhaDependente, desativarDependente, reativarDependente,
+} from "./api/auth.js";
 import {
   sincronizarFamilia, sincronizarRecompensas, sincronizarObjetivosCrud, sincronizarProgresso,
 } from "./dados/online.js";
@@ -184,6 +186,55 @@ $("#b-add-dependente").onclick = async ()=>{
     $("#erro-familia").textContent = e instanceof ErroDaApi ? e.message : "Não deu para cadastrar. Confira sua conexão.";
   }
 };
+
+async function atualizarFamilia(){ await sincronizarFamilia(); renderFamilia(); }
+
+$("#lista-familia").addEventListener("click", e=>{
+  const redef = e.target.closest("[data-redefinir-senha]");
+  const des = e.target.closest("[data-desativar]");
+  const reat = e.target.closest("[data-reativar]");
+
+  if(redef){
+    const id = redef.dataset.redefinirSenha, nome = redef.dataset.nome;
+    modal({selo:"info",icone:"🔑",titulo:"Redefinir senha",
+      texto:"Defina uma nova senha para <b>"+esc(nome)+"</b>. As sessões abertas dele são encerradas."+
+        '<div class="campo" style="margin-top:10px"><label for="mv-senha-dep">Senha nova</label>'+
+        '<input id="mv-senha-dep" type="password" placeholder="Mínimo de 8 caracteres, com letra e número"></div>',
+      botoes:[{r:"Redefinir",c:"btn-roxo",f: async ()=>{
+        const senha = $("#mv-senha-dep").value;
+        if(senha.length<8 || /^\d+$/.test(senha) || /^[a-zA-Z]+$/.test(senha)){
+          aviso("A senha precisa de ao menos 8 caracteres, com letra e número."); return;
+        }
+        try{
+          await redefinirSenhaDependente(id, senha);
+          aviso("Senha redefinida.");
+        }catch(e2){
+          aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para redefinir. Confira sua conexão.");
+        }
+      }},{r:"Cancelar",c:"btn-cinza"}]});
+    setTimeout(()=>$("#mv-senha-dep")?.focus(),0);
+    return;
+  }
+
+  if(des){
+    const id = des.dataset.desativar, nome = des.dataset.nome;
+    modal({selo:"perigo",icone:"🚫",titulo:"Desativar conta",
+      texto:"<b>"+esc(nome)+"</b> não vai conseguir mais entrar até você reativar a conta.",
+      botoes:[{r:"Desativar",c:"btn-vermelho",f: async ()=>{
+        try{ await desativarDependente(id); await atualizarFamilia(); aviso("Conta desativada."); }
+        catch(e2){ aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para desativar. Confira sua conexão."); }
+      }},{r:"Cancelar",c:"btn-cinza"}]});
+    return;
+  }
+
+  if(reat){
+    const id = reat.dataset.reativar;
+    (async ()=>{
+      try{ await reativarDependente(id); await atualizarFamilia(); aviso("Conta reativada."); }
+      catch(e2){ aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para reativar. Confira sua conexão."); }
+    })();
+  }
+});
 
 async function atualizarRecompensas(){ await sincronizarRecompensas(); renderRecompensas(); }
 

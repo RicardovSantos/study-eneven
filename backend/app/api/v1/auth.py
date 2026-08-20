@@ -5,6 +5,8 @@ assim o JavaScript da página não consegue lê-lo, o que limita o estrago
 de um XSS. O access token, de vida curta, fica na memória do front.
 """
 
+from uuid import UUID
+
 from fastapi import APIRouter, Request, Response, status
 
 from app.api.deps import AdminDaFamilia, Sessao, UsuarioLogado
@@ -14,6 +16,7 @@ from app.schemas.auth import (
     CadastroResponsavel,
     Credenciais,
     CriarDependente,
+    RedefinirSenhaDependente,
     UsuarioPublico,
 )
 from app.schemas.auth import (
@@ -128,6 +131,38 @@ async def criar_dependente(
         email=dados.email,
         senha_temporaria=dados.senha_temporaria,
         parentesco=dados.parentesco,
+    )
+    await sessao.commit()
+    return UsuarioPublico.model_validate(dependente)
+
+
+@router.post(
+    "/dependentes/{dependente_id}/redefinir-senha", status_code=status.HTTP_204_NO_CONTENT
+)
+async def redefinir_senha_dependente(
+    dependente_id: UUID, dados: RedefinirSenhaDependente, vinculo: AdminDaFamilia, sessao: Sessao
+):
+    """Só o responsável troca a senha de um dependente — e nunca vê a atual."""
+    await auth.redefinir_senha_dependente(
+        sessao, familia_id=vinculo.familia_id, dependente_id=dependente_id,
+        senha_nova=dados.senha_nova,
+    )
+    await sessao.commit()
+
+
+@router.post("/dependentes/{dependente_id}/desativar", response_model=UsuarioPublico)
+async def desativar_dependente(dependente_id: UUID, vinculo: AdminDaFamilia, sessao: Sessao):
+    dependente = await auth.definir_ativo_dependente(
+        sessao, familia_id=vinculo.familia_id, dependente_id=dependente_id, ativo=False,
+    )
+    await sessao.commit()
+    return UsuarioPublico.model_validate(dependente)
+
+
+@router.post("/dependentes/{dependente_id}/reativar", response_model=UsuarioPublico)
+async def reativar_dependente(dependente_id: UUID, vinculo: AdminDaFamilia, sessao: Sessao):
+    dependente = await auth.definir_ativo_dependente(
+        sessao, familia_id=vinculo.familia_id, dependente_id=dependente_id, ativo=True,
     )
     await sessao.commit()
     return UsuarioPublico.model_validate(dependente)

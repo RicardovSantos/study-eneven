@@ -22,6 +22,7 @@ class ResumoUsuario(BaseModel):
     atrasadas: int
     pendentes_hoje: int
     estado_sessao: str | None
+    ativo: bool
 
 
 class MetaDoDia(BaseModel):
