@@ -17,6 +17,7 @@
 
 import { E } from "../stores/app-store.js";
 import * as objetivosApi from "../api/objetivos.js";
+import * as materiasApi from "../api/materias.js";
 import * as painelApi from "../api/painel.js";
 
 const FREQ_API_PARA_LOCAL = { daily: "diaria", weekly: "semanal", monthly: "mensal", custom: "diaria" };
@@ -27,17 +28,31 @@ const STATUS_API_PARA_LOCAL = {
   in_progress: "andamento", completed: "concluido", paused: "pausado", archived: "arquivado",
 };
 
-/* Nenhuma tela ainda cadastra matéria (CRUD pendente — docs/o-que-falta.md).
-   Até lá, todo objetivo aparece com esta categoria neutra em vez de um
-   campo vazio, que ficaria com cara de bug. */
+/* Objetivo sem matéria (ou matéria arquivada, que some de E.materias mas
+   fica na memória de um objetivo antigo) cai nesta categoria neutra em
+   vez de um campo vazio, que ficaria com cara de bug. */
 const SEM_MATERIA = "Sem matéria";
+
+function nomeMateria(materiaId){
+  if(!materiaId) return SEM_MATERIA;
+  const m = (E.materias || []).find(x => x.id === materiaId);
+  return m ? m.nome : SEM_MATERIA;
+}
+
+/* Popula E.materias no formato que pages/materias.js lê. Buscada junto
+   das duas telas que mostram objetivo (Objetivos e Estudar), porque as
+   duas precisam traduzir materia_id em nome — ver nomeMateria() acima. */
+export async function sincronizarMaterias(){
+  E.materias = await materiasApi.listar();
+}
 
 function itemCrud(objetivo){
   const tipo = TIPO_API_PARA_LOCAL[objetivo.tipo] || "estudo";
   const emHoras = tipo === "estudo";
   return {
     id: objetivo.id,
-    tipo, nome: objetivo.nome, cat: SEM_MATERIA,
+    tipo, nome: objetivo.nome, cat: nomeMateria(objetivo.materia_id),
+    materiaId: objetivo.materia_id || null,
     freq: FREQ_API_PARA_LOCAL[objetivo.frequencia] || "diaria",
     qtd: emHoras ? Math.round((objetivo.meta_periodo / 60) * 10) / 10 : objetivo.meta_periodo,
     uni: emHoras ? "horas" : "vezes",
@@ -55,7 +70,7 @@ function itemEstudar(objetivo, ocorrencia){
     id: ocorrencia.id,             // de propósito: id da OCORRÊNCIA, não do objetivo
     ocorrenciaId: ocorrencia.id,
     objetivoId: objetivo.id,
-    tipo, nome: objetivo.nome, cat: SEM_MATERIA,
+    tipo, nome: objetivo.nome, cat: nomeMateria(objetivo.materia_id),
     freq: FREQ_API_PARA_LOCAL[objetivo.frequencia] || "diaria",
     acum: !!objetivo.acumula_pendencia,
     alvo: ocorrencia.meta,
@@ -69,7 +84,7 @@ function itemEstudar(objetivo, ocorrencia){
 
 /* Popula E.itens no formato que renderCrud() espera. */
 export async function sincronizarObjetivosCrud(){
-  const lista = await objetivosApi.listar();
+  const [, lista] = await Promise.all([sincronizarMaterias(), objetivosApi.listar()]);
   E.itens = lista.map(itemCrud);
 }
 
@@ -85,7 +100,8 @@ export async function sincronizarObjetivosCrud(){
 export async function sincronizarOcorrenciasEstudar(){
   const ate = new Date();
   ate.setDate(ate.getDate() + 31);          // cobre um ciclo mensal inteiro
-  const [objetivos, ocorrencias] = await Promise.all([
+  const [, objetivos, ocorrencias] = await Promise.all([
+    sincronizarMaterias(),
     objetivosApi.listar(),
     objetivosApi.ocorrencias({ ate: ate.toISOString().slice(0, 10) }),
   ]);
@@ -152,10 +168,11 @@ export async function sincronizarPainelHome(){
 
 /* Traduz os campos do formulário (já lidos por pages/objetivos.js no
    formato local) para o contrato da API. */
-export function paraApiObjetivo({ tipo, nome, freq, alvo, totalMeta, acum, status }){
+export function paraApiObjetivo({ tipo, nome, freq, alvo, totalMeta, acum, status, materiaId }){
   const dados = {
     tipo: TIPO_LOCAL_PARA_API[tipo] || "study",
     nome,
+    materia_id: materiaId || null,
     meta_periodo: alvo,
     meta_total: totalMeta > 0 ? totalMeta : null,
     frequencia: FREQ_LOCAL_PARA_API[freq] || "daily",

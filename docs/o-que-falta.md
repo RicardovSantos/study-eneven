@@ -42,7 +42,9 @@ Nada disso avança sem os itens P1–P3 de `pendencias.md`.
       **importante**: o acesso do responsável às capturas precisa ficar
       registrado antes da Fase 9
 - [ ] Endpoints de dispositivos (`/devices`): cadastrar, listar, revogar
-- [ ] CRUD de matérias (`/subjects`) — hoje só dá para criar por SQL
+- [x] CRUD de matérias (`/subjects`) — `POST/GET/PATCH/DELETE /materias`
+      (excluir arquiva, não apaga); objetivo com `materia_id` de outra
+      família dá 404
 - [ ] Importação do `localStorage` legado (seção 18), com o cuidado de
       **nunca** importar a senha em texto puro
 - [ ] `/health/ready` conferindo Redis e volume graváveis, não só o banco
@@ -129,8 +131,9 @@ ainda (endpoint inexistente no backend):
       falar com o responsável
 - [ ] Carregar dados de exemplo / apagar conta — desativados no modo
       online, com aviso explicando o motivo
-- [ ] CRUD de matéria — todo objetivo aparece com a categoria "Sem
-      matéria" (a API já tem `materia_id`, falta a tela)
+- [x] CRUD de matéria — card "Matérias" na tela Objetivos (criar,
+      renomear, arquivar) e o formulário de objetivo passou a escolher
+      a matéria de verdade em vez do texto livre "Curso/Certificação"
 - [ ] Configurar pontos fixos de tarefa no formulário — hoje todo
       objetivo tipo "tarefa" recebe 5 pontos fixos por padrão
 - [ ] Configurar adiantamento (`permite_adiantar` etc.) no formulário —
@@ -144,9 +147,10 @@ ainda (endpoint inexistente no backend):
 - [x] Tela Prêmios (trilhas de recompensa) — cada pessoa vê o progresso
       das próprias trilhas (pontos, barra até o próximo nível, prêmio),
       solicita o que desbloqueou e o responsável confirma a entrega; o
-      responsável ainda cria a trilha (só no escopo "todos os pontos" —
-      matéria/objetivo específico segue de fora, ver `CRUD de matéria`
-      abaixo) e adiciona níveis, e pode trocar de beneficiário (si
+      responsável ainda cria a trilha só no escopo "todos os pontos" —
+      agora que a matéria existe (item abaixo), dá pra estender a tela
+      pra trilha por matéria/objetivo específico, mas isso ainda não
+      foi feito — e adiciona níveis, e pode trocar de beneficiário (si
       mesmo ou um dependente) para gerenciar as trilhas de cada um
 - [ ] Tela Progresso (dependente acompanhar o próprio
       histórico/sequência em mais detalhe) — endpoint pronto

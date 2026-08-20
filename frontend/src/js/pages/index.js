@@ -22,6 +22,7 @@ import { renderCrud } from "./objetivos.js";
 import { renderObjetivos as renderEstudar } from "./estudar.js";
 import { renderFamilia } from "./familia.js";
 import { renderRecompensas } from "./recompensas.js";
+import { renderMaterias } from "./materias.js";
 import { renderPerfil } from "./perfil.js";
 import { em, EVENTOS } from "../core/bus.js";
 import { aviso } from "../components/toast.js";
@@ -46,7 +47,7 @@ export async function renderTudo(){
   }
 
   if(tela === "home")      renderHome();
-  if(tela === "objetivos") renderCrud();
+  if(tela === "objetivos"){ renderCrud(); if(COM_SERVIDOR) renderMaterias(); }
   if(tela === "estudar")   renderEstudar();
   if(tela === "familia")   renderFamilia();
   if(tela === "recompensas") renderRecompensas();

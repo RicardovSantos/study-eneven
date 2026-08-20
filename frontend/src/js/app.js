@@ -44,10 +44,12 @@ import { exportarBackup } from "./utils/backup.js";
 import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
 import { criarDependente } from "./api/auth.js";
-import { sincronizarFamilia, sincronizarRecompensas } from "./dados/online.js";
+import { sincronizarFamilia, sincronizarRecompensas, sincronizarObjetivosCrud } from "./dados/online.js";
 import { renderFamilia } from "./pages/familia.js";
 import { renderRecompensas } from "./pages/recompensas.js";
+import { renderMaterias } from "./pages/materias.js";
 import * as painelApi from "./api/painel.js";
+import * as materiasApi from "./api/materias.js";
 import { ErroDaApi } from "./api/client.js";
 
 /* ---------- Eventos ---------- */
@@ -89,6 +91,62 @@ $("#lista-crud").addEventListener("click",e=>{
   const d=e.target.closest("[data-del]"), ed=e.target.closest("[data-edit]");
   if(d) excluirItem(d.dataset.del);
   else if(ed) editarItem(ed.dataset.edit);
+});
+
+async function atualizarMaterias(){ await sincronizarObjetivosCrud(); renderCrud(); renderMaterias(); }
+
+$("#b-criar-materia").onclick = async ()=>{
+  const nome = $("#materia-nome").value.trim();
+  if(!nome){ $("#erro-materia").textContent="Escreva o nome da matéria."; return; }
+  $("#erro-materia").textContent="";
+  try{
+    await materiasApi.criar({ nome });
+    $("#materia-nome").value = "";
+    await atualizarMaterias();
+    aviso("Matéria adicionada.");
+  }catch(e2){
+    $("#erro-materia").textContent = e2 instanceof ErroDaApi ? e2.message : "Não deu para adicionar. Confira sua conexão.";
+  }
+};
+
+$("#lista-materias").addEventListener("click", e=>{
+  const ed = e.target.closest("[data-edit-materia]");
+  const del = e.target.closest("[data-del-materia]");
+  if(ed){
+    const materiaId = ed.dataset.editMateria;
+    const atual = (E.materias||[]).find(m=>m.id===materiaId);
+    modal({selo:"info",icone:"✎",titulo:"Renomear matéria",
+      texto:'<div class="campo"><label for="mv-materia-nome">Nome</label>'+
+        '<input id="mv-materia-nome" value="'+esc(atual?atual.nome:"")+'"></div>',
+      botoes:[{r:"Salvar",c:"btn-roxo",f: async ()=>{
+        const novoNome = $("#mv-materia-nome").value.trim();
+        if(!novoNome) return;
+        try{
+          await materiasApi.editar(materiaId, { nome: novoNome });
+          await atualizarMaterias();
+          aviso("Matéria renomeada.");
+        }catch(e2){
+          aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para renomear. Confira sua conexão.");
+        }
+      }},{r:"Cancelar",c:"btn-cinza"}]});
+    setTimeout(()=>$("#mv-materia-nome")?.focus(),0);
+    return;
+  }
+  if(del){
+    const materiaId = del.dataset.delMateria;
+    const atual = (E.materias||[]).find(m=>m.id===materiaId);
+    modal({selo:"perigo",icone:"🗑",titulo:"Arquivar matéria",
+      texto:"<b>"+esc(atual?atual.nome:"")+"</b> some da lista de matérias, mas os objetivos já cadastrados com ela continuam mostrando o nome.",
+      botoes:[{r:"Arquivar",c:"btn-vermelho",f: async ()=>{
+        try{
+          await materiasApi.arquivar(materiaId);
+          await atualizarMaterias();
+          aviso("Matéria arquivada.");
+        }catch(e2){
+          aviso(e2 instanceof ErroDaApi ? e2.message : "Não deu para arquivar. Confira sua conexão.");
+        }
+      }},{r:"Cancelar",c:"btn-cinza"}]});
+  }
 });
 
 $("#b-add-dependente").onclick = async ()=>{

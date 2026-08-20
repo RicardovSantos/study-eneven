@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NaoEncontrado, SemPermissao
 from app.models.enums import PapelFamiliar, StatusObjetivo, StatusOcorrencia
 from app.models.identidade import MembroFamilia
-from app.models.objetivos import Objetivo, Ocorrencia
+from app.models.objetivos import Materia, Objetivo, Ocorrencia
 from app.repositories import usuarios as repo_usuarios
 
 
@@ -23,6 +23,18 @@ async def _exigir_titular_da_familia(
 ) -> None:
     if await repo_usuarios.vinculo_na_familia(sessao, titular_id, familia_id) is None:
         raise SemPermissao("Esta pessoa não faz parte da sua família.")
+
+
+async def _exigir_materia_da_familia(
+    sessao: AsyncSession, materia_id: UUID | None, familia_id: UUID
+) -> None:
+    """Sem isso, um objetivo poderia apontar pra matéria de outra família
+    — a FK sozinha não impede, só garante que o id existe em algum lugar."""
+    if materia_id is None:
+        return
+    materia = await sessao.get(Materia, materia_id)
+    if materia is None or materia.familia_id != familia_id:
+        raise NaoEncontrado("Matéria não encontrada.")
 
 
 async def criar(
@@ -34,6 +46,7 @@ async def criar(
     alvo = titular_id or vinculo.usuario_id
     if alvo != vinculo.usuario_id:
         await _exigir_titular_da_familia(sessao, alvo, vinculo.familia_id)
+    await _exigir_materia_da_familia(sessao, dados.get("materia_id"), vinculo.familia_id)
 
     objetivo = Objetivo(
         familia_id=vinculo.familia_id,
@@ -90,6 +103,8 @@ async def editar(
 ) -> Objetivo:
     if vinculo.papel != PapelFamiliar.ADMIN:
         raise SemPermissao("Apenas o responsável edita objetivos.")
+    if "materia_id" in mudancas:
+        await _exigir_materia_da_familia(sessao, mudancas["materia_id"], vinculo.familia_id)
     for campo, valor in mudancas.items():
         setattr(objetivo, campo, valor)
     await sessao.flush()

@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from app.api.v1 import auth as auth_v1
 from app.api.v1 import dashboard as dashboard_v1
+from app.api.v1 import materias as materias_v1
 from app.api.v1 import objetivos as objetivos_v1
 from app.api.v1 import sessoes as sessoes_v1
 from app.core.config import get_settings
@@ -44,6 +45,7 @@ if s.cors_origins:
 
 
 app.include_router(auth_v1.router, prefix=s.API_PREFIX)
+app.include_router(materias_v1.router, prefix=s.API_PREFIX)
 app.include_router(objetivos_v1.router, prefix=s.API_PREFIX)
 app.include_router(sessoes_v1.router, prefix=s.API_PREFIX)
 app.include_router(dashboard_v1.router, prefix=s.API_PREFIX)

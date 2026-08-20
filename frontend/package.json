@@ -11,7 +11,8 @@
     "test": "node testes-regressao.mjs http://localhost:4173/",
     "test:integracao": "node testes-integracao.mjs",
     "test:app-online": "node testes-app-online.mjs",
-    "test:recompensas": "node testes-recompensas.mjs"
+    "test:recompensas": "node testes-recompensas.mjs",
+    "test:materias": "node testes-materias.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"

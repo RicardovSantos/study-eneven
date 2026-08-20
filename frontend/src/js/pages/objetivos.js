@@ -68,7 +68,8 @@ export async function salvarItem(){
   const status = $("#f-status").value;
 
   if(COM_SERVIDOR){
-    const dados = paraApiObjetivo({tipo, nome, freq, alvo, totalMeta, acum, status});
+    const materiaId = $("#f-cat").value || null;
+    const dados = paraApiObjetivo({tipo, nome, freq, alvo, totalMeta, acum, status, materiaId});
     try{
       if(editandoId) await objetivosApi.editar(editandoId, dados);
       else await objetivosApi.criar(dados);
@@ -113,7 +114,8 @@ export function editarItem(idv){
   $("#b-salvar-item").textContent="Editar";
   marcarPill("#p-tipo",it.tipo); atualizarFormPorTipo();
   $("#f-nome").value=it.nome;
-  definirSelect("#f-cat", it.cat);
+  if(COM_SERVIDOR) $("#f-cat").value = it.materiaId || "";
+  else definirSelect("#f-cat", it.cat);
   $("#f-status").value=it.status;
   marcarPill("#p-freq",it.freq); marcarPill("#p-acum", it.acum?"1":"0");
   $("#f-qtd").value=it.qtd; definirSelect("#f-uni", it.uni);
