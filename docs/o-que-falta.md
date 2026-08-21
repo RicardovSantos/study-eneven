@@ -145,8 +145,10 @@ ainda (endpoint inexistente no backend):
 - [x] CRUD de matéria — card "Matérias" na tela Objetivos (criar,
       renomear, arquivar) e o formulário de objetivo passou a escolher
       a matéria de verdade em vez do texto livre "Curso/Certificação"
-- [ ] Configurar pontos fixos de tarefa no formulário — hoje todo
-      objetivo tipo "tarefa" recebe 5 pontos fixos por padrão
+- [x] Configurar pontos fixos de tarefa no formulário — campo "Pontos
+      por conclusão" aparece só pra tarefa em modo servidor (padrão 5,
+      igual já era fixo antes); `pontos_fixos` já existia no schema da
+      API desde a Fase 4, só faltava o formulário expor
 - [x] Adiantamento no formulário (`permite_adiantar` +
       `max_adiantamentos`) — sem isso o motor de adiantamento inteiro
       da Fase 4 (agenda, `pode_adiantar`, `GET /ocorrencias/{id}/proxima`)

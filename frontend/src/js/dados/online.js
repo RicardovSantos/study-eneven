@@ -61,6 +61,7 @@ function itemCrud(objetivo){
     acum: !!objetivo.acumula_pendencia,
     permiteAdiantar: !!objetivo.permite_adiantar,
     maxAdiantamentos: objetivo.max_adiantamentos ?? 1,
+    pontosFixos: objetivo.pontos_fixos ?? 5,
     status: STATUS_API_PARA_LOCAL[objetivo.status] || "andamento",
     feito: 0, saldo: 0, progresso: 0,
   };
@@ -188,7 +189,7 @@ export async function sincronizarProgresso({ continuar = false } = {}){
    formato local) para o contrato da API. */
 export function paraApiObjetivo({
   tipo, nome, freq, alvo, totalMeta, acum, status, materiaId,
-  permiteAdiantar, maxAdiantamentos,
+  permiteAdiantar, maxAdiantamentos, pontosFixos,
 }){
   const dados = {
     tipo: TIPO_LOCAL_PARA_API[tipo] || "study",
@@ -202,8 +203,7 @@ export function paraApiObjetivo({
     max_adiantamentos: maxAdiantamentos ?? 1,
   };
   // Tarefa sem cronômetro precisa de pontuação fixa (o banco exige).
-  // O formulário ainda não tem esse campo — ver docs/o-que-falta.md.
-  if(dados.tipo === "task") dados.pontos_fixos = 5;
+  if(dados.tipo === "task") dados.pontos_fixos = pontosFixos > 0 ? pontosFixos : 5;
   if(status === "concluido") dados.status = "completed";
   return dados;
 }

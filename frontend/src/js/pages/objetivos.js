@@ -41,13 +41,16 @@ export function atualizarFormPorTipo(){
   if(est && (uniAtual==="horas"||uniAtual==="minutos")) $("#f-uni").value = uniAtual;
   $("#f-total").title = est ? "Total de horas até concluir" : "Total de repetições até concluir";
   $("#lb-total").textContent = est ? "Total da tarefa (horas)" : "Total da tarefa (vezes)";
+  // Pontos fixos só existem no servidor, e só fazem sentido pra tarefa
+  // (estudo pontua pelo tempo cronometrado, não por conclusão).
+  $("#campo-pontos-fixos").style.display = (COM_SERVIDOR && !est) ? "" : "none";
 }
 export function limparForm(){
   editandoId=null;
   $("#form-titulo").textContent="Adicionar Objetivo";
   $("#b-salvar-item").textContent="Adicionar";
   $("#f-nome").value=""; $("#f-cat").selectedIndex=0; $("#f-status").value="andamento";
-  $("#f-qtd").value=1; $("#f-total").value=360;
+  $("#f-qtd").value=1; $("#f-total").value=360; $("#f-pontos-fixos").value=5;
   marcarPill("#p-tipo","estudo"); marcarPill("#p-freq","diaria"); marcarPill("#p-acum","1");
   marcarPill("#p-adianta","0"); $("#f-max-adianta").value=1;
   $("#campo-adianta").style.display = COM_SERVIDOR ? "" : "none";
@@ -73,8 +76,14 @@ export async function salvarItem(){
     const materiaId = $("#f-cat").value || null;
     const permiteAdiantar = lerPills("#p-adianta")==="1";
     const maxAdiantamentos = parseInt($("#f-max-adianta").value, 10) || 0;
+    const pontosFixos = parseInt($("#f-pontos-fixos").value, 10) || 0;
+    if(tipo==="tarefa" && !(pontosFixos>0)){
+      $("#erro-form").textContent="Os pontos por conclusão precisam ser maiores que zero.";
+      $("#f-pontos-fixos").focus(); return;
+    }
     const dados = paraApiObjetivo({
       tipo, nome, freq, alvo, totalMeta, acum, status, materiaId, permiteAdiantar, maxAdiantamentos,
+      pontosFixos,
     });
     try{
       if(editandoId) await objetivosApi.editar(editandoId, dados);
@@ -124,6 +133,7 @@ export function editarItem(idv){
     $("#f-cat").value = it.materiaId || "";
     marcarPill("#p-adianta", it.permiteAdiantar?"1":"0");
     $("#f-max-adianta").value = it.maxAdiantamentos ?? 1;
+    $("#f-pontos-fixos").value = it.pontosFixos ?? 5;
   }else{
     definirSelect("#f-cat", it.cat);
   }

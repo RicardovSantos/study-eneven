@@ -70,6 +70,7 @@ npm run test:progresso      # histórico recente na Home, com paginação
 npm run test:adiantamento   # formulário + oferta de adiantar após concluir
 npm run test:gerenciar-dependente  # redefinir senha, desativar/reativar
 npm run test:perfil         # editar o próprio nome/e-mail/senha
+npm run test:pontos-fixos   # pontos por conclusão configuráveis na tarefa
 ```
 
 O Playwright não está no `package.json` de propósito: instalá-lo faria o

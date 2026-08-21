@@ -16,7 +16,8 @@
     "test:progresso": "node testes-progresso.mjs",
     "test:adiantamento": "node testes-adiantamento.mjs",
     "test:gerenciar-dependente": "node testes-gerenciar-dependente.mjs",
-    "test:perfil": "node testes-perfil.mjs"
+    "test:perfil": "node testes-perfil.mjs",
+    "test:pontos-fixos": "node testes-pontos-fixos.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.3"
