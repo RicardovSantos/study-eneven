@@ -45,6 +45,8 @@ export async function sair() {
 
 export const eu = () => api.get("/api/v1/auth/eu");
 
+export const editarPerfil = (dados) => api.patch("/api/v1/auth/eu", dados);
+
 export const criarDependente = (dados) =>
   api.post("/api/v1/auth/dependentes", dados);
 

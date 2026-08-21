@@ -8,7 +8,7 @@ daqui.
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 
 class CadastroResponsavel(BaseModel):
@@ -62,6 +62,30 @@ class RedefinirSenhaDependente(BaseModel):
         if v.isdigit() or v.isalpha():
             raise ValueError("misture letras e números")
         return v
+
+
+class EditarPerfil(BaseModel):
+    """A própria pessoa edita os próprios dados. Trocar a senha exige
+    confirmar a atual — sem isso, um token esquecido aberto em outro
+    aparelho poderia trocar a senha sem a pessoa perceber."""
+
+    nome_exibicao: str | None = Field(default=None, min_length=2, max_length=120)
+    email: EmailStr | None = None
+    senha_atual: str | None = Field(default=None, min_length=1, max_length=128)
+    senha_nova: str | None = Field(default=None, min_length=8, max_length=128)
+
+    @field_validator("senha_nova")
+    @classmethod
+    def _senha_com_alguma_forca(cls, v: str | None) -> str | None:
+        if v is not None and (v.isdigit() or v.isalpha()):
+            raise ValueError("misture letras e números")
+        return v
+
+    @model_validator(mode="after")
+    def _senha_nova_exige_atual(self):
+        if self.senha_nova and not self.senha_atual:
+            raise ValueError("informe a senha atual para trocar a senha")
+        return self
 
 
 class Credenciais(BaseModel):

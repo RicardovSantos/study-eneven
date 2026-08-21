@@ -140,6 +140,27 @@ async def criar_dependente(
     return dependente
 
 
+async def editar_perfil(
+    sessao: AsyncSession, *, usuario: Usuario,
+    nome_exibicao: str | None = None, email: str | None = None,
+    senha_atual: str | None = None, senha_nova: str | None = None,
+) -> Usuario:
+    """A própria pessoa edita nome, e-mail e/ou senha."""
+    if nome_exibicao is not None:
+        usuario.nome_exibicao = nome_exibicao
+    if email is not None and email != usuario.email:
+        if await repo.por_email(sessao, email):
+            raise JaExiste("Já existe uma conta com este e-mail.")
+        usuario.email = email
+    if senha_nova:
+        # O schema já garante que senha_atual veio junto quando senha_nova vem.
+        if not conferir_senha(senha_atual, usuario.senha_hash):
+            raise CredenciaisInvalidas()
+        usuario.senha_hash = gerar_hash_senha(senha_nova)
+    await sessao.flush()
+    return usuario
+
+
 async def _exigir_dependente_da_familia(
     sessao: AsyncSession, *, familia_id: UUID, dependente_id: UUID
 ) -> Usuario:

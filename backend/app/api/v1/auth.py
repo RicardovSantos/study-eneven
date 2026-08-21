@@ -16,6 +16,7 @@ from app.schemas.auth import (
     CadastroResponsavel,
     Credenciais,
     CriarDependente,
+    EditarPerfil,
     RedefinirSenhaDependente,
     UsuarioPublico,
 )
@@ -113,6 +114,19 @@ async def sair_de_todos(usuario: UsuarioLogado, resposta: Response, sessao: Sess
 @router.get("/eu", response_model=UsuarioPublico)
 async def eu(usuario: UsuarioLogado):
     return UsuarioPublico.model_validate(usuario)
+
+
+@router.patch("/eu", response_model=UsuarioPublico)
+async def editar_perfil(dados: EditarPerfil, usuario: UsuarioLogado, sessao: Sessao):
+    """Cada pessoa edita os próprios dados — inclusive um dependente,
+    sem depender do responsável."""
+    atualizado = await auth.editar_perfil(
+        sessao, usuario=usuario,
+        nome_exibicao=dados.nome_exibicao, email=dados.email,
+        senha_atual=dados.senha_atual, senha_nova=dados.senha_nova,
+    )
+    await sessao.commit()
+    return UsuarioPublico.model_validate(atualizado)
 
 
 @router.post(

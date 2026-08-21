@@ -132,9 +132,14 @@ continuam passando sem alteração nenhuma — o modo local não foi tocado.
 O que essa entrega **não fez**, de propósito, por não ter onde plugar
 ainda (endpoint inexistente no backend):
 
-- [ ] Editar perfil (nome/e-mail/senha) — mostra "em construção"
+- [x] Editar perfil (nome/e-mail/senha) — `PATCH /auth/eu`; trocar a
+      senha exige confirmar a atual (nunca vaza a atual, só grava o
+      hash da nova). Nascimento/sexo/escola/país/termos não existem no
+      modelo do servidor — o formulário esconde esses campos em modo
+      servidor em vez de fingir que salvou
 - [ ] Recuperar senha por e-mail — mostra "em construção", orienta a
-      falar com o responsável
+      falar com o responsável. Precisa de envio de e-mail (SMTP), que
+      não está configurado — provavelmente espera a Fase 7
 - [ ] Carregar dados de exemplo / apagar conta — desativados no modo
       online, com aviso explicando o motivo
 - [x] CRUD de matéria — card "Matérias" na tela Objetivos (criar,

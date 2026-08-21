@@ -45,6 +45,7 @@ import { COM_SERVIDOR } from "./config.js";
 import * as objetivosApi from "./api/objetivos.js";
 import {
   criarDependente, redefinirSenhaDependente, desativarDependente, reativarDependente,
+  editarPerfil,
 } from "./api/auth.js";
 import {
   sincronizarFamilia, sincronizarRecompensas, sincronizarObjetivosCrud, sincronizarProgresso,
@@ -392,16 +393,34 @@ window.addEventListener("resize", reencaixarMini);
 $("#b-foto").onclick=()=>$("#in-foto").click();
 $("#in-foto").addEventListener("change",e=>{ if(e.target.files[0]) lerFoto(e.target.files[0]); e.target.value=""; });
 $("#b-tirar-foto").onclick=()=>{ if(E.usuario){ E.usuario.foto=null; salvar(true); renderTudo(); aviso("Foto removida."); } };
-$("#b-salvar-perfil").onclick=()=>{
+$("#b-salvar-perfil").onclick=async ()=>{
   if(!E.usuario){ $("#erro-perfil").textContent="Nenhuma conta ativa neste aparelho."; return; }
   if(COM_SERVIDOR){
-    // Ainda não existe endpoint para editar o próprio perfil (nome,
-    // e-mail, senha) — ver docs/o-que-falta.md. Fingir que salvou
-    // localmente enganaria: o próximo login mostraria os dados antigos.
+    const nome = $("#pf-nome").value.trim(), email = $("#pf-email").value.trim();
+    const senhaAtual = $("#pf-senha-atual").value, senhaNova = $("#pf-senha").value;
+    if(nome.length<2){ $("#erro-perfil").textContent="Escreva seu nome."; return; }
+    if(!/^\S+@\S+\.\S+$/.test(email)){ $("#erro-perfil").textContent="Email inválido."; return; }
+    if(senhaNova){
+      if(!senhaAtual){ $("#erro-perfil").textContent="Digite a senha atual para trocar a senha."; return; }
+      if(senhaNova.length<8 || /^\d+$/.test(senhaNova) || /^[a-zA-Z]+$/.test(senhaNova)){
+        $("#erro-perfil").textContent="A senha nova precisa de ao menos 8 caracteres, com letra e número."; return;
+      }
+    }
     $("#erro-perfil").textContent="";
-    modal({selo:"info",icone:"⚙",titulo:"Em construção",
-      texto:"Editar o perfil ainda não está disponível neste servidor.",
-      botoes:[{r:"Entendi",c:"btn-azul"}]});
+    try{
+      const atualizado = await editarPerfil({
+        nome_exibicao: nome, email,
+        senha_atual: senhaNova ? senhaAtual : undefined,
+        senha_nova: senhaNova || undefined,
+      });
+      E.usuario.nome = atualizado.nome_exibicao;
+      E.usuario.email = atualizado.email;
+      $("#pf-senha-atual").value=""; $("#pf-senha").value="";
+      renderTudo();
+      modal({selo:"ok",icone:"✓",titulo:"Salvo",texto:"Seu perfil foi atualizado.",botoes:[{r:"OK",c:"btn-verde"}]});
+    }catch(e){
+      $("#erro-perfil").textContent = e instanceof ErroDaApi ? e.message : "Não deu para salvar. Confira sua conexão.";
+    }
     return;
   }
   const nome=$("#pf-nome").value.trim(), em=$("#pf-email").value.trim(), se=$("#pf-senha").value;

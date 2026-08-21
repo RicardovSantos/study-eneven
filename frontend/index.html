@@ -301,26 +301,30 @@
           <input id="pf-nome" autocomplete="name" placeholder="Digite seu nome completo"></div>
         <div class="campo"><label for="pf-email">Email</label>
           <input id="pf-email" type="email" autocomplete="email" placeholder="Digite seu email"></div>
+        <div class="campo" id="campo-senha-atual" style="display:none"><label for="pf-senha-atual">Senha atual</label>
+          <input id="pf-senha-atual" type="password" autocomplete="current-password" placeholder="Só para trocar a senha"></div>
         <div class="campo"><label for="pf-senha">Senha</label>
           <input id="pf-senha" type="password" autocomplete="new-password" placeholder="Deixe em branco para manter a atual"></div>
 
-        <div class="dupla">
-          <div class="campo"><label for="pf-nasc">Nascimento</label><input id="pf-nasc" type="date"></div>
-          <div class="campo"><label for="pf-sexo">Sexo</label>
-            <select id="pf-sexo"><option>Masculino</option><option>Feminino</option><option>Outro</option>
-            <option>Prefiro não informar</option></select></div>
-        </div>
-        <div class="dupla">
-          <div class="campo"><label for="pf-escola">Nível escolar</label>
-            <select id="pf-escola"><option>Fundamental</option><option>Médio</option><option>Técnico</option>
-            <option>Superior</option><option>Pós-graduação</option></select></div>
-          <div class="campo"><label for="pf-pais">País</label>
-            <select id="pf-pais"><option>Brasil</option><option>Portugal</option><option>Angola</option>
-            <option>Moçambique</option><option>Estados Unidos</option><option>Outro</option></select></div>
-        </div>
+        <div id="campo-perfil-local">
+          <div class="dupla">
+            <div class="campo"><label for="pf-nasc">Nascimento</label><input id="pf-nasc" type="date"></div>
+            <div class="campo"><label for="pf-sexo">Sexo</label>
+              <select id="pf-sexo"><option>Masculino</option><option>Feminino</option><option>Outro</option>
+              <option>Prefiro não informar</option></select></div>
+          </div>
+          <div class="dupla">
+            <div class="campo"><label for="pf-escola">Nível escolar</label>
+              <select id="pf-escola"><option>Fundamental</option><option>Médio</option><option>Técnico</option>
+              <option>Superior</option><option>Pós-graduação</option></select></div>
+            <div class="campo"><label for="pf-pais">País</label>
+              <select id="pf-pais"><option>Brasil</option><option>Portugal</option><option>Angola</option>
+              <option>Moçambique</option><option>Estados Unidos</option><option>Outro</option></select></div>
+          </div>
 
-        <label class="check"><input type="checkbox" id="pf-termos">
-          <span><b>Aceita os termos</b><br>Aceito os termos de uso de dados dentro da lei LGPD.</span></label>
+          <label class="check"><input type="checkbox" id="pf-termos">
+            <span><b>Aceita os termos</b><br>Aceito os termos de uso de dados dentro da lei LGPD.</span></label>
+        </div>
 
         <p class="erro" id="erro-perfil" role="alert"></p>
         <button class="btn btn-azul" type="button" id="b-salvar-perfil">Salvar</button>

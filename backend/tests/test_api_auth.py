@@ -177,6 +177,82 @@ async def test_papel_forjado_no_token_nao_da_acesso(cliente):
     assert proibido.status_code == 403
 
 
+async def test_editar_perfil_troca_nome_e_email(cliente):
+    r = await cliente.post("/api/v1/auth/cadastrar", json=CADASTRO)
+    token = r.json()["access_token"]
+
+    editado = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token}"},
+        json={"nome_exibicao": "Ricardo Santos", "email": "novo@exemplo.com"},
+    )
+    assert editado.status_code == 200
+    assert editado.json()["nome_exibicao"] == "Ricardo Santos"
+    assert editado.json()["email"] == "novo@exemplo.com"
+
+
+async def test_editar_perfil_recusa_email_ja_usado(cliente):
+    await cliente.post("/api/v1/auth/cadastrar", json=CADASTRO)
+    outro = await cliente.post(
+        "/api/v1/auth/cadastrar",
+        json={**CADASTRO, "username": "outro", "email": "outro@exemplo.com",
+              "nome_familia": "Outra"},
+    )
+    token_outro = outro.json()["access_token"]
+
+    r = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token_outro}"},
+        json={"email": CADASTRO["email"]},
+    )
+    assert r.status_code == 409
+
+
+async def test_trocar_senha_exige_a_atual(cliente):
+    r = await cliente.post("/api/v1/auth/cadastrar", json=CADASTRO)
+    token = r.json()["access_token"]
+
+    sem_atual = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token}"},
+        json={"senha_nova": "novaSenha1"},
+    )
+    assert sem_atual.status_code == 422
+
+    atual_errada = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token}"},
+        json={"senha_atual": "senhaErrada1", "senha_nova": "novaSenha1"},
+    )
+    assert atual_errada.status_code == 401
+
+    ok = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token}"},
+        json={"senha_atual": CADASTRO["senha"], "senha_nova": "novaSenha1"},
+    )
+    assert ok.status_code == 200
+
+    login = await cliente.post(
+        "/api/v1/auth/entrar",
+        json={"identificador": CADASTRO["username"], "senha": "novaSenha1"},
+    )
+    assert login.status_code == 200
+
+
+async def test_dependente_edita_o_proprio_perfil(cliente):
+    admin = (await cliente.post("/api/v1/auth/cadastrar", json=CADASTRO)).json()["access_token"]
+    await cliente.post(
+        "/api/v1/auth/dependentes", headers={"Authorization": f"Bearer {admin}"},
+        json={"nome_exibicao": "Pedro", "username": "pedro", "senha_temporaria": "temporaria1"},
+    )
+    token_dep = (await cliente.post(
+        "/api/v1/auth/entrar", json={"identificador": "pedro", "senha": "temporaria1"}
+    )).json()["access_token"]
+
+    r = await cliente.patch(
+        "/api/v1/auth/eu", headers={"Authorization": f"Bearer {token_dep}"},
+        json={"nome_exibicao": "Pedro Santos"},
+    )
+    assert r.status_code == 200
+    assert r.json()["nome_exibicao"] == "Pedro Santos"
+
+
 def _auth(t):
     return {"Authorization": f"Bearer {t}"}
 
