@@ -43,12 +43,10 @@ jobs:
 
       - run: npm ci
 
-      # Pages de projeto serve em /study-eneven/, entao os caminhos dos
-      # assets precisam desse prefixo. No dominio proprio (Fase 7) o
-      # padrao "/" volta a valer.
+      # O site agora e servido no dominio proprio (devlog.eneven.com.br),
+      # na raiz; por isso nao ha VITE_BASE e vale o padrao "/". Para voltar
+      # ao endereco de projeto do Pages, defina VITE_BASE: /study-eneven/.
       - run: npm run build
-        env:
-          VITE_BASE: /study-eneven/
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
